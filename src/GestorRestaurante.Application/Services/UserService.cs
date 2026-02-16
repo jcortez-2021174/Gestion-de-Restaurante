@@ -1,107 +1,105 @@
-using AuthService.Application.DTOs;
-using AuthService.Application.Interfaces;
-using AuthService.Domain.Entities;
-using AuthService.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using RestaurantAPI.DTOs;
+using RestaurantAPI.Models;
+using RestaurantAPI.Repositories;
 
-namespace AuthService.Application.Services
+namespace RestaurantAPI.Services;
+
+public interface IUserService
 {
-    public class UserService : IUserService
+    Task<IEnumerable<UserDto>> GetAllUsersAsync();
+    Task<UserDto?> GetUserByIdAsync(int id);
+    Task<UserDto> UpdateUserAsync(int id, UpdateUserDto updateDto);
+    Task<bool> DeleteUserAsync(int id);
+    Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
+}
+
+public class UserService : IUserService
+{
+    private readonly IUserRepository _userRepository;
+
+    public UserService(IUserRepository userRepository)
     {
-        private readonly ApplicationDbContext _context;
+        _userRepository = userRepository;
+    }
 
-        public UserService(ApplicationDbContext context)
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    {
+        var users = await _userRepository.GetAllAsync();
+        return users.Select(MapToUserDto);
+    }
+
+    public async Task<UserDto?> GetUserByIdAsync(int id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        return user != null ? MapToUserDto(user) : null;
+    }
+
+    public async Task<UserDto> UpdateUserAsync(int id, UpdateUserDto updateDto)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
         {
-            _context = context;
+            throw new KeyNotFoundException("Usuario no encontrado");
         }
 
-        public async Task<UserResponseDto> RegisterUserAsync(RegisterUserDto dto)
+        if (!string.IsNullOrWhiteSpace(updateDto.FirstName))
+            user.FirstName = updateDto.FirstName;
+
+        if (!string.IsNullOrWhiteSpace(updateDto.LastName))
+            user.LastName = updateDto.LastName;
+
+        if (updateDto.PhoneNumber != null)
+            user.PhoneNumber = updateDto.PhoneNumber;
+
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var updatedUser = await _userRepository.UpdateAsync(user);
+        return MapToUserDto(updatedUser);
+    }
+
+    public async Task<bool> DeleteUserAsync(int id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
         {
-            // Validar correo existente
-            if (await _context.Usuarios.AnyAsync(u => u.Correo == dto.Correo))
-            {
-                throw new Exception("El correo ya está registrado.");
-            }
-
-            // Validar rol existente
-            var rol = await _context.Roles.FindAsync(dto.IdRol);
-            if (rol == null)
-            {
-                throw new Exception("El rol especificado no existe.");
-            }
-
-            var usuario = new Usuario
-            {
-                Nombre = dto.Nombre,
-                Correo = dto.Correo,
-                Contrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena), // Hash de contraseña
-                IdRol = dto.IdRol,
-                Estado = true
-            };
-
-            _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
-
-            return MapToDto(usuario, rol.Nombre);
+            throw new KeyNotFoundException("Usuario no encontrado");
         }
 
-        public async Task<UserResponseDto> LoginAsync(LoginDto dto)
+        return await _userRepository.DeleteAsync(id);
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
         {
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
-                .FirstOrDefaultAsync(u => u.Correo == dto.Correo);
-
-            if (usuario == null || !BCrypt.Net.BCrypt.Verify(dto.Contrasena, usuario.Contrasena))
-            {
-                throw new Exception("Credenciales inválidas.");
-            }
-
-            if (!usuario.Estado)
-            {
-                throw new Exception("El usuario está inactivo.");
-            }
-
-            return MapToDto(usuario, usuario.Rol.Nombre);
+            throw new KeyNotFoundException("Usuario no encontrado");
         }
 
-        public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
+        if (!BCrypt.Net.BCrypt.Verify(changePasswordDto.CurrentPassword, user.PasswordHash))
         {
-            var usuarios = await _context.Usuarios
-                .Include(u => u.Rol)
-                .ToListAsync();
-
-            return usuarios.Select(u => MapToDto(u, u.Rol?.Nombre));
+            throw new UnauthorizedAccessException("Contraseña actual incorrecta");
         }
 
-        public async Task<UserResponseDto> GetUserByIdAsync(int id)
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword);
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _userRepository.UpdateAsync(user);
+        return true;
+    }
+
+    private static UserDto MapToUserDto(User user)
+    {
+        return new UserDto
         {
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
-                .FirstOrDefaultAsync(u => u.IdUsuario == id);
-
-            if (usuario == null)
-            {
-                return null;
-            }
-
-            return MapToDto(usuario, usuario.Rol?.Nombre);
-        }
-
-        private UserResponseDto MapToDto(Usuario usuario, string rolNombre)
-        {
-            return new UserResponseDto
-            {
-                IdUsuario = usuario.IdUsuario,
-                Nombre = usuario.Nombre,
-                Correo = usuario.Correo,
-                Estado = usuario.Estado,
-                IdRol = usuario.IdRol,
-                RolNombre = rolNombre
-            };
-        }
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Role = user.Role,
+            PhoneNumber = user.PhoneNumber,
+            IsActive = user.IsActive,
+            CreatedAt = user.CreatedAt
+        };
     }
 }
