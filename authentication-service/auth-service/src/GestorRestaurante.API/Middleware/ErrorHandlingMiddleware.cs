@@ -1,58 +1,36 @@
 using System.Net;
 using System.Text.Json;
- 
-namespace RestaurantAPI.Middleware;
- 
-public class ErrorHandlingMiddleware
+
+namespace GestorRestaurante.Api.Middleware
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ErrorHandlingMiddleware> _logger;
- 
-    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+    public class ErrorHandlingMiddleware
     {
-        _next = next;
-        _logger = logger;
-    }
- 
-    public async Task InvokeAsync(HttpContext context)
-    {
-        try
+        private readonly RequestDelegate _next;
+
+        public ErrorHandlingMiddleware(RequestDelegate next)
         {
-            await _next(context);
+            _next = next;
         }
-        catch (Exception ex)
+
+        public async Task Invoke(HttpContext context)
         {
-            _logger.LogError(ex, "Error no manejado");
-            await HandleExceptionAsync(context, ex);
+            try
+            {
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                context.Response.ContentType = "application/json";
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                var payload = new
+                {
+                    message = ex.Message,
+                    status = context.Response.StatusCode
+                };
+
+                await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
+            }
         }
-    }
- 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
-    {
-        var code = HttpStatusCode.InternalServerError;
-        var result = string.Empty;
- 
-        switch (exception)
-        {
-            case UnauthorizedAccessException:
-                code = HttpStatusCode.Unauthorized;
-                result = JsonSerializer.Serialize(new { message = exception.Message });
-                break;
-            case KeyNotFoundException:
-                code = HttpStatusCode.NotFound;
-                result = JsonSerializer.Serialize(new { message = exception.Message });
-                break;
-            case InvalidOperationException:
-                code = HttpStatusCode.BadRequest;
-                result = JsonSerializer.Serialize(new { message = exception.Message });
-                break;
-            default:
-                result = JsonSerializer.Serialize(new { message = "Error interno del servidor" });
-                break;
-        }
- 
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)code;
-        return context.Response.WriteAsync(result);
     }
 }

@@ -1,26 +1,31 @@
 using System.Text;
+using AuthService.Persistence.Context;             
+using AuthService.Persistence.Data;                 
+using GestorRestaurante.Application.Configuration;
+using GestorRestaurante.Application.Interfaces;
+using GestorRestaurante.Application.Services;       
+using GestorRestaurante.Domain.Interfaces;
+using GestorRestaurante.Persistencia.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using RestaurantAPI.Configuration;
-using RestaurantAPI.Data;
-using RestaurantAPI.Middleware;
-using RestaurantAPI.Repositories;
-using RestaurantAPI.Services;
- 
+
+// Alias para evitar conflicto "AuthService es namespace"
+using AppAuthService = GestorRestaurante.Application.Services.AuthService;
+
 var builder = WebApplication.CreateBuilder(args);
- 
-// Configuración de JWT
+
+// JWT settings
 var jwtSettings = new JwtSettings();
 builder.Configuration.GetSection("JwtSettings").Bind(jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
- 
-// Configuración de base de datos
+
+// DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
- 
-// Configuración de autenticación JWT
+
+// JWT Auth
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -34,61 +39,49 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
+
         ValidIssuer = jwtSettings.Issuer,
         ValidAudience = jwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+
         ClockSkew = TimeSpan.Zero
     };
 });
- 
-// Configuración de autorización
+
 builder.Services.AddAuthorization();
- 
-// Registro de servicios y repositorios
+
+// =======================
+// DI: Repos + Services
+// =======================
+
+// Repos
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IUserService, UserService>();
- 
-// Configuración de CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
- 
-// Configuración de controladores
+
+// Services
+builder.Services.AddScoped<IAuthService, AppAuthService>();
+builder.Services.AddScoped<IUserService, UserService>(); 
+
 builder.Services.AddControllers();
- 
-// Configuración de Swagger
+
+// Swagger + JWT
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Restaurant API",
-        Version = "v1",
-        Description = "API para gestión de restaurantes",
-        Contact = new OpenApiContact
-        {
-            Name = "Restaurant Management",
-            Email = "info@restaurant.com"
-        }
+        Title = "GestorRestaurante Auth API",
+        Version = "v1"
     });
- 
-    // Configuración de seguridad JWT en Swagger
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header usando el esquema Bearer. Ejemplo: 'Bearer {token}'",
+        Description = "JWT Authorization header usando Bearer. Ejemplo: 'Bearer {token}'",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
- 
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -104,46 +97,29 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
- 
+
 var app = builder.Build();
- 
-// Configuración del pipeline de HTTP
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Restaurant API v1");
-        c.RoutePrefix = string.Empty; // Swagger en la raíz
-    });
+    app.UseSwaggerUI();
 }
- 
-// Middleware personalizado de manejo de errores
-app.UseMiddleware<ErrorHandlingMiddleware>();
- 
+
 app.UseHttpsRedirection();
- 
-app.UseCors("AllowAll");
- 
+
 app.UseAuthentication();
 app.UseAuthorization();
- 
+
 app.MapControllers();
- 
-// Aplicar migraciones automáticamente en desarrollo
+
+// migrate + seed (dev)
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try
-    {
-        db.Database.Migrate();
-        Console.WriteLine(" Base de datos migrada exitosamente");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($" Error al migrar base de datos: {ex.Message}");
-    }
+    db.Database.Migrate();
+    await DataSeeder.SeedAsync(db);
 }
- 
+
 app.Run();

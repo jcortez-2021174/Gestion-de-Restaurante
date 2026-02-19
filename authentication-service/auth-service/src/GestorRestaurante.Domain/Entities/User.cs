@@ -35,7 +35,4 @@ public class User
     [MaxLength(15)]
     public string? PhoneNumber { get; set; }
 
-    // Relaciones futuras
-    // public int? RestaurantId { get; set; }
-    // public Restaurant? Restaurant { get; set; }
 }

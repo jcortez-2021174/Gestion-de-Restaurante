@@ -1,14 +1,10 @@
-using AuthService.Application.DTOs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using GestorRestaurante.Application.DTOs;
 
-namespace AuthService.Application.Interfaces
+namespace GestorRestaurante.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<UserResponseDto> RegisterUserAsync(RegisterUserDto registerUserDto);
-        Task<UserResponseDto> LoginAsync(LoginDto loginDto);
-        Task<IEnumerable<UserResponseDto>> GetAllUsersAsync();
-        Task<UserResponseDto> GetUserByIdAsync(int id);
+        Task<List<UserResponseDto>> GetAllAsync();
+        Task<UserResponseDto?> GetByIdAsync(int idUsuario);
     }
 }
