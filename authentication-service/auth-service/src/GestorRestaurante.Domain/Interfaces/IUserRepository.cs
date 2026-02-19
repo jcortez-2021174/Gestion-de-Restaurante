@@ -1,15 +1,16 @@
-using Microsoft.EntityFrameworkCore;
-using RestaurantAPI.Data;
-using RestaurantAPI.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AuthService.Domain.Entities;
 
-namespace RestaurantAPI.Repositories;
-
-public interface IUserRepository
+namespace GestorRestaurante.Domain.Interfaces
 {
-    Task<User?> GetByIdAsync(int id);
-    Task<User?> GetByEmailAsync(string email);
-    Task<IEnumerable<User>> GetAllAsync();
-    Task<User> CreateAsync(User user);
-    Task<User> UpdateAsync(User user);
-    Task<bool> DeleteAsync(int id);
+    public interface IUserRepository
+    {
+        Task<Usuario?> GetByIdAsync(int idUsuario);
+        Task<Usuario?> GetByCorreoAsync(string correo);
+        Task<List<Usuario>> GetAllAsync();
+        Task<Usuario> CreateAsync(Usuario usuario);
+        Task<Usuario> UpdateAsync(Usuario usuario);
+        Task<bool> DeleteAsync(int idUsuario);
+    }
 }
