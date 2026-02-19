@@ -1,138 +1,119 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthService.Domain.Entities;
+using BCrypt.Net;
+using GestorRestaurante.Application.Configuration;
+using GestorRestaurante.Application.DTOs;
+using GestorRestaurante.Application.Interfaces;
+using GestorRestaurante.Domain.Interfaces;
 using Microsoft.IdentityModel.Tokens;
-using RestaurantAPI.Configuration;
-using RestaurantAPI.DTOs;
-using RestaurantAPI.Models;
-using RestaurantAPI.Repositories;
 
-namespace RestaurantAPI.Services;
-
-public interface IAuthService
+namespace GestorRestaurante.Application.Services
 {
-    Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto);
-    Task<AuthResponseDto> LoginAsync(LoginDto loginDto);
-    Task<UserDto?> GetCurrentUserAsync(int userId);
-}
-
-public class AuthService : IAuthService
-{
-    private readonly IUserRepository _userRepository;
-    private readonly JwtSettings _jwtSettings;
-
-    public AuthService(IUserRepository userRepository, JwtSettings jwtSettings)
+    public class AuthService : IAuthService
     {
-        _userRepository = userRepository;
-        _jwtSettings = jwtSettings;
-    }
+        private readonly IUserRepository _users;
+        private readonly JwtSettings _jwt;
 
-    public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
-    {
-        // Verificar si el email ya existe
-        var existingUser = await _userRepository.GetByEmailAsync(registerDto.Email);
-        if (existingUser != null)
+        public AuthService(IUserRepository users, JwtSettings jwt)
         {
-            throw new InvalidOperationException("El email ya está registrado");
+            _users = users;
+            _jwt = jwt;
         }
 
-        // Validar rol
-        var validRoles = new[] { "Admin", "Manager", "Waiter" };
-        if (!validRoles.Contains(registerDto.Role))
+        public async Task<UserResponseDto> RegisterAsync(RegisterUserDto dto)
         {
-            throw new InvalidOperationException("Rol inválido");
+            var correo = dto.Correo.Trim().ToLower();
+
+            var existing = await _users.GetByCorreoAsync(correo);
+            if (existing != null)
+                throw new Exception("El correo ya está registrado.");
+
+            if (string.IsNullOrWhiteSpace(dto.Contrasena) || dto.Contrasena.Length < 6)
+                throw new Exception("La contraseña debe tener al menos 6 caracteres.");
+
+            var usuario = new Usuario
+            {
+                Nombre = dto.Nombre.Trim(),
+                Correo = correo,
+                Contrasena = BCrypt.Net.BCrypt.HashPassword(dto.Contrasena),
+                Estado = true,
+                IdRol = dto.IdRol
+            };
+
+            var created = await _users.CreateAsync(usuario);
+
+            return new UserResponseDto
+            {
+                IdUsuario = created.IdUsuario,
+                Nombre = created.Nombre,
+                Correo = created.Correo,
+                Rol = created.Rol?.Nombre ?? "USER",
+                Estado = created.Estado
+            };
         }
 
-        // Crear usuario
-        var user = new User
+        public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
-            Email = registerDto.Email.ToLower(),
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
-            FirstName = registerDto.FirstName,
-            LastName = registerDto.LastName,
-            PhoneNumber = registerDto.PhoneNumber,
-            Role = registerDto.Role,
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
+            var correo = dto.Correo.Trim().ToLower();
+            var usuario = await _users.GetByCorreoAsync(correo);
 
-        var createdUser = await _userRepository.CreateAsync(user);
-        var token = GenerateJwtToken(createdUser);
+            if (usuario == null)
+                throw new Exception("Credenciales inválidas.");
 
-        return new AuthResponseDto
-        {
-            Token = token,
-            User = MapToUserDto(createdUser)
-        };
-    }
+            if (!usuario.Estado)
+                throw new Exception("Usuario inactivo.");
 
-    public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
-    {
-        var user = await _userRepository.GetByEmailAsync(loginDto.Email.ToLower());
-        
-        if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
-        {
-            throw new UnauthorizedAccessException("Credenciales inválidas");
+            var ok = BCrypt.Net.BCrypt.Verify(dto.Contrasena, usuario.Contrasena);
+            if (!ok)
+                throw new Exception("Credenciales inválidas.");
+
+            var rolNombre = usuario.Rol?.Nombre ?? "USER";
+            var (token, exp) = GenerateToken(usuario, rolNombre);
+
+            return new AuthResponseDto
+            {
+                Token = token,
+                ExpiresAt = exp,
+                Usuario = new UserResponseDto
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    Nombre = usuario.Nombre,
+                    Correo = usuario.Correo,
+                    Rol = rolNombre,
+                    Estado = usuario.Estado
+                }
+            };
         }
 
-        if (!user.IsActive)
+        private (string token, DateTime expiresAt) GenerateToken(Usuario usuario, string rolNombre)
         {
-            throw new UnauthorizedAccessException("Usuario inactivo");
+            if (string.IsNullOrWhiteSpace(_jwt.Secret) || _jwt.Secret.Length < 32)
+                throw new Exception("JwtSettings.Secret inválido (mínimo 32 caracteres).");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var expires = DateTime.UtcNow.AddMinutes(_jwt.ExpirationInMinutes);
+
+            var claims = new List<Claim>
+            {
+                new(JwtRegisteredClaimNames.Sub, usuario.IdUsuario.ToString()),
+                new(JwtRegisteredClaimNames.UniqueName, usuario.Nombre),
+                new(ClaimTypes.Email, usuario.Correo),
+                new(ClaimTypes.Role, rolNombre)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _jwt.Issuer,
+                audience: _jwt.Audience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return (new JwtSecurityTokenHandler().WriteToken(token), expires);
         }
-
-        var token = GenerateJwtToken(user);
-
-        return new AuthResponseDto
-        {
-            Token = token,
-            User = MapToUserDto(user)
-        };
-    }
-
-    public async Task<UserDto?> GetCurrentUserAsync(int userId)
-    {
-        var user = await _userRepository.GetByIdAsync(userId);
-        return user != null ? MapToUserDto(user) : null;
-    }
-
-    private string GenerateJwtToken(User user)
-    {
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("firstName", user.FirstName),
-            new Claim("lastName", user.LastName)
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _jwtSettings.Issuer,
-            audience: _jwtSettings.Audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes),
-            signingCredentials: credentials
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
-    private static UserDto MapToUserDto(User user)
-    {
-        return new UserDto
-        {
-            Id = user.Id,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Role = user.Role,
-            PhoneNumber = user.PhoneNumber,
-            IsActive = user.IsActive,
-            CreatedAt = user.CreatedAt
-        };
     }
 }

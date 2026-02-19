@@ -1,14 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace AuthService.Application.DTOs
+namespace GestorRestaurante.Application.DTOs
 {
     public class LoginDto
     {
-        [Required]
-        [EmailAddress]
-        public string Correo { get; set; }
-
-        [Required]
-        public string Contrasena { get; set; }
+        public string Correo { get; set; } = string.Empty;
+        public string Contrasena { get; set; } = string.Empty;
     }
 }
