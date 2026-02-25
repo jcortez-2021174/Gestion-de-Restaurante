@@ -9,13 +9,14 @@ import { helmetOptions } from './helmet.configuration.js';
 import { dbConnection } from './db.configuration.js';
 import { requestLimit } from './rateLimit.configuration.js'; 
 import  restauranteRoutes  from '../src/restaurante/restaurante.routes.js';
-import mesasRoutes from '../src/restaurante/mesas/mesas.routes.js';
-
+import mesasRoutes from '../src/mesas/mesas.routes.js';
+import productoRoutes from '../src/producto/producto.routes.js';
 const BASE_PATH = '/AureaRestaurant/Admin/v1';
 
 const routes = (app) => {
     app.use(`${BASE_PATH}/restaurante`, restauranteRoutes);
     app.use(`${BASE_PATH}/mesas`, mesasRoutes);
+    app.use('/api/productos', productoRoutes);
     app.get(`${BASE_PATH}/health`, (req,res) =>{
         res.status(200).json({
             status: 'Healthy',
