@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { agregarCliente, listarClientesCtrl } from './cliente.controller.js';
+import { agregarCliente, listarClientesCtrl, editarClienteCtrl, eliminarClienteCtrl } from './cliente.controller.js';
 
 const router = Router();
 
@@ -25,7 +25,11 @@ const validarCliente = [
 
 router.post('/', validarCliente, agregarCliente);
 
-
 router.get('/', listarClientesCtrl);
+
+router.put('/:id', validarId, validarCliente, editarClienteCtrl);
+
+router.delete('/:id', validarId, eliminarClienteCtrl);
+
 
 export default router;
