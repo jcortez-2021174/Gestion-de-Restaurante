@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
+import { validarId } from '../../middlewares/validar-id.js';
 import { agregarCliente, listarClientesCtrl, editarClienteCtrl, eliminarClienteCtrl } from './cliente.controller.js';
 
 const router = Router();
