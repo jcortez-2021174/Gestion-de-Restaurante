@@ -12,7 +12,8 @@ import  restauranteRoutes  from '../src/restaurante/restaurante.routes.js';
 import mesasRoutes from '../src/mesas/mesas.routes.js';
 import productoRoutes from '../src/producto/producto.routes.js';
 import clienteRoutes from '../src/cliente/cliente.routes.js'; 
-import reservacionRoutes from '../src/reservacion/reservacion.routes.js'
+import reservacionRoutes from '../src/reservacion/reservacion.routes.js';
+import pedidoRoutes from "./src/pedido/pedido.routes.js";
 const BASE_PATH = '/AureaRestaurant/Admin/v1';
 
 const routes = (app) => {
@@ -21,6 +22,7 @@ const routes = (app) => {
     app.use(`${BASE_PATH}/cliente`, clienteRoutes);
     app.use(`${BASE_PATH}/reservacion`, reservacionRoutes);
     app.use('/api/productos', productoRoutes);
+    app.use("/api/pedidos", pedidoRoutes);
     app.get(`${BASE_PATH}/health`, (req,res) =>{
         res.status(200).json({
             status: 'Healthy',
