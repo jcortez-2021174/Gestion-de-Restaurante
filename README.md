@@ -1,4 +1,4 @@
-##Gestión de Restaurante – Authentication Service
+## Gestión de Restaurante – Authentication Service
 
 Este repositorio contiene el Servicio de Autenticación del sistema Gestión de Restaurante, desarrollado con ASP.NET Core y estructurado bajo una arquitectura por capas.
 
