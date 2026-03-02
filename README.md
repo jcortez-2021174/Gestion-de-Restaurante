@@ -123,4 +123,6 @@ Este proyecto está bajo la licencia MIT.
 ## Creaditos al codigo del profesor Braulio Echeverria 
 - Maurio Xocoxic: utilizó parte del código proporcionado por el profesor Braulio Echeverría, específicamente en la configuración del archivo docker-compose.
 
+- Carlos Sanches utilizó parcialmente código proporcionado por el profesor Braulio Echeverría en la entidad de Reservación, específicamente en el modelo y el controlador, el cual fue adaptado a las necesidades del proyecto.
+
 
