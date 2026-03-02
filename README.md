@@ -1,39 +1,126 @@
-# Gestión de Restaurante – Authentication Service
+##Gestión de Restaurante – Authentication Service
 
-Este repositorio contiene el **servicio de autenticación** del sistema **Gestión de Restaurante**, desarrollado en **ASP.NET Core** y estructurado bajo una **arquitectura por capas**, con el objetivo de mantener un código limpio, escalable y fácil de mantener.
+Este repositorio contiene el Servicio de Autenticación del sistema Gestión de Restaurante, desarrollado con ASP.NET Core y estructurado bajo una arquitectura por capas.
 
-## Arquitectura del proyecto
-La solución está organizada en las siguientes capas:
+El objetivo principal de este servicio es garantizar un sistema seguro, escalable y mantenible para la gestión de usuarios, autenticación y autorización dentro de la plataforma.
 
-- **API**  
-  Gestiona las solicitudes HTTP, controladores, middlewares, configuración de la aplicación y exposición de endpoints.
+# Arquitectura del Proyecto
 
-- **Application**  
-  Contiene la lógica de negocio de la aplicación, servicios, DTOs y contratos que coordinan el flujo entre la API y el dominio.
+La solución está organizada siguiendo una arquitectura limpia (Clean Architecture), separando responsabilidades en distintas capas:
 
-- **Domain**  
-  Define las entidades principales del negocio y las interfaces base, manteniendo independencia de frameworks y tecnologías externas.
+# API
 
-- **Persistencia**  
-  Implementa el acceso a datos mediante **Entity Framework Core**, incluyendo:
-  - `DbContext`
-  - Repositorios
-  - Seeders de datos
-  - Migraciones de base de datos
+Encargada de:
 
-## Funcionalidades
+Exposición de endpoints HTTP
+
+Controladores
+
+Middlewares
+
+Configuración de la aplicación
+
+Manejo de autenticación y autorización
+
+## Application
+
+Contiene:
+
+Lógica de negocio
+
+Servicios
+
+DTOs
+
+Interfaces y contratos
+
+Validaciones
+
+Actúa como intermediario entre la capa API y el dominio.
+
+## Domain
+
+Define:
+
+Entidades principales del negocio
+
+Interfaces base
+
+Reglas fundamentales del sistema
+
+Esta capa es independiente de frameworks externos.
+
+## Persistencia
+
+Responsable del acceso a datos utilizando Entity Framework Core.
+
+Incluye:
+
+- DbContext
+
+- Implementación de repositorios
+
+- Seeders de datos
+
+- Migraciones de base de datos
+
+- Ubicación de migraciones:
+
+## GestorRestaurante.Persistencia/Migrations
+ Funcionalidades
+
 - Registro de usuarios
-- Autenticación y autorización mediante **JWT**
+
+- Inicio de sesión
+
+- Autenticación mediante JWT
+
+- Autorización basada en roles
+
+- Validación segura de credenciales
+
 - Gestión de roles
-- Validación de credenciales
 
-## Base de datos
-- ORM: **Entity Framework Core**
-- Migraciones ubicadas en:  
-  `GestorRestaurante.Persistencia/Migrations`
+## Base de Datos
 
-## Ejecución del proyecto
-1. Configurar la cadena de conexión en `appsettings.json`.
-2. Aplicar las migraciones de la base de datos:
-   ```bash
-   dotnet ef database update
+ORM: Entity Framework Core
+
+Sistema de migraciones integrado
+
+Configuración mediante appsettings.json
+
+## Ejecución del Proyecto
+ Configurar la cadena de conexión
+
+Editar el archivo:
+
+appsettings.json
+
+Y establecer la cadena de conexión correspondiente.
+
+ Aplicar migraciones
+
+Ejecutar en la terminal:
+
+dotnet ef database update
+3️## Ejecutar el proyecto
+- dotnet run
+## Seguridad
+
+El sistema implementa:
+
+Generación y validación de tokens JWT
+
+Protección de endpoints mediante autorización por roles
+
+Manejo seguro de contraseñas
+
+## Licencia
+
+Este proyecto está bajo la licencia MIT.
+
+
+## Creaditos al codigo del profesor Braulio Echeverria 
+- Maurio Xocoxic: utilizó parte del código proporcionado por el profesor Braulio Echeverría, específicamente en la configuración del archivo docker-compose.
+
+
