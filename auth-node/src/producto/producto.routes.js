@@ -4,7 +4,6 @@ import { agregarProducto, listarProductosCtrl } from './producto.controller.js';
 
 const router = Router();
 
-// Validaciones para agregar producto
 const validarProducto = [
   body('nombre')
     .notEmpty().withMessage('El nombre es obligatorio')
@@ -20,10 +19,86 @@ const validarProducto = [
     .isMongoId().withMessage('El idCategoria no es un ObjectId válido'),
 ];
 
-// POST /api/productos  → Agregar producto
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Producto:
+ *       type: object
+ *       required:
+ *         - nombre
+ *         - precio
+ *         - idCategoria
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID autogenerado
+ *         nombre:
+ *           type: string
+ *           description: Nombre del producto
+ *         precio:
+ *           type: number
+ *           minimum: 0
+ *           description: Precio del producto
+ *         disponibilidad:
+ *           type: string
+ *           enum: [Disponible, NoDisponible]
+ *           default: Disponible
+ *           description: Disponibilidad del producto
+ *         idCategoria:
+ *           type: string
+ *           description: ID de la categoría a la que pertenece
+ *       example:
+ *         nombre: "Tacos de res"
+ *         precio: 35.00
+ *         disponibilidad: "Disponible"
+ *         idCategoria: "664f1b2c9a4e2d001f3a8b10"
+ */
+
+/**
+ * @swagger
+ * /producto:
+ *   post:
+ *     summary: Crear un producto
+ *     tags: [Producto]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Producto'
+ *     responses:
+ *       201:
+ *         description: Producto creado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Producto'
+ *       400:
+ *         description: Error de validación
+ *       500:
+ *         description: Error del servidor
+ */
 router.post('/', validarProducto, agregarProducto);
 
-// GET  /api/productos  → Listar productos
+/**
+ * @swagger
+ * /producto:
+ *   get:
+ *     summary: Obtener todos los productos
+ *     tags: [Producto]
+ *     responses:
+ *       200:
+ *         description: Lista de productos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Producto'
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/', listarProductosCtrl);
 
 export default router;
