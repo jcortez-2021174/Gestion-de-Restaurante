@@ -1,0 +1,137 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --negro-fondo: #000000;
+  --negro-card: #0a0a0a; /* Un negro ligeramente diferente para profundidad suave */
+  --dorado-principal: #d4af37;
+  --dorado-brillante: #f9d976;
+  --blanco-texto: #ffffff;
+  --blanco-suave: #e0e0e0; /* Para textos secundarios */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--negro-fondo);
+  color: var(--blanco-texto);
+  /* Usamos Inter, una fuente muy limpia */
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Centrado absoluto para la tarjeta */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* --- LA TARJETA CENTRADA (Ya no la llamamos card si no la usas, pero es el contenedor) --- */
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  text-align: center;
+}
+
+/* --- ESTILOS DE TEXTO LIMPIOS --- */
+
+.auth-title {
+  font-size: 30px;
+  font-weight: 600; /* Semibold para limpieza */
+  color: var(--blanco-texto);
+  margin-bottom: 12px;
+  /* El secreto de la separación limpia: letter-spacing sutil */
+  letter-spacing: -0.5px; 
+  line-height: 1.2;
+}
+
+.auth-subtitle {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--blanco-suave);
+  margin-bottom: 35px;
+  /* Espaciado para texto secundario */
+  letter-spacing: 0.2px;
+  line-height: 1.5;
+}
+
+/* --- ESTILOS PARA LOS INPUTS --- */
+input {
+  width: 100%;
+  background: transparent; /* Fondo transparente para minimalismo */
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: var(--blanco-texto);
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  outline: none;
+  font-size: 16px;
+  /* Fuente Inter para el placeholder y texto */
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+}
+
+input:focus {
+  border-color: var(--dorado-principal);
+  background-color: rgba(212, 175, 55, 0.05); /* Toque dorado de fondo al enfocar */
+}
+
+/* --- ENLACE OLVIDASTE --- */
+.auth-forgot {
+  display: block;
+  text-align: right;
+  color: var(--dorado-principal);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  margin-top: -5px; /* Ajuste sutil */
+  margin-bottom: 25px;
+  transition: color 0.3s ease;
+  letter-spacing: 0.3px;
+}
+
+.auth-forgot:hover {
+  color: var(--dorado-brillante);
+  text-decoration: underline;
+}
+
+/* --- EL BOTÓN INICIAR SESIÓN --- */
+.btn-login {
+  width: 100%;
+  background-color: var(--dorado-principal);
+  color: #000000;
+  font-weight: 600;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 16px;
+  /* Espaciado limpio para las letras en mayúsculas */
+  letter-spacing: 1.5px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-login:hover {
+  background-color: var(--dorado-brillante);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-login:disabled {
+  background-color: #444;
+  color: #888;
+  cursor: not-allowed;
+}
