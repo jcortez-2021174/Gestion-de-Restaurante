@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GestorRestaurante.Persistencia.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260216164242_InitialCreate")]
+    [Migration("20260430223733_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
