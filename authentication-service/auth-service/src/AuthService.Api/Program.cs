@@ -21,6 +21,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // o el puerto de tu frontend
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+app.UseCors("AllowFrontend");
+
 // 🔥 Middlewares básicos
 app.UseHttpsRedirection();
 
