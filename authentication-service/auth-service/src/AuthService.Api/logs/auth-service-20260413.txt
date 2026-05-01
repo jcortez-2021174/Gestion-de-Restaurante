@@ -1,0 +1,87 @@
+[2026-04-13 08:01:36 INF] Verificando conexión a la base de datos... {"SourceContext":"Program"}
+[2026-04-13 08:01:39 ERR] Ocurrió un error al inicializar la base de datos {"SourceContext":"Program"}
+Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5435
+ ---> System.Net.Sockets.SocketException (10061): No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)
+   at System.Net.Sockets.Socket.<ConnectAsync>g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)
+   at Npgsql.TaskTimeoutAndCancellation.ExecuteAsync(Func`2 getTaskFunc, NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.ConnectAsync(NpgsqlTimeout timeout, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|214_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.UnpooledDataSource.Get(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists(Boolean async, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreatedAsync(CancellationToken cancellationToken)
+   at Program.<Main>$(String[] args) in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Api\Program.cs:line 132
+[2026-04-13 11:38:01 INF] Verificando conexión a la base de datos... {"SourceContext":"Program"}
+[2026-04-13 11:38:02 INF] Base de datos lista. Ejecutando datos semilla... {"SourceContext":"Program"}
+[2026-04-13 11:38:02 INF] Inicialización de base de datos completada exitosamente {"SourceContext":"Program"}
+[2026-04-13 11:38:02 INF] API de AuthService está ejecutándose en http://localhost:5022. Endpoint de salud: http://localhost:5022/api/v1/health {"SourceContext":"Program"}
+[2026-04-13 11:38:14 WRN] Failed to determine the https port for redirect. {"EventId":{"Id":3,"Name":"FailedToDeterminePort"},"SourceContext":"Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware","RequestId":"0HNKPGDOA7U0S:00000001","RequestPath":"/api/v1/health","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:38:14 INF] HTTP GET /api/v1/health responded 200 in 60.2612 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0S:00000001","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:38:19 INF] User login succeeded {"EventId":{"Id":1002,"Name":"LogUserLoggedIn"},"SourceContext":"AuthService.Application.Services.AuthService","ActionId":"1aaefba4-a297-4801-8a8e-c7299bbcd0fe","ActionName":"AuthService.Api.Controllers.AuthController.Login (AuthService.Api)","RequestId":"0HNKPGDOA7U0S:00000002","RequestPath":"/api/v1/auth/login","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:38:19 INF] HTTP POST /api/v1/auth/login responded 200 in 655.1961 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0S:00000002","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:38:33 INF] HTTP POST /api/v1/auth/verify-email responded 400 in 32.9846 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0S:00000003","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:39:53 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 1.5640 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0T:00000001","ConnectionId":"0HNKPGDOA7U0T"}
+[2026-04-13 11:39:54 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.3653 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0T:00000002","ConnectionId":"0HNKPGDOA7U0T"}
+[2026-04-13 11:40:15 INF] HTTP POST /api/v1/auth/verify-email responded 200 in 87.4681 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0S:00000004","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:40:25 INF] User login succeeded {"EventId":{"Id":1002,"Name":"LogUserLoggedIn"},"SourceContext":"AuthService.Application.Services.AuthService","ActionId":"1aaefba4-a297-4801-8a8e-c7299bbcd0fe","ActionName":"AuthService.Api.Controllers.AuthController.Login (AuthService.Api)","RequestId":"0HNKPGDOA7U0S:00000005","RequestPath":"/api/v1/auth/login","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:40:25 INF] HTTP POST /api/v1/auth/login responded 200 in 290.4655 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGDOA7U0S:00000005","ConnectionId":"0HNKPGDOA7U0S"}
+[2026-04-13 11:42:17 INF] Verificando conexión a la base de datos... {"SourceContext":"Program"}
+[2026-04-13 11:42:18 INF] Base de datos lista. Ejecutando datos semilla... {"SourceContext":"Program"}
+[2026-04-13 11:42:18 INF] Inicialización de base de datos completada exitosamente {"SourceContext":"Program"}
+[2026-04-13 11:42:18 INF] API de AuthService está ejecutándose en http://localhost:5022. Endpoint de salud: http://localhost:5022/api/v1/health {"SourceContext":"Program"}
+[2026-04-13 11:42:40 WRN] Failed to determine the https port for redirect. {"EventId":{"Id":3,"Name":"FailedToDeterminePort"},"SourceContext":"Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware","RequestId":"0HNKPGG7GLP75:00000001","RequestPath":"/api/v1/auth/register","ConnectionId":"0HNKPGG7GLP75"}
+[2026-04-13 11:42:43 INF] User agarcia-2024043 registered successfully {"EventId":{"Id":1001,"Name":"LogUserRegistered"},"SourceContext":"AuthService.Application.Services.AuthService","ActionId":"68d07857-48b7-49e8-a020-1d6af8f75cd4","ActionName":"AuthService.Api.Controllers.AuthController.Register (AuthService.Api)","RequestId":"0HNKPGG7GLP75:00000001","RequestPath":"/api/v1/auth/register","ConnectionId":"0HNKPGG7GLP75"}
+[2026-04-13 11:42:43 INF] HTTP POST /api/v1/auth/register responded 201 in 3425.6039 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP75:00000001","ConnectionId":"0HNKPGG7GLP75"}
+[2026-04-13 11:42:43 WRN] Validación de certificados SSL deshabilitada. Solo usar en desarrollo. {"SourceContext":"AuthService.Application.Services.EmailService","ActionId":"68d07857-48b7-49e8-a020-1d6af8f75cd4","ActionName":"AuthService.Api.Controllers.AuthController.Register (AuthService.Api)","RequestId":"0HNKPGG7GLP75:00000001","RequestPath":"/api/v1/auth/register","ConnectionId":"0HNKPGG7GLP75"}
+[2026-04-13 11:42:53 ERR] Error al enviar el email {"SourceContext":"AuthService.Application.Services.EmailService","ActionId":"68d07857-48b7-49e8-a020-1d6af8f75cd4","ActionName":"AuthService.Api.Controllers.AuthController.Register (AuthService.Api)","RequestId":"0HNKPGG7GLP75:00000001","RequestPath":"/api/v1/auth/register","ConnectionId":"0HNKPGG7GLP75"}
+System.TimeoutException: The operation has timed out.
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at AuthService.Application.Services.EmailService.SendEmailAsync(String to, String subject, String body) in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Application\Services\EmailService.cs:line 122
+[2026-04-13 11:42:53 ERR] Error al enviar el email {"SourceContext":"AuthService.Application.Services.EmailService","ActionId":"68d07857-48b7-49e8-a020-1d6af8f75cd4","ActionName":"AuthService.Api.Controllers.AuthController.Register (AuthService.Api)","RequestId":"0HNKPGG7GLP75:00000001","RequestPath":"/api/v1/auth/register","ConnectionId":"0HNKPGG7GLP75"}
+System.TimeoutException: The operation has timed out.
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at AuthService.Application.Services.EmailService.SendEmailAsync(String to, String subject, String body) in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Application\Services\EmailService.cs:line 122
+[2026-04-13 11:42:53 ERR] Error al enviar el email de verificación {"SourceContext":"AuthService.Application.Services.AuthService","ActionId":"68d07857-48b7-49e8-a020-1d6af8f75cd4","ActionName":"AuthService.Api.Controllers.AuthController.Register (AuthService.Api)","RequestId":"0HNKPGG7GLP75:00000001","RequestPath":"/api/v1/auth/register","ConnectionId":"0HNKPGG7GLP75"}
+System.InvalidOperationException: Error al enviar el email: The operation has timed out.
+ ---> System.TimeoutException: The operation has timed out.
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at AuthService.Application.Services.EmailService.SendEmailAsync(String to, String subject, String body) in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Application\Services\EmailService.cs:line 122
+   --- End of inner exception stack trace ---
+   at AuthService.Application.Services.EmailService.SendEmailAsync(String to, String subject, String body) in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Application\Services\EmailService.cs:line 174
+   at AuthService.Application.Services.EmailService.SendEmailVerificationAsync(String email, String username, String token) in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Application\Services\EmailService.cs:line 29
+   at AuthService.Application.Services.AuthService.<>c__DisplayClass9_0.<<RegisterAsync>b__0>d.MoveNext() in C:\Users\Informatica\Documents\IN6AM - agarcia\Clase\KinalSports\authentication-service\auth-service\src\AuthService.Application\Services\AuthService.cs:line 140
+[2026-04-13 11:43:10 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.7608 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000001","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:11 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.5470 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000002","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:12 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.1372 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000003","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:12 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.1015 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000004","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:12 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0978 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000005","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:13 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0977 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000006","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:13 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.1036 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000007","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:43:13 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0918 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000008","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:10 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0778 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000009","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:10 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0682 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:0000000A","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:11 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0619 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:0000000B","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:11 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.2099 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:0000000C","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:11 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0453 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:0000000D","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:39 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0444 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:0000000E","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:39 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0833 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:0000000F","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:40 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0883 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000010","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:40 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0749 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000011","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:41 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0643 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000012","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:41 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0844 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000013","ConnectionId":"0HNKPGG7GLP76"}
+[2026-04-13 11:45:41 INF] HTTP OPTIONS /api/v1/auth/login responded 204 in 0.0954 ms {"SourceContext":"Serilog.AspNetCore.RequestLoggingMiddleware","RequestId":"0HNKPGG7GLP76:00000014","ConnectionId":"0HNKPGG7GLP76"}
