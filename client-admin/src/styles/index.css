@@ -312,3 +312,68 @@ input:focus {
   0%,100% { filter: drop-shadow(0 0 14px rgba(212,175,55,0.2)); }
   50%      { filter: drop-shadow(0 0 26px rgba(212,175,55,0.38)); }
 }
+
+/* VALIDACIONES — mensajes de error y estados */
+
+.auth-field-error {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin: 2px 0 4px 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: errorFadeIn 0.18s ease;
+}
+
+@keyframes errorFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-api-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ff6b6b;
+  background: rgba(255, 77, 77, 0.12);
+  border: 1px solid rgba(255, 77, 77, 0.35);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 13px;
+  margin-top: 6px;
+  animation: errorFadeIn 0.2s ease;
+}
+
+.auth-api-error-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.auth-success-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(80, 200, 120, 0.12);
+  border: 1px solid rgba(80, 200, 120, 0.4);
+  border-radius: 10px;
+  padding: 20px 16px;
+  color: #fff;
+  margin-top: 4px;
+  animation: errorFadeIn 0.25s ease;
+}
