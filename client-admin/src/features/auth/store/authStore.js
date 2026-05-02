@@ -20,6 +20,7 @@ export const useAuthStore = create(
                 });
             },
 
+            clearError: () => set({ error: null }),
             // Función para iniciar sesión (Llamada directa a la API)
             login: async ({ emailOrUsername, password }) => {
                 try {
