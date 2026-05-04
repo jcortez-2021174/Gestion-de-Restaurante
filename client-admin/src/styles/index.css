@@ -253,10 +253,16 @@ input:focus {
   height: auto;
   display: block;
   margin: 0 auto 10px;
-  mix-blend-mode: lighten;
-  filter: drop-shadow(0 0 18px rgba(212,175,55,0.25));
+
+  mix-blend-mode: screen; /* 🔥 MEJOR que lighten */
+  filter: 
+    brightness(1.2)
+    contrast(1.1)
+    drop-shadow(0 0 18px rgba(212,175,55,0.35));
+
   animation: authGlow 3s ease-in-out infinite;
 }
+
 
 /* ── ORNAMENTO ── */
 .auth-ornament {

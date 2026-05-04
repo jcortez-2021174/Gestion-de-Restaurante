@@ -1,4 +1,4 @@
-const categoriaService = require('../services/categoria.service');
+import categoriaService from './categoria.service.js';
 
 const crear = async (req, res) =>
 {
@@ -65,8 +65,7 @@ const eliminar = async (req, res) =>
     }
 };
 
-module.exports =
-{
+export default {
     crear,
     listar,
     obtener,
