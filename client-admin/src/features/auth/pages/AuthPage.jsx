@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { LoginForm } from "../components/LoginForm.jsx";
-import logo from "../../../assets/img/Logo.png";
-import fondo from "../../../assets/img/Fondo.jpg";
+
 
 const validateForgot = ({ email }) => {
   const errors = {};
@@ -15,7 +14,6 @@ const validateForgot = ({ email }) => {
 
 export const AuthPage = () => {
   const [isForgot, setIsForgot] = useState(false);
-
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotErrors, setForgotErrors] = useState({});
   const [forgotTouched, setForgotTouched] = useState(false);
@@ -62,7 +60,7 @@ export const AuthPage = () => {
       {/* FONDO */}
       <div
         className="auth-bg"
-        style={{ backgroundImage: `url(${fondo})` }}
+  style={{ backgroundImage: "url('/Fondo.jpg')" }}
       />
 
       {/* Efectos */}
@@ -75,7 +73,7 @@ export const AuthPage = () => {
 
         {/* LOGO */}
         <div className="auth-logo-wrap">
-          <img src={logo} alt="logo" className="auth-logo-img" />
+    <img src="/logo.png" alt="logo" className="auth-logo-img" />
         </div>
 
         {/* Ornamento */}

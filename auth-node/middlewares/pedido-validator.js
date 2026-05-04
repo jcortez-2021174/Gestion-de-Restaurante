@@ -1,6 +1,6 @@
 import { body, param } from "express-validator";
 import { checkValidators } from "./check-validators.js";
-import { validateJWT } from "./validate-jwt.js";
+ import { validateJWT } from "./validate-jwt.js";
 
 const estadosPedido = [
   "Pendiente",

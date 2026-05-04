@@ -16,8 +16,7 @@ import productoRoutes from '../src/producto/producto.routes.js';
 import clienteRoutes from '../src/cliente/cliente.routes.js';
 import reservacionRoutes from '../src/reservacion/reservacion.routes.js';
 import pedidoRoutes from "../src/pedido/pedido.routes.js";
-import categoriaRoutes from "../src/categoria/categoria.routes.js"; 
-
+import categoriaRoutes from '../src/categoria/categoria.routes.js';
 const BASE_PATH = '/AureaRestaurant/Admin/v1';
 
 const routes = (app) => {

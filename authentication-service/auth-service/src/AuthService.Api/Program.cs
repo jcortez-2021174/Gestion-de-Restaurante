@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using AuthService.Persistence.Data;
 using AuthService.Application.Interfaces;
+using AuthService.Application.Services;
 using AuthService.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,46 +20,24 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // =========================
-// ✅ SERVICES
+// ✅ APPLICATION SERVICES
 // =========================
-builder.Services.AddScoped<
-    AuthService.Application.Interfaces.IAuthService,
-    AuthService.Application.Services.AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService.Application.Services.AuthService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
-builder.Services.AddScoped<
-    AuthService.Application.Interfaces.IRefreshTokenService,
-    AuthService.Application.Services.RefreshTokenService>();
-
-builder.Services.AddScoped<
-    AuthService.Application.Interfaces.IJwtTokenService,
-    AuthService.Application.Services.JwtTokenService>();
-
-builder.Services.AddScoped<
-    AuthService.Application.Interfaces.IPasswordHashService,
-    AuthService.Application.Services.PasswordHashService>();
-
-builder.Services.AddScoped<
-    AuthService.Application.Interfaces.ICloudinaryService,
-    AuthService.Application.Services.CloudinaryService>();
-
-builder.Services.AddScoped<
-    AuthService.Application.Interfaces.IEmailService,
-    AuthService.Application.Services.EmailService>();
+// 🔥 ESTE ERA EL QUE TE FALTABA (ERROR PRINCIPAL)
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 // =========================
 // ✅ REPOSITORIES
 // =========================
-builder.Services.AddScoped<
-    AuthService.Domain.Interfaces.IUserRepository,
-    AuthService.Persistence.Repositories.UserRepository>();
-
-builder.Services.AddScoped<
-    AuthService.Domain.Interfaces.IRefreshTokenRepository,
-    AuthService.Persistence.Repositories.RefreshTokenRepository>();
-
-builder.Services.AddScoped<
-    AuthService.Domain.Interfaces.IRoleRepository,
-    AuthService.Persistence.Repositories.RoleRepository>();
+builder.Services.AddScoped<IUserRepository, AuthService.Persistence.Repositories.UserRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, AuthService.Persistence.Repositories.RefreshTokenRepository>();
+builder.Services.AddScoped<IRoleRepository, AuthService.Persistence.Repositories.RoleRepository>();
 
 // =========================
 // ✅ CORS
@@ -86,18 +65,17 @@ if (app.Environment.IsDevelopment())
 }
 
 // =========================
-// 🔥 Middlewares
+// 🔥 Middleware pipeline
 // =========================
 app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
+
 app.UseAuthorization();
 
-// =========================
-// 🔥 Controllers
-// =========================
 app.MapControllers();
 
+// Health check básico
 app.MapGet("/", () => "API funcionando");
 
 app.Run();

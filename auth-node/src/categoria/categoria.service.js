@@ -1,4 +1,4 @@
-const Categoria = require('../models/categoria.model');
+import Categoria from './categoria.model.js';
 
 const crearCategoria = async (data) =>
 {
@@ -45,8 +45,7 @@ const eliminarCategoria = async (id) =>
     return categoria;
 };
 
-module.exports =
-{
+export default {
     crearCategoria,
     obtenerCategorias,
     obtenerCategoriaPorId,

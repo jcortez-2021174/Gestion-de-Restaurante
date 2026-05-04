@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const categoriaController = require('../controllers/categoria.controller');
+import categoriaController from './categoria.controller.js';
 
 /**
  * @swagger
@@ -161,4 +161,4 @@ router.put('/:id', categoriaController.actualizar);
  */
 router.delete('/:id', categoriaController.eliminar);
 
-module.exports = router;
+export default router;

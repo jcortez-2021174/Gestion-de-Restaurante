@@ -86,46 +86,55 @@ public class AuthService(
         }
 
         var user = new User
+{
+    Id = userId,
+    Name = registerDto.Name,
+    Surname = registerDto.Surname,
+    Username = registerDto.Username,
+    Email = registerDto.Email.ToLowerInvariant(),
+    Password = passwordHashService.HashPassword(registerDto.Password),
+
+    // 🔥 CAMBIO IMPORTANTE (DEV MODE)
+    Status = true,
+
+    UserProfile = new UserProfile
+    {
+        Id = userProfileId,
+        UserId = userId,
+        ProfilePicture = profilePicturePath,
+        Phone = registerDto.Phone
+    },
+
+    UserEmail = new UserEmail
+    {
+        Id = userEmailId,
+        UserId = userId,
+
+        // 🔥 CAMBIO IMPORTANTE
+        EmailVerified = true,
+
+        EmailVerificationToken = emailVerificationToken,
+        EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
+    },
+
+    UserRoles =
+    [
+        new Domain.Entities.UserRole
         {
-            Id = userId,
-            Name = registerDto.Name,
-            Surname = registerDto.Surname,
-            Username = registerDto.Username,
-            Email = registerDto.Email.ToLowerInvariant(),
-            Password = passwordHashService.HashPassword(registerDto.Password),
-            Status = false,
-            UserProfile = new UserProfile
-            {
-                Id = userProfileId,
-                UserId = userId,
-                ProfilePicture = profilePicturePath,
-                Phone = registerDto.Phone
-            },
-            UserEmail = new UserEmail
-            {
-                Id = userEmailId,
-                UserId = userId,
-                EmailVerified = false,
-                EmailVerificationToken = emailVerificationToken,
-                EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
-            },
-            UserRoles =
-            [
-                new Domain.Entities.UserRole
-                {
-                    Id = userRoleId,
-                    UserId = userId,
-                    RoleId = defaultRole.Id
-                }
-            ],
-            UserPasswordReset = new UserPasswordReset //Generar el objeto.
-            {
-                Id = UuidGenerator.GenerateUserId(),
-                UserId = userId,
-                PasswordResetToken = null,
-                PasswordResetTokenExpiry = null
-            },
-        };
+            Id = userRoleId,
+            UserId = userId,
+            RoleId = defaultRole.Id
+        }
+    ],
+
+    UserPasswordReset = new UserPasswordReset
+    {
+        Id = UuidGenerator.GenerateUserId(),
+        UserId = userId,
+        PasswordResetToken = null,
+        PasswordResetTokenExpiry = null
+    },
+};
 
         // Guardar usuario y entidades relacionadas
         var createdUser = await userRepository.CreateAsync(user);
