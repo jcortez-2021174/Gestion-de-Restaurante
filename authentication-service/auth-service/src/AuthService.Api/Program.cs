@@ -29,18 +29,18 @@ builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-// 🔥 ESTE ERA EL QUE TE FALTABA (ERROR PRINCIPAL)
+//  ESTE ERA EL QUE TE FALTABA (ERROR PRINCIPAL)
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 // =========================
-// ✅ REPOSITORIES
+// REPOSITORIES
 // =========================
 builder.Services.AddScoped<IUserRepository, AuthService.Persistence.Repositories.UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, AuthService.Persistence.Repositories.RefreshTokenRepository>();
 builder.Services.AddScoped<IRoleRepository, AuthService.Persistence.Repositories.RoleRepository>();
 
 // =========================
-// ✅ CORS
+//  CORS
 // =========================
 builder.Services.AddCors(options =>
 {
