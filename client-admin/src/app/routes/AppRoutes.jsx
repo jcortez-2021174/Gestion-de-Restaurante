@@ -1,10 +1,12 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from '../../features/auth/store/authStore';
-import { AuthPage } from '../../features/auth/pages/AuthPage';
-import Dashboard from '../../features/dashboard/Dashboard';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "../../features/auth/store/authStore";
+import { LoginPage } from "../../features/auth/pages/LoginPage";
+import { DashboardPage } from "../../features/auth/pages/DashboardPage";
 
-// 🔐 Ruta protegida
+
+//  Ruta protegida
 const ProtectedRoute = ({ children }) => {
+
     const token = useAuthStore((state) => state.token);
 
     if (!token) {
@@ -14,40 +16,45 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
+
 export const AppRoutes = () => {
+
     const token = useAuthStore((state) => state.token);
 
     return (
         <Routes>
 
             {/* LOGIN */}
-            <Route 
-                path="/login" 
+            <Route
+                path="/login"
                 element={
-                    !token 
-                        ? <AuthPage /> 
+                    !token
+                        ? <LoginPage />
                         : <Navigate to="/dashboard" replace />
-                } 
+                }
             />
 
             {/* DASHBOARD */}
-            <Route 
-                path="/dashboard" 
+            <Route
+                path="/dashboard"
                 element={
                     <ProtectedRoute>
-                        <Dashboard />
+                        <DashboardPage />
                     </ProtectedRoute>
-                } 
+                }
             />
 
-            {/* RUTA INICIAL */}
-            <Route 
-                path="/" 
-                element={<Navigate to="/login" replace />} 
+            {/* INICIO */}
+            <Route
+                path="/"
+                element={<Navigate to="/login" replace />}
             />
 
             {/* CUALQUIER OTRA */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route
+                path="*"
+                element={<Navigate to="/login" replace />}
+            />
 
         </Routes>
     );
