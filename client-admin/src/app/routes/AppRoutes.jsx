@@ -1,10 +1,19 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import { useAuthStore } from "../../features/auth/store/authStore";
+
 import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { DashboardPage } from "../../features/auth/pages/DashboardPage";
+import { MenuPage } from "../../features/auth/pages/MenuPage";
+import { OrdersPage } from "../../features/auth/pages/OrdersPage";
+import { ReservationsPage } from "../../features/auth/pages/ReservationsPage";
+import { MesasPage } from "../../features/auth/pages/MesasPage";
 
 
-//  Ruta protegida
+// =========================
+// RUTA PROTEGIDA
+// =========================
+
 const ProtectedRoute = ({ children }) => {
 
     const token = useAuthStore((state) => state.token);
@@ -17,14 +26,20 @@ const ProtectedRoute = ({ children }) => {
 };
 
 
+// =========================
+// ROUTES
+// =========================
+
 export const AppRoutes = () => {
 
     const token = useAuthStore((state) => state.token);
 
     return (
+
         <Routes>
 
             {/* LOGIN */}
+
             <Route
                 path="/login"
                 element={
@@ -35,6 +50,7 @@ export const AppRoutes = () => {
             />
 
             {/* DASHBOARD */}
+
             <Route
                 path="/dashboard"
                 element={
@@ -44,18 +60,65 @@ export const AppRoutes = () => {
                 }
             />
 
-            {/* INICIO */}
+            {/* MENU */}
+
+            <Route
+                path="/menu"
+                element={
+                    <ProtectedRoute>
+                        <MenuPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* ORDERS */}
+
+            <Route
+                path="/orders"
+                element={
+                    <ProtectedRoute>
+                        <OrdersPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* RESERVATIONS */}
+
+            <Route
+                path="/reservations"
+                element={
+                    <ProtectedRoute>
+                        <ReservationsPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* TABLES */}
+
+            <Route
+                path="/tables"
+                element={
+                    <ProtectedRoute>
+                        <MesasPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* HOME */}
+
             <Route
                 path="/"
                 element={<Navigate to="/login" replace />}
             />
 
-            {/* CUALQUIER OTRA */}
+            {/* 404 */}
+
             <Route
                 path="*"
                 element={<Navigate to="/login" replace />}
             />
 
         </Routes>
+
     );
 };

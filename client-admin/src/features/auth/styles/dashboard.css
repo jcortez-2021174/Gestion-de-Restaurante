@@ -1,140 +1,474 @@
-:root {
+:root{
     --gold:#d4af37;
     --gold-soft:#f1d77a;
-    --border:rgba(212,175,55,0.15);
+    --border:rgba(212,175,55,0.14);
+    --black:#050505;
+    --card:#0b0b0b;
+    --card2:#111111;
 }
 
-/* BASE */
-body{
+/* =========================
+   RESET
+========================= */
+*{
     margin:0;
-    background: radial-gradient(circle at top,#111,#000);
-    color:white;
-    font-family:'Inter',sans-serif;
+    padding:0;
+    box-sizing:border-box;
 }
 
-h1,h2,h3{
+html,
+body,
+#root{
+    width:100%;
+    min-height:100%;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:
+    radial-gradient(circle at top,#151515 0%,#050505 55%);
+    color:white;
+}
+
+/* =========================
+   SCROLL
+========================= */
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-track{
+    background:#050505;
+}
+
+::-webkit-scrollbar-thumb{
+    background:rgba(212,175,55,0.45);
+    border-radius:20px;
+}
+
+/* =========================
+   TITLES
+========================= */
+h1,
+h2,
+h3,
+h4{
     font-family:'Playfair Display',serif;
 }
 
-/* LAYOUT */
+/* =========================
+   LAYOUT
+========================= */
 .container{
     display:flex;
+    width:100%;
     min-height:100vh;
 }
 
-/* SIDEBAR */
+/* =========================
+   SIDEBAR
+========================= */
 .sidebar{
-    width:260px;
-    min-width:260px;
-    height:100vh;
-    background: radial-gradient(circle at top,#1a1a1a,#050505);
+    width:240px;
+    min-width:240px;
+    min-height:100vh;
+
+    position:sticky;
+    top:0;
+
+    background:
+    linear-gradient(
+        180deg,
+        #111111,
+        #050505
+    );
+
     border-right:1px solid var(--border);
+
+    padding:24px 18px;
+
     display:flex;
     flex-direction:column;
-    align-items:center;
-    padding:25px;
-}
 
-/* 🔥 FIX LOGO */
-.logo-box img{
-    width:180px;
-    mix-blend-mode:lighten;
-}
-
-/* SIDEBAR IMAGE */
-.sidebar-image{
-    position: relative;
-    width:100%;
-    flex-grow:1;
-    border-radius:12px;
     overflow:hidden;
 }
 
+/* =========================
+   LOGO
+========================= */
+.logo-box{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    margin-bottom:20px;
+}
+
+.logo-box img{
+    width:350px;
+    object-fit:contain;
+
+    filter:
+    drop-shadow(0 0 12px rgba(212,175,55,0.18));
+}
+
+/* =========================
+   MENU
+========================= */
+.menu{
+    list-style:none;
+    width:100%;
+}
+
+.menu li{
+    width:100%;
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    padding:15px 16px;
+
+    margin-bottom:10px;
+
+    border-radius:14px;
+
+    color:#a4a4a4;
+
+    font-size:17px;
+    font-weight:500;
+
+    cursor:pointer;
+    transition:0.25s;
+}
+
+.menu li i{
+    font-size:19px;
+}
+
+.menu li:hover{
+    background:rgba(212,175,55,0.08);
+    color:white;
+}
+
+.menu .active{
+    background:
+    linear-gradient(
+        90deg,
+        var(--gold),
+        var(--gold-soft)
+    );
+
+    color:black;
+    font-weight:700;
+}
+
+/* =========================
+   SIDEBAR IMAGE
+========================= */
+.sidebar-image{
+    position:relative;
+
+    width:100%;
+
+    height:auto;
+    flex-grow:3;
+
+    min-height:520px;
+
+    margin-top:30px;
+
+    border-radius:22px;
+    overflow:hidden;
+
+    border:1px solid rgba(212,175,55,0.12);
+
+    background:#050505;
+
+    box-shadow:
+    0 12px 35px rgba(0,0,0,0.55),
+    inset 0 0 30px rgba(212,175,55,0.05);
+}
+
+
+.sidebar-image p{
+    position:absolute;
+
+    left:22px;
+    bottom:18px;
+
+    z-index:3;
+
+    font-size:13px;
+    line-height:1.7;
+    letter-spacing:1px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #f7e7a6 0%,
+        #d4af37 40%,
+        #fff0b3 70%,
+        #d4af37 100%
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+
+    opacity:0.96;
+}
+
+.sidebar-decor::before,
+.sidebar-decor::after{
+    content:"";
+
+    width:55px;
+    height:1px;
+
+    background:
+    linear-gradient(
+        90deg,
+        transparent,
+        rgba(212,175,55,0.45),
+        transparent
+    );
+}
+
 .sidebar-image img{
+    position:absolute;
+    inset:0;
+
     width:100%;
     height:100%;
+
     object-fit:cover;
-    transform: scale(1.1);
+    object-position:bottom;
+
+    transform:scale(1.18);
+
+    filter:
+    brightness(0.65)
+    contrast(1.08)
+    saturate(1.05);
 }
 
 .sidebar-image .overlay{
     position:absolute;
     inset:0;
+
+    z-index:1;
+
     background:
-    linear-gradient(to top,#000,transparent),
-    linear-gradient(to right,transparent,rgba(0,0,0,0.6));
+    linear-gradient(
+        to top,
+        #000 0%,
+        rgba(0,0,0,0.88) 28%,
+        rgba(0,0,0,0.45) 60%,
+        transparent 100%
+    ),
+
+    linear-gradient(
+        to right,
+        transparent 55%,
+        rgba(0,0,0,0.35) 80%,
+        rgba(0,0,0,0.88) 100%
+    );
 }
+
+
+.sidebar-image::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+    linear-gradient(
+        to top,
+        rgba(0,0,0,0.95) 0%,
+        rgba(0,0,0,0.55) 40%,
+        rgba(0,0,0,0.1) 100%
+    );
+
+    z-index:1;
+}
+
+.sidebar-image::after{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    z-index:2;
+
+    background:
+    radial-gradient(
+        circle at bottom,
+        rgba(212,175,55,0.12),
+        transparent 60%
+    );
+}
+
+.sidebar-image:hover img{
+    transform:scale(1.23);
+    transition:1.2s ease;
+}
+
+.sidebar-image img{
+    transition:1.2s ease;
+}
+
+.sidebar-decor{
+    position:absolute;
+
+    bottom:68px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    z-index:3;
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.sidebar-decor i{
+    color:var(--gold);
+
+    font-size:20px;
+
+    text-shadow:
+    0 0 10px rgba(212,175,55,0.4);
+}
+
 
 .sidebar-image p{
     position:absolute;
-    bottom:15px;
-    left:15px;
-    font-size:12px;
-    background:linear-gradient(90deg,#d4af37,#f1d77a);
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
+
+    left:30px;
+    bottom:20px;
+
+    z-index:3;
+
+    color:var(--gold);
+
+    font-size:13px;
+    line-height:1.6;
+    letter-spacing:0.5px;
 }
 
-/* MENU */
-.menu{
-    width:100%;
-    margin-top:25px;
-}
-
-.menu li{
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:10px;
-    display:flex;
-    gap:10px;
-    color:#aaa;
-    cursor:pointer;
-}
-
-.menu li:hover{
-    background:rgba(212,175,55,0.1);
-    color:white;
-}
-
-.menu .active{
-    background:linear-gradient(90deg,var(--gold),var(--gold-soft));
-    color:black;
-}
-
-/* MAIN */
+/* =========================
+   MAIN
+========================= */
 .main{
     flex:1;
-    padding:25px;
+    padding:22px;
 }
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 .header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    padding:10px 20px;
+
+    padding:24px 26px;
+
+    margin-bottom:22px;
+
+    border-radius:22px;
+
     border:1px solid var(--border);
-    border-radius:14px;
-    margin-bottom:25px;
-    background:linear-gradient(180deg,#0f0f0f,#080808);
+
+    background:
+    linear-gradient(
+        180deg,
+        #0f0f0f,
+        #070707
+    );
+}
+
+.header h1{
+    font-size:42px;
+    font-weight:700;
+
+    background:
+    linear-gradient(
+        90deg,
+        #ffffff,
+        var(--gold-soft)
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 }
 
 .header p{
-    font-size:13px;
-    color:#aaa;
+    margin-top:8px;
+    color:#a4a4a4;
+    font-size:15px;
 }
 
-/* USER */
+/* =========================
+   USER BOX
+========================= */
 .user-box{
     display:flex;
     align-items:center;
-    gap:20px;
+    gap:18px;
+}
+
+.notification{
+    position:relative;
+    color:var(--gold);
+    font-size:24px;
+}
+
+.badge{
+    position:absolute;
+
+    top:-6px;
+    right:-8px;
+
+    width:18px;
+    height:18px;
+
+    border-radius:50%;
+
+    background:var(--gold);
+    color:black;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:10px;
+    font-weight:700;
+}
+
+.divider{
+    width:1px;
+    height:38px;
+
+    background:
+    linear-gradient(
+        to bottom,
+        transparent,
+        rgba(212,175,55,0.35),
+        transparent
+    );
 }
 
 .user{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:12px;
+}
+
+.user i{
+    color:var(--gold);
+    font-size:20px;
 }
 
 .user-info{
@@ -142,110 +476,283 @@ h1,h2,h3{
     flex-direction:column;
 }
 
-.divider{
-    width:1px;
-    height:35px;
-    background:rgba(212,175,55,0.3);
+.user-info span{
+    font-weight:700;
 }
 
-/* NOTIFICACIÓN */
-.notification{
-    position:relative;
-    font-size:22px;
-    color:var(--gold);
+.user-info small{
+    color:#888;
+    font-size:11px;
 }
 
-.badge{
-    position:absolute;
-    top:-5px;
-    right:-8px;
-    background:var(--gold);
-    color:black;
-    font-size:10px;
-    padding:2px 6px;
-    border-radius:50%;
-}
-
-/* 🔥 GRID PERFECTO */
+/* =========================
+   GRID
+========================= */
 .grid{
     display:grid;
-    grid-template-columns: 1.5fr 1fr;
+
+    grid-template-columns:1.6fr 1fr;
+
     grid-template-areas:
-        "menu reserva"
-        "menu pedidos"
-        "menu acceso"
-        "maridaje mesas";
-    gap:15px;
-}
+    "menu reserva"
+    "menu pedidos"
+    "menu acceso"
+    "maridaje mesas";
 
-/* AREAS */
-.menu-card-container{ grid-area: menu; }
-.reserva{ grid-area: reserva; }
-.pedidos{ grid-area: pedidos; }
-.acceso{ grid-area: acceso; }
-.maridaje{ grid-area: maridaje; }
-.mesas{ grid-area: mesas; }
-
-/* CARD */
-.card{
-    position:relative;
-    padding:15px;
-    background:#0b0b0b;
-    border-radius:14px;
-    border:1px solid var(--border);
-}
-
-/* HEADER CARD */
-.card-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-}
-
-.btn-mini{
-    border:1px solid rgba(212,175,55,0.5);
-    background:transparent;
-    color:var(--gold);
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:12px;
-    cursor:pointer;
-}
-
-/* MENU GRID */
-.menu-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
     gap:20px;
 }
 
-.menu-card{
-    display:flex;
-    gap:15px;
+.menu-card-container{grid-area:menu;}
+.reserva{grid-area:reserva;}
+.pedidos{grid-area:pedidos;}
+.acceso{grid-area:acceso;}
+.maridaje{grid-area:maridaje;}
+.mesas{grid-area:mesas;}
+
+/* =========================
+   CARD
+========================= */
+.card{
+    position:relative;
+
+    padding:20px;
+
+    border-radius:24px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #0b0b0b,
+        #070707
+    );
+
     border:1px solid var(--border);
-    border-radius:12px;
-    padding:10px;
+
+    box-shadow:
+    0 0 0 1px rgba(212,175,55,0.03),
+    0 12px 30px rgba(0,0,0,0.45);
 }
 
-.menu-card img{
-    width:160px;
-    height:110px;
-    object-fit:cover;
-    border-radius:10px;
-}
-
-/* BOTONES */
-.actions{
-    margin-top:15px;
+/* =========================
+   CARD HEADER
+========================= */
+.card-header{
     display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:22px;
+}
+
+.card-header h2,
+.pedidos h2,
+.acceso h2,
+.mesas h2{
+    font-size:20px;
+    font-weight:700;
+
+    background:
+    linear-gradient(
+        90deg,
+        #ffffff,
+        var(--gold-soft)
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* =========================
+   MINI BUTTON
+========================= */
+.btn-mini{
+    border:1px solid rgba(212,175,55,0.35);
+
+    background:transparent;
+    color:var(--gold);
+
+    padding:13px 18px;
+
+    border-radius:12px;
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    cursor:pointer;
+    transition:0.25s;
+}
+
+.btn-mini:hover{
+    background:rgba(212,175,55,0.08);
+}
+
+/* =========================
+   MENU GRID
+========================= */
+.menu-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+/* =========================
+   MENU CARD
+========================= */
+/* =========================
+   MENU CARD (TARJETA DE PLATO)
+   Cada item del menú (imagen + info + precio)
+========================= */
+
+.menu-card{
+    /* Contenedor principal en fila (imagen + texto) */
+    display:flex;
+    flex-direction:column;
+    /* Espacio entre la imagen y el contenido */
+    gap:16px;
+    /* Espacio interno de la tarjeta */
+    padding:20px;
+    /* Bordes redondeados */
+    border-radius:15px;
+    /* Borde dorado muy sutil */
+    border:2px solid rgba(212,175,55,0.12);
+    /* Fondo oscuro con degradado */
+    background:
+    linear-gradient(
+        145deg,
+        #101010,
+        #060606
+    );
+      /* Cursor tipo botón */
+    cursor:pointer;
+
+    /* Animaciones suaves */
+    transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+/* =========================
+   EFECTO HOVER
+   Cuando pasas el mouse por la tarjeta
+========================= */
+.menu-card:hover{
+
+    /* Levanta la tarjeta */
+    transform:translateY(-8px) scale(1.02);
+
+    /* Borde más brillante */
+    border-color:rgba(212,175,55,0.45);
+
+    /* Sombra elegante */
+    box-shadow:
+    0 18px 35px rgba(0,0,0,0.45),
+    0 0 18px rgba(212,175,55,0.12);
+}
+
+/* =========================
+   IMAGEN DEL PLATO
+========================= */
+.menu-card img{
+
+    /* Ancho fijo de la imagen */
+    width:350px;
+
+    /* Alto fijo */
+    height:200px;
+
+    /* Recorta sin deformar la imagen */
+    object-fit:cover;
+
+    /* Bordes redondeados */
+    border-radius:14px;
+}
+
+/* =========================
+   TITULO DEL PLATO
+========================= */
+.menu-card h4{
+
+    /* Tamaño del nombre del plato */
+    font-size:20px;
+
+    /* Espacio debajo del título */
+    margin-bottom:10px;
+}
+
+/* =========================
+   DESCRIPCIÓN DEL PLATO
+========================= */
+.menu-card p{
+
+    /* Color gris del texto */
+    color:#b9b9b9;
+
+    /* Espaciado entre líneas */
+    line-height:1.5;
+
+    /* Espacio inferior */
+    margin-bottom:14px;
+}
+
+/* =========================
+   PRECIO DEL PLATO
+========================= */
+.menu-card span{
+
+    /* Color dorado del precio */
+    color:var(--gold);
+
+    /* Tamaño del precio */
+    font-size:20px;
+
+    /* Negrita */
+    font-weight:500;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+.actions{
+    margin-top:24px;
+
+    display:flex;
+    gap:14px;
+}
+
+.actions button{
+    flex:1;
+    height:58px;
+
+    border-radius:14px;
+
+    font-size:18px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
     gap:10px;
+
+    cursor:pointer;
+    transition:0.25s;
+}
+
+.actions button:hover{
+    transform:translateY(-2px);
 }
 
 .btn-gold{
-    background:linear-gradient(90deg,var(--gold),var(--gold-soft));
     border:none;
-    padding:10px;
+
+    background:
+    linear-gradient(
+        90deg,
+        var(--gold),
+        var(--gold-soft)
+    );
+
+    color:black;
+    font-weight:700;
 }
 
 .btn-outline{
@@ -255,92 +762,487 @@ h1,h2,h3{
 }
 
 .btn-danger{
-    border:1px solid red;
-    color:red;
+    border:1px solid #ff4747;
     background:transparent;
+    color:#ff4747;
 }
 
-/* INPUT */
-input{
+/* =========================
+   RESERVA
+========================= */
+.reserva{
+    display:flex;
+    flex-direction:column;
+    gap:50px;
+}
+
+.btn-reserva{
+
+    /* Tamaño */
     width:100%;
-    padding:10px;
+    height:60px;
+
+    /* Separación arriba */
+    margin-top:20px;
+
+    /* Quita borde */
+    border:none;
+
+    /* Bordes redondos */
+    border-radius:16px;
+
+    /* Fondo dorado elegante */
+    background:
+    linear-gradient(
+        90deg,
+        var(--gold),
+        var(--gold-soft)
+    );
+
+    /* Color texto */
+    color:black;
+
+    /* Texto */
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:0.5px;
+
+    /* Cursor mano */
+    cursor:pointer;
+
+    /* Sombra */
+    box-shadow:
+    0 10px 25px rgba(212,175,55,0.20);
+
+    /* Animaciones suaves */
+    transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+
+.btn-reserva:hover{
+
+    /* Se levanta */
+    transform:translateY(-4px) scale(1.01);
+
+    /* Brillo */
+    filter:brightness(1.05);
+
+    /* Glow dorado */
+    box-shadow:
+    0 16px 35px rgba(212,175,55,0.30),
+    0 0 18px rgba(212,175,55,0.18);
+}
+
+.btn-reserva:active{
+
+    /* Efecto presionado */
+    transform:scale(0.98);
+}
+
+.reserva-header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    font-size:18px;
+    font-weight:600;
+}
+
+.reserva-header i{
+    color:var(--gold);
+    font-size:20px;
+}
+
+.inputs{
+    display:flex;
+    gap:10px;
+}
+
+.input-box{
+    position:relative;
+    flex:1;
+}
+
+.input-box input{
+    width:100%;
+    height:58px;
     background:#0b0b0b;
     border:1px solid var(--border);
-    color:white;
-    border-radius:8px;
+    border-radius:14px;
+    color:white;    
+    padding:0 44px;
+    outline:none;
+    transition:0.25s;
 }
 
-/* PEDIDOS */
+.input-box input:focus{
+    border-color:rgba(212,175,55,0.45);
+}
+
+.left-icon,
+.right-icon,
+.arrow-input{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.left-icon{
+    left:50px;
+    color:var(--gold);
+}
+
+.right-icon{
+    right:15px;
+    color:var(--gold);
+}
+
+.arrow-input{
+    right:14px;
+    color:#888;
+}
+
+/* =========================
+   PEDIDOS
+========================= */
 .pedidos{
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:14px;
 }
 
 .pedidos button{
-    height:60px;
-    border-radius:10px;
-    background:#0b0b0b;
+    width:100%;
+    height:72px;
+
+    border-radius:16px;
+
     border:1px solid var(--border);
+
+    background:#0b0b0b;
+
     color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+
+    font-size:16px;
+
+    cursor:pointer;
+    transition:0.25s;
 }
 
-/* ACCESO */
+.pedidos button:hover{
+    transform:translateY(-2px);
+    border-color:rgba(212,175,55,0.35);
+}
+
+.pedidos button i{
+    color:var(--gold);
+    font-size:22px;
+}
+
+/* =========================
+   ACCESO RAPIDO
+========================= */
 .quick-grid{
+    margin-top:18px;
+
     display:grid;
     grid-template-columns:repeat(2,1fr);
-    gap:10px;
+    gap:16px;
 }
 
 .quick-grid div{
-    height:70px;
+    height:110px;
+
+    border-radius:18px;
+
     border:1px solid var(--border);
-    border-radius:10px;
+
+    background:#0b0b0b;
+
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
+
+    gap:10px;
+
+    transition:0.25s;
 }
 
-/* 🔥 MARIDAJE FIX */
+.quick-grid div:hover{
+    transform:translateY(-3px);
+    border-color:rgba(212,175,55,0.35);
+}
+
+.quick-grid i{
+    color:var(--gold);
+    font-size:28px;
+}
+
+.quick-grid p{
+    color:#f3f3f3;
+    font-size:14px;
+}
+
+/* =========================
+   MARIDAJE
+========================= */
 .maridaje{
     position:relative;
-    height:280px;
-    border-radius:14px;
+
+    min-height:280px;
+
     overflow:hidden;
 
+    display:flex;
+    align-items:center;
+
+    padding:35px;
+
     background:
-        linear-gradient(
-            to right,
-            #0b0b0b 40%,
-            rgba(11,11,11,0.8) 60%,
-            transparent 100%
-        ),
-        url("/vino2.jpg") right center / cover no-repeat;
+    linear-gradient(
+        90deg,
+        rgba(0,0,0,0.95) 0%,
+        rgba(0,0,0,0.82) 30%,
+        rgba(0,0,0,0.25) 65%,
+        rgba(0,0,0,0.1) 100%
+    ),
+    url("/vino2.jpg");
+
+    background-size:cover;
+    background-position:center right;
+    background-repeat:no-repeat;
 }
 
-/* MESAS */
+.maridaje-content{
+    position:relative;
+    z-index:3;
+
+    width:42%;
+}
+
+.maridaje-content h3{
+    font-size:22px;
+    margin-bottom:16px;
+}
+
+.maridaje-content p{
+    color:#d0d0d0;
+    line-height:1.7;
+
+    margin-bottom:18px;
+}
+
+.maridaje-content ul{
+    list-style:none;
+}
+
+.maridaje-content li{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    margin-bottom:10px;
+}
+
+.maridaje-content li i{
+    color:var(--gold);
+}
+
+/* =========================
+   MESAS
+========================= */
 .mesas-list{
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:14px;
 }
 
 .mesa-item{
     display:flex;
+    align-items:center;
     justify-content:space-between;
-    padding:10px;
-    border-radius:10px;
+
+    padding:16px;
+
+    border-radius:16px;
+
     background:#0b0b0b;
-    border:1px solid var(--border);
+
+    border:1px solid rgba(255,255,255,0.04);
+
+    /* Cursor */
+    cursor:pointer;
+
+    /* Animación suave */
+    transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+/* =========================
+   HOVER MESA
+========================= */
+.mesa-item:hover{
+
+    /* Levanta la tarjeta */
+    transform:translateY(-5px);
+
+    /* Borde dorado */
+    border-color:rgba(212,175,55,0.35);
+
+    /* Glow elegante */
+    box-shadow:
+    0 10px 25px rgba(0,0,0,0.35),
+    0 0 15px rgba(212,175,55,0.08);
+
+    /* Fondo ligeramente iluminado */
+    background:#111111;
+}
+
+.mesa-info{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.mesa-nombre{
+    font-weight:700;
+    font-size:18px;
+}
+
+.mesa-hora{
+    color:#9d9d9d;
+    font-size:13px;
+}
+
+.mesa-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.personas{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    color:var(--gold);
 }
 
 .estado{
-    padding:3px 8px;
+    padding:8px 14px;
+
     border-radius:20px;
-    font-size:11px;
+
+    font-size:12px;
+    font-weight:700;
 }
 
-.ocupado{ background:#ff4d4d; }
-.disponible{ background:#2ecc71; color:black; }
-.reservada{ background:#d4af37; color:black; }
+.ocupado{
+    background:#ff4b4b;
+}
+
+.disponible{
+    background:#2ecc71;
+    color:black;
+}
+
+.reservada{
+    background:var(--gold);
+    color:black;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media(max-width:1400px){
+
+    .menu-card img{
+        width:220px;
+    }
+}
+
+@media(max-width:1200px){
+
+    .grid{
+        grid-template-columns:1fr;
+
+        grid-template-areas:
+        "menu"
+        "reserva"
+        "pedidos"
+        "acceso"
+        "maridaje"
+        "mesas";
+    }
+
+    .menu-grid{
+        grid-template-columns:1fr;
+    }
+
+    .maridaje-content{
+        width:65%;
+    }
+}
+
+@media(max-width:900px){
+
+    .container{
+        flex-direction:column;
+    }
+
+    .sidebar{
+        width:100%;
+        min-width:100%;
+        min-height:auto;
+
+        position:relative;
+    }
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:20px;
+    }
+
+    .user-box{
+        width:100%;
+        justify-content:space-between;
+    }
+
+    .menu-card{
+        flex-direction:column;
+    }
+
+    .menu-card img{
+        width:100%;
+        height:240px;
+    }
+
+    .inputs{
+        flex-direction:column;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .maridaje{
+        min-height:320px;
+        background-position:center;
+    }
+
+    .maridaje-content{
+        width:100%;
+    }
+}
