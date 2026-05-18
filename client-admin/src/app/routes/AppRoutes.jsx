@@ -8,6 +8,7 @@ import { MenuPage } from "../../features/auth/pages/MenuPage";
 import { OrdersPage } from "../../features/auth/pages/OrdersPage";
 import { ReservationsPage } from "../../features/auth/pages/ReservationsPage";
 import { MesasPage } from "../../features/auth/pages/MesasPage";
+import { ClientsPage } from "../../features/auth/pages/ClientsPage";
 
 
 // =========================
@@ -100,6 +101,15 @@ export const AppRoutes = () => {
                 element={
                     <ProtectedRoute>
                         <MesasPage />
+                    </ProtectedRoute>
+                }
+            />
+            {/* CLIENTS */}
+             <Route
+                path="/clients"
+                element={
+                    <ProtectedRoute>
+                        <ClientsPage />
                     </ProtectedRoute>
                 }
             />
