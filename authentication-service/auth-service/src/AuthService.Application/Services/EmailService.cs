@@ -11,12 +11,12 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 {
     public async Task SendEmailVerificationAsync(string email, string username, string token)
     {
-        var subject = "Verifica tu correo electrónico - Kinal Sports";
+        var subject = "Verifica tu correo electrónico - Aurea Restaurant";
         var verificationUrl = $"{configuration["AppSettings:FrontendUrl"]}/verify-email?token={token}";
 
         var body = $@"
-            <h2>¡Bienvenido a Kinal Sports, {username}!</h2>
-            <p>Por favor, verifica tu correo electrónico para tu cuenta de Kinal Sports haciendo clic en el siguiente enlace:</p>
+            <h2>¡Bienvenido a Aurea Restaurant, {username}!</h2>
+            <p>Por favor, verifica tu correo electrónico para tu cuenta de Aurea Restaurant haciendo clic en el siguiente enlace:</p>
             <a href='{verificationUrl}' style='background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>
                 Verificar correo
             </a>
@@ -31,13 +31,13 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
     public async Task SendPasswordResetAsync(string email, string username, string token)
     {
-        var subject = "Restablece tu contraseña - Kinal Sports";
+        var subject = "Restablece tu contraseña - Aurea Restaurant";
         var resetUrl = $"{configuration["AppSettings:FrontendUrl"]}/reset-password?token={token}";
 
         var body = $@"
-            <h2>Solicitud de restablecimiento de contraseña - Kinal Sports</h2>
+            <h2>Solicitud de restablecimiento de contraseña - Aurea Restaurant</h2>
             <p>Hola {username},</p>
-            <p>Este mensaje es de Kinal Sports.</p>
+            <p>Este mensaje es de Aurea Restaurant.</p>
             <p>Solicitaste restablecer tu contraseña. Haz clic en el siguiente enlace para restablecerla:</p>
             <a href='{resetUrl}' style='background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>
                 Restablecer contraseña
@@ -53,10 +53,10 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
     public async Task SendWelcomeEmailAsync(string email, string username)
     {
-        var subject = "¡Bienvenido a Kinal Sports!";
+        var subject = "¡Bienvenido a Aurea Restaurant!";
 
         var body = $@"
-            <h2>¡Bienvenido a Kinal Sports, {username}!</h2>
+            <h2>¡Bienvenido a Aurea Restaurant, {username}!</h2>
             <p>Tu cuenta ha sido verificada y activada exitosamente.</p>
             <p>Ahora puedes disfrutar de todas las funciones de nuestra plataforma.</p>
             <p>Si tienes alguna pregunta, no dudes en contactar a nuestro equipo de soporte.</p>

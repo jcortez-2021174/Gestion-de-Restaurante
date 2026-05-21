@@ -78,4 +78,11 @@ app.MapControllers();
 // Health check básico
 app.MapGet("/", () => "API funcionando");
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await DataSeeder.SeedAsync(db);
+}
+
+
 app.Run();

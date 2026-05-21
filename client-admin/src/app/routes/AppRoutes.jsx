@@ -9,7 +9,7 @@ import { OrdersPage } from "../../features/auth/pages/OrdersPage";
 import { ReservationsPage } from "../../features/auth/pages/ReservationsPage";
 import { MesasPage } from "../../features/auth/pages/MesasPage";
 import { ClientsPage } from "../../features/auth/pages/ClientsPage";
-
+import { VerifyEmailPage } from "../../features/auth/pages/VerifyEmailPage";
 
 // =========================
 // RUTA PROTEGIDA
@@ -105,6 +105,7 @@ export const AppRoutes = () => {
                 }
             />
             {/* CLIENTS */}
+            
              <Route
                 path="/clients"
                 element={
@@ -113,7 +114,11 @@ export const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
-
+            {/* VERIFY EMAIL */}
+            <Route
+            path="/verify-email"
+            element={<VerifyEmailPage />}
+            />
             {/* HOME */}
 
             <Route
