@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import "../styles/dashboard.css";
-import "../styles/UserDashboardPage.css";
 
 export const UserDashboardPage = () => {
   const user = useAuthStore((state) => state.user);
@@ -15,245 +14,233 @@ export const UserDashboardPage = () => {
   };
 
   return (
-    <div className="user-page">
+    <div className="container">
 
-      {/* NAVBAR */}
-      <nav className="user-navbar">
-
-        <div className="user-navbar-logo">
-          <img src="/logo.png" alt="Aurea" />
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="logo-box">
+          <img src="/logo.png" alt="Aurea Logo" />
         </div>
 
-        <ul className="user-nav-links">
-          <li><a href="#inicio">Inicio</a></li>
-          <li><a href="#menu">Menú</a></li>
-          <li><a href="#reservas">Reservas</a></li>
-          <li><a href="#pedidos">Pedidos</a></li>
-          <li><a href="#nosotros">Sobre Nosotros</a></li>
-          <li><a href="#contacto">Contacto</a></li>
+        <ul className="menu">
+          <li className="active">
+            <i className="ri-home-4-line"></i>
+            <a href="#inicio" style={{ color: "inherit", textDecoration: "none" }}>Inicio</a>
+          </li>
+          <li>
+            <i className="ri-restaurant-line"></i>
+            <a href="#menu" style={{ color: "inherit", textDecoration: "none" }}>Menú</a>
+          </li>
+          <li>
+            <i className="ri-calendar-line"></i>
+            <a href="#reservas" style={{ color: "inherit", textDecoration: "none" }}>Reservas</a>
+          </li>
+          <li>
+            <i className="ri-moped-line"></i>
+            <a href="#pedidos" style={{ color: "inherit", textDecoration: "none" }}>Pedidos</a>
+          </li>
+          <li>
+            <i className="ri-group-line"></i>
+            <a href="#nosotros" style={{ color: "inherit", textDecoration: "none" }}>Nosotros</a>
+          </li>
+          <li>
+            <i className="ri-contacts-book-line"></i>
+            <a href="#contacto" style={{ color: "inherit", textDecoration: "none" }}>Contacto</a>
+          </li>
         </ul>
 
-        <div className="user-nav-right">
-          <div className="user-nav-cart">
-            <i className="ri-shopping-cart-line"></i>
-            <span className="badge">2</span>
+        {/* SIDEBAR IMAGE BANNER */}
+        <div className="sidebar-image">
+          <img src="/plato1.jpeg" alt="Banner Lateral" />
+          <div className="overlay"></div>
+          <div className="sidebar-decor">
+            <i className="ri-goblet-line"></i>
           </div>
-          <div className="user-nav-account">
-            <i className="ri-user-line"></i>
-            <span>Mi Cuenta</span>
-            <i className="ri-arrow-down-s-line"></i>
-            <div className="user-dropdown">
-              <p className="user-dropdown-name">{user?.username || "Usuario"}</p>
-              <button onClick={handleLogout}>
-                <i className="ri-logout-box-line"></i>
-                Cerrar sesión
+          <p>SABORES CREADOS<br />PARA PERDURAR</p>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="main" id="inicio">
+        
+      {/* HEADER DENTRO DE USERDASHBOARD */}
+    {/* BLOQUE DE USUARIO FLOTANTE */}
+      <div className="user-box user-box-floating">
+        <div className="notification">
+          <i className="ri-notification-3-line"></i>
+          <span className="badge">2</span>
+        </div>
+        
+        <div className="divider"></div>
+
+        <div className="user">
+          <i className="ri-user-line"></i>
+          <div className="user-info">
+            <span>{user?.username || "emiliobol12"}</span>
+            <small>Cliente Premium</small>
+          </div>
+          <button 
+            onClick={handleLogout} 
+            className="btn-mini" 
+            style={{ marginLeft: "10px", padding: "8px 12px" }}
+          >
+            <i className="ri-logout-box-line"></i>
+          </button>
+        </div>
+      </div>
+
+       {/* SECCIÓN HERO PRINCIPAL */}
+        <section className="hero-section" style={{ backgroundImage: `url('/src/assets/img/fondo.jpg')` }}>
+  
+          {/* Capa oscura para que el texto resalte (Overlay) */}
+          <div className="hero-overlay"></div>
+
+          <div className="hero-content">
+            <span className="hero-welcome">BIENVENIDO A AUREA</span>
+            <h1 className="hero-title">El Arte del Cordero</h1>
+            <p className="hero-description">
+              Tradición e innovación en cada plato. Una experiencia <br />
+              gastronómica única diseñada para elevar sus sentidos.
+            </p>
+
+            <div className="hero-action-buttons">
+              <a href="#menu" className="btn-hero-primary">
+                <i className="ri-book-open-line"></i> Ver Menú
+              </a>
+              <a href="#reservas" className="btn-hero-secondary">
+                <i className="ri-calendar-check-line"></i> Reservar Mesa
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* GRID CENTRAL DEL DASHBOARD */}
+        <div className="grid">
+
+          {/* MENU / PLATILLOS DESTACADOS */}
+          <section className="card menu-card-container" id="menu">
+            <div className="card-header">
+              <h2>Platillos Destacados</h2>
+              <button className="btn-mini">
+                Ver todo <i className="ri-arrow-right-line"></i>
               </button>
             </div>
-          </div>
-        </div>
 
-      </nav>
-
-      {/* HERO */}
-      <section className="user-hero" id="inicio">
-        <div className="user-hero-bg" />
-        <div className="user-hero-content">
-          <p className="user-hero-sub">— BIENVENIDO A AUREA —</p>
-          <h1>El Arte del Cordero</h1>
-          <p className="user-hero-desc">
-            Tradición e innovación en cada plato.<br />
-            Una experiencia gastronómica única.
-          </p>
-          <div className="user-hero-btns">
-            <a href="#menu" className="btn-gold-hero">
-              <i className="ri-restaurant-line"></i>
-              Ver Menú
-            </a>
-            <a href="#reservas" className="btn-outline-hero">
-              <i className="ri-calendar-line"></i>
-              Reservar Mesa
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* PROMOCIONES */}
-      <section className="user-section" id="menu">
-        <div className="user-section-header">
-          <p className="user-section-label">PROMOCIONES</p>
-        </div>
-        <div className="promo-grid">
-          <div className="promo-card">
-            <div className="promo-badge">2x1</div>
-            <img src="/plato1.jpeg" alt="promo" />
-            <div className="promo-info">
-              <h4>2x1 en Copas de Vino</h4>
-              <p>Todos los jueves</p>
-              <a href="#">Ver más →</a>
-            </div>
-          </div>
-          <div className="promo-card">
-            <div className="promo-badge">15% OFF</div>
-            <img src="/plato2.jpeg" alt="promo" />
-            <div className="promo-info">
-              <h4>15% de Descuento</h4>
-              <p>En cortes premium</p>
-              <a href="#">Ver más →</a>
-            </div>
-          </div>
-          <div className="promo-card">
-            <div className="promo-badge"><i className="ri-group-line"></i></div>
-            <img src="/plato3.jpeg" alt="promo" />
-            <div className="promo-info">
-              <h4>Combo Familiar</h4>
-              <p>Para 4 personas</p>
-              <a href="#">Ver más →</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PLATILLOS DESTACADOS */}
-      <section className="user-section">
-        <div className="user-section-header">
-          <p className="user-section-label">PLATILLOS DESTACADOS</p>
-          <a href="#menu" className="user-section-link">Ver menú completo →</a>
-        </div>
-        <div className="platillos-grid">
-
-          <div className="platillo-card">
-            <img src="/plato1.jpeg" alt="plato" />
-            <div className="platillo-info">
-              <h4>Costillas de Cordero a la Parrilla</h4>
-              <p>Jugosas y perfectamente asadas, acompañadas de guarniciones frescas.</p>
-              <div className="platillo-footer">
+            <div className="menu-grid">
+              {/* Plato 1 */}
+              <div className="menu-card">
+                <img src="/plato1.jpeg" alt="Costillas" />
+                <h4>Costillas de Cordero</h4>
+                <p>Jugosas y perfectamente asadas a la parrilla con guarnición.</p>
                 <span>Q165.00</span>
-                <button className="btn-add"><i className="ri-add-line"></i></button>
               </div>
-            </div>
-          </div>
 
-          <div className="platillo-card">
-            <img src="/plato2.jpeg" alt="plato" />
-            <div className="platillo-info">
-              <h4>Cordero al Horno con Hierbas</h4>
-              <p>Cocción lenta con hierbas provenzales que resaltan su sabor natural.</p>
-              <div className="platillo-footer">
+              {/* Plato 2 */}
+              <div className="menu-card">
+                <img src="/plato2.jpeg" alt="Cordero Horno" />
+                <h4>Cordero al Horno</h4>
+                <p>Cocción lenta infusionada con finas hierbas provenzales.</p>
                 <span>Q145.00</span>
-                <button className="btn-add"><i className="ri-add-line"></i></button>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="platillo-card">
-            <img src="/plato3.jpeg" alt="plato" />
-            <div className="platillo-info">
-              <h4>Tarta de Cordero y Queso de Cabra</h4>
-              <p>Mezclas perfecta de cordero y queso de cabra en una base crujiente.</p>
-              <div className="platillo-footer">
-                <span>Q120.00</span>
-                <button className="btn-add"><i className="ri-add-line"></i></button>
+          {/* RESERVAS */}
+          <section className="card reserva" id="reservas">
+            <div className="reserva-header">
+              <i className="ri-calendar-check-line"></i>
+              <span>Reserva tu Mesa</span>
+            </div>
+
+            <div className="inputs">
+              <div className="input-box">
+                <i className="ri-user-group-line left-icon"></i>
+                <input type="text" placeholder="Personas" />
+              </div>
+              <div className="input-box">
+                <i className="ri-time-line left-icon"></i>
+                <input type="text" placeholder="Horario" />
               </div>
             </div>
-          </div>
 
-        </div>
+            <button className="btn-reserva">Confirmar Reserva</button>
+          </section>
 
-        {/* OFERTA DEL DÍA */}
-        <div className="oferta-card">
-          <div className="oferta-badge">
-            <i className="ri-time-line"></i>
-            <span>OFERTA VÁLIDA POR HOY</span>
-          </div>
-          <img src="/plato4.jpeg" alt="oferta" />
-          <div className="oferta-info">
-            <h4>Costillas de Cordero + Copa de Vino</h4>
-            <p>Precio especial solo por hoy</p>
-            <span className="oferta-price">Q145.00</span>
-            <button className="btn-gold-hero">
-              <i className="ri-shopping-cart-line"></i>
-              Ordenar ahora
+          {/* PEDIDOS */}
+          <section className="card pedidos" id="pedidos">
+            <h2>Tus Pedidos Activos</h2>
+            <button>
+              <i className="ri-shopping-bag-line"></i>
+              <span>Ver Carrito de Compras (2 items)</span>
             </button>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      {/* RESERVAS */}
-      <section className="user-section" id="reservas">
-        <div className="user-section-header">
-          <p className="user-section-label">RESERVAS</p>
-        </div>
-        <div className="reserva-user-card card">
-          <div className="reserva-header">
-            <i className="ri-calendar-check-line"></i>
-            <span>Reservar mesa</span>
-          </div>
-          <div className="inputs">
-            <div className="input-box">
-              <i className="ri-calendar-line left-icon"></i>
-              <input type="date" />
+          {/* ACCESO RÁPIDO */}
+          <section className="card acceso">
+            <h2>Accesos Rápidos</h2>
+            <div className="quick-grid">
+              <div>
+                <i className="ri-coupon-3-line"></i>
+                <p>Cupones</p>
+              </div>
+              <div>
+                <i className="ri-history-line"></i>
+                <p>Historial</p>
+              </div>
             </div>
-            <div className="input-box">
-              <i className="ri-time-line left-icon"></i>
-              <input type="time" />
+          </section>
+
+          {/* SECCIÓN MARIDAJE */}
+          <section className="card maridaje" id="nosotros">
+            <div className="maridaje-content">
+              <h3>Maridaje Perfecto</h3>
+              <p>Descubre nuestra exclusiva selección de vinos tintos diseñados para potenciar el sabor de nuestros cortes.</p>
+              <ul>
+                <li><i className="ri-checkbox-circle-line"></i> Reservas Especiales</li>
+                <li><i className="ri-checkbox-circle-line"></i> Cosechas Premium</li>
+              </ul>
             </div>
-          </div>
-          <button className="btn-reserva">Reservar Mesa</button>
-        </div>
-      </section>
+          </section>
 
-      {/* PEDIDOS */}
-      <section className="user-section" id="pedidos">
-        <div className="user-section-header">
-          <p className="user-section-label">PEDIDOS</p>
-        </div>
-        <div className="pedidos-user-grid">
-          <button className="pedido-btn">
-            <i className="ri-motorbike-line"></i>
-            Pedir a Domicilio
-          </button>
-          <button className="pedido-btn">
-            <i className="ri-shopping-bag-line"></i>
-            Ordenar para Llevar
-          </button>
-        </div>
-      </section>
+          {/* ESTADO DE MESAS */}
+          <section className="card mesas" id="contacto">
+            <h2>Disponibilidad de Salón</h2>
+            <div className="mesas-list">
+              <div className="mesa-item">
+                <div className="mesa-info">
+                  <span className="mesa-nombre">Mesa Terraza 1</span>
+                  <span className="mesa-hour">Zona Exterior</span>
+                </div>
+                <div className="mesa-right">
+                  <span className="personas"><i className="ri-user-line"></i> 4</span>
+                  <span className="estado disponible">Libre</span>
+                </div>
+              </div>
 
-      {/* FOOTER */}
-      <footer className="user-footer" id="contacto">
+              <div className="mesa-item">
+                <div className="mesa-info">
+                  <span className="mesa-nombre">Mesa Central 4</span>
+                  <span className="mesa-hour">Zona Interior</span>
+                </div>
+                <div className="mesa-right">
+                  <span className="personas"><i className="ri-user-line"></i> 2</span>
+                  <span className="estado ocupado">Ocupada</span>
+                </div>
+              </div>
+            </div>
+          </section>
 
-        <div className="footer-col">
-          <h4>HORARIOS DE ATENCIÓN</h4>
-          <p><i className="ri-time-line"></i> Lunes a Jueves: 12:00 PM – 10:00 PM</p>
-          <p><i className="ri-time-line"></i> Viernes y Sábado: 12:00 PM – 12:00 AM</p>
-          <p><i className="ri-time-line"></i> Domingo: 12:00 PM – 8:00 PM</p>
         </div>
+      </main>
 
-        <div className="footer-col" id="nosotros">
-          <h4>VISÍTANOS</h4>
-          <p><i className="ri-map-pin-line"></i> 5ta avenida 12-45, Zona 10, Ciudad de Guatemala</p>
-          <p><i className="ri-whatsapp-line"></i> +502 5555-1234</p>
-          <button className="btn-reserva" style={{ marginTop: 16 }}>
-            <i className="ri-calendar-check-line"></i>
-            Reservar Mesa
-          </button>
-        </div>
-
-        <div className="footer-col">
-          <h4>SÍGUENOS</h4>
-          <div className="footer-socials">
-            <a href="#"><i className="ri-facebook-circle-line"></i></a>
-            <a href="#"><i className="ri-instagram-line"></i></a>
-            <a href="#"><i className="ri-whatsapp-line"></i></a>
-          </div>
-        </div>
-
-        <div className="footer-bottom">
-          <img src="/logo.png" alt="Aurea" />
-          <p>© 2025 Aurea - El Arte del Cordero. Todos los derechos reservados.</p>
-        </div>
-
-      </footer>
+      {/* WHATSAPP FLOTANTE */}
+      <a href="https://wa.me/50255551234" className="whatsapp-floating-trigger" target="_blank" rel="noreferrer" style={{
+        position: 'fixed', bottom: '30px', right: '30px', background: '#25d366', color: 'white', 
+        width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', 
+        justifyContent: 'center', fontSize: '30px', zIndex: '1000', boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+      }}>
+        <i className="ri-whatsapp-line"></i>
+      </a>
 
     </div>
   );
