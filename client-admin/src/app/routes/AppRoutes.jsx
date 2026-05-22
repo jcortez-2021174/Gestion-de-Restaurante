@@ -10,6 +10,8 @@ import { ReservationsPage } from "../../features/auth/pages/ReservationsPage";
 import { MesasPage } from "../../features/auth/pages/MesasPage";
 import { ClientsPage } from "../../features/auth/pages/ClientsPage";
 import { VerifyEmailPage } from "../../features/auth/pages/VerifyEmailPage";
+import { UserDashboardPage } from "../../features/auth/pages/UserDashboardPage";
+
 
 // =========================
 // RUTA PROTEGIDA
@@ -131,6 +133,15 @@ export const AppRoutes = () => {
             <Route
                 path="*"
                 element={<Navigate to="/login" replace />}
+            />
+            {/* USER HOME */}
+            <Route
+                path="/home"
+                element={
+                    <ProtectedRoute>
+                        <UserDashboardPage />
+                    </ProtectedRoute>
+                }
             />
 
         </Routes>

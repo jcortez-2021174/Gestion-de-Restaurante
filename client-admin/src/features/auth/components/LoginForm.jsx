@@ -77,9 +77,13 @@ export const LoginForm = ({ onForgot }) => {
         const result = await login(formData);
 
         if (result.success) {
-            // 🔥 REDIRECCIÓN CORRECTA (sin recargar toda la app)
-            navigate('/dashboard', { replace: true });
+            const user = useAuthStore.getState().user;
+            if (user?.role === "ADMIN_ROLE") {
+                navigate('/dashboard', { replace: true });
+            } else {
+            navigate('/home', { replace: true });
         }
+}
     };
 
     return (
