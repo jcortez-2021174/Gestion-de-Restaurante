@@ -143,7 +143,11 @@ export const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
-
+            <Route path="/user/menu" element={<div>Menú cliente - próximamente</div>} />
+            <Route path="/user/orders" element={<div>Pedidos cliente - próximamente</div>} />
+            <Route path="/user/reservations" element={<div>Reservas cliente - próximamente</div>} />
+            <Route path="/user/nosotros" element={<div>Sobre nosotros - próximamente</div>} />
+            <Route path="/user/contacto" element={<div>Contacto - próximamente</div>} />
         </Routes>
 
     );
