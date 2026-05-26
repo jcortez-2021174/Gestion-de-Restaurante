@@ -9,6 +9,8 @@ import { OrdersPage } from "../../features/auth/pages/OrdersPage";
 import { ReservationsPage } from "../../features/auth/pages/ReservationsPage";
 import { MesasPage } from "../../features/auth/pages/MesasPage";
 import { ClientsPage } from "../../features/auth/pages/ClientsPage";
+import { ReportsPage } from "../../features/auth/pages/ReportsPage";
+import { SettingsPage } from "../../features/auth/pages/SettingsPage";
 import { VerifyEmailPage } from "../../features/auth/pages/VerifyEmailPage";
 
 import { UserDashboardPage } from "../../features/auth/pages/UserDashboardPage";
@@ -103,14 +105,33 @@ export const AppRoutes = () => {
             />
 
             {/* CLIENTS */}
-            <Route
-                path="/clients"
-                element={
-                    <ProtectedRoute>
-                        <ClientsPage />
-                    </ProtectedRoute>
-                }
-            />
+<Route
+    path="/clients"
+    element={
+        <ProtectedRoute>
+            <ClientsPage />
+        </ProtectedRoute>
+    }
+/>
+
+{/* REPORTS */}
+<Route
+    path="/reports"
+    element={
+        <ProtectedRoute>
+            <ReportsPage />
+        </ProtectedRoute>
+    }
+/>
+
+<Route
+    path="/settings"
+    element={
+        <ProtectedRoute>
+            <SettingsPage />
+        </ProtectedRoute>
+    }
+/>
 
             {/* VERIFY EMAIL */}
             <Route
