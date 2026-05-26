@@ -11,7 +11,7 @@ import { MesasPage } from "../../features/auth/pages/MesasPage";
 import { ClientsPage } from "../../features/auth/pages/ClientsPage";
 import { VerifyEmailPage } from "../../features/auth/pages/VerifyEmailPage";
 import { UserDashboardPage } from "../../features/auth/pages/UserDashboardPage";
-
+import { ClientOrderPage } from "../../features/auth/pages/ClientOrderPage";
 
 // =========================
 // RUTA PROTEGIDA
@@ -144,8 +144,7 @@ export const AppRoutes = () => {
                 }
             />
             <Route path="/user/menu" element={<div>Menú cliente - próximamente</div>} />
-            <Route path="/user/orders" element={<div>Pedidos cliente - próximamente</div>} />
-            <Route path="/user/reservations" element={<div>Reservas cliente - próximamente</div>} />
+            <Route path="/user/orders" element={ <ProtectedRoute> <ClientOrderPage /></ProtectedRoute>}/>            <Route path="/user/reservations" element={<div>Reservas cliente - próximamente</div>} />
             <Route path="/user/nosotros" element={<div>Sobre nosotros - próximamente</div>} />
             <Route path="/user/contacto" element={<div>Contacto - próximamente</div>} />
         </Routes>
