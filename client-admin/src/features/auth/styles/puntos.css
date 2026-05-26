@@ -1,0 +1,662 @@
+/* =========================
+   PUNTOS AUREA PAGE
+========================= */
+ 
+.puntos-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+ 
+.puntos-location-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0e0e0e;
+  border: 1px solid rgba(212,175,55,0.18);
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 40px;
+  font-size: 13px;
+  color: #ccc;
+  cursor: pointer;
+}
+ 
+.puntos-location-pill i {
+  color: var(--gold);
+}
+ 
+/* GRID PRINCIPAL */
+.puntos-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  grid-template-rows: auto;
+  gap: 20px;
+}
+ 
+/* HERO CARD (puntos + progreso) */
+.puntos-hero-card {
+  grid-column: 1 / 2;
+  display: flex;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+ 
+.puntos-hero-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 30px;
+  border-right: 1px solid rgba(212,175,55,0.12);
+}
+ 
+.puntos-disponibles-label {
+  font-size: 13px;
+  color: #888;
+}
+ 
+.puntos-numero-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+ 
+.puntos-star-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: 22px;
+}
+ 
+.puntos-numero {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+ 
+.puntos-equivale {
+  font-size: 14px;
+  color: #999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+ 
+.puntos-equivale strong {
+  color: #fff;
+}
+ 
+.puntos-info-icon {
+  color: var(--gold);
+  font-size: 15px;
+  cursor: pointer;
+}
+ 
+.puntos-ver-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 11px 22px;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+  width: fit-content;
+  margin-top: 4px;
+}
+ 
+.puntos-ver-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+ 
+.puntos-hero-right {
+  flex: 1;
+  padding-left: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+}
+ 
+.puntos-progreso-label {
+  font-size: 13px;
+  color: #888;
+}
+ 
+.puntos-nivel-nombre {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--gold);
+}
+ 
+.puntos-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+ 
+.puntos-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+ 
+.puntos-rate-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 4px;
+}
+ 
+.puntos-rate-row strong {
+  color: #fff;
+}
+ 
+/* Corona decorativa de fondo */
+.puntos-corona-bg {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.04;
+  font-size: 180px;
+  color: var(--gold);
+  pointer-events: none;
+  line-height: 1;
+}
+ 
+/* NIVELES CARD */
+.puntos-niveles-card {
+  grid-column: 2 / 3;
+  grid-row: 1 / 3;
+}
+ 
+.puntos-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 18px;
+}
+ 
+.puntos-niveles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+ 
+.puntos-nivel-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #0b0b0b;
+  border: 1px solid rgba(255,255,255,0.04);
+  transition: border-color 0.2s;
+}
+ 
+.puntos-nivel-item.activo {
+  border-color: rgba(212,175,55,0.35);
+  background: rgba(212,175,55,0.05);
+}
+ 
+.puntos-nivel-icon {
+  font-size: 22px;
+  width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+ 
+.puntos-nivel-info {
+  flex: 1;
+}
+ 
+.puntos-nivel-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+ 
+.puntos-nivel-rango {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+ 
+.puntos-nivel-desc {
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+ 
+/* BENEFICIOS */
+.puntos-beneficios-card {
+  grid-column: 1 / 2;
+}
+ 
+.puntos-beneficios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+ 
+.puntos-ben-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 12px;
+  background: #0b0b0b;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  text-align: center;
+}
+ 
+.puntos-ben-item i {
+  color: var(--gold);
+  font-size: 26px;
+}
+ 
+.puntos-ben-item p {
+  font-size: 12px;
+  color: #ccc;
+  line-height: 1.4;
+}
+ 
+/* ACTIVIDAD */
+.puntos-actividad-card {
+  grid-column: 1 / 2;
+}
+ 
+.puntos-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+ 
+.puntos-ver-todas {
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+ 
+.puntos-ver-todas:hover { opacity: 0.7; }
+ 
+.puntos-actividad-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+ 
+.puntos-act-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+ 
+.puntos-act-item:last-child {
+  border-bottom: none;
+}
+ 
+.puntos-act-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+ 
+.puntos-act-info {
+  flex: 1;
+}
+ 
+.puntos-act-titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+ 
+.puntos-act-fecha {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+ 
+.puntos-act-right {
+  text-align: right;
+}
+ 
+.puntos-act-puntos {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+}
+ 
+.puntos-act-detalle {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+ 
+/* CÓMO GANAR */
+.puntos-ganar-card {
+  grid-column: 2 / 3;
+}
+ 
+.puntos-ganar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+ 
+.puntos-ganar-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+ 
+.puntos-ganar-item > i {
+  color: var(--gold);
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+ 
+.puntos-ganar-titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+ 
+.puntos-ganar-desc {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+ 
+/* RECOMPENSAS */
+.puntos-recompensas-card {
+  grid-column: 1 / 3;
+}
+ 
+.puntos-recomp-slider {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+ 
+.puntos-recomp-item {
+  background: #0b0b0b;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+ 
+.puntos-recomp-item:hover {
+  border-color: rgba(212,175,55,0.35);
+  transform: translateY(-4px);
+}
+ 
+.puntos-recomp-img-wrap {
+  width: 100%;
+  height: 130px;
+  overflow: hidden;
+  position: relative;
+}
+ 
+.puntos-recomp-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+ 
+.puntos-recomp-item:hover .puntos-recomp-img-wrap img {
+  transform: scale(1.06);
+}
+ 
+/* Ícono de expansión top-right */
+.puntos-recomp-img-wrap::after {
+  content: "\F1C4";
+  font-family: "remixicon";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+ 
+.puntos-recomp-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  padding: 12px 12px 4px;
+}
+ 
+.puntos-recomp-pts {
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 700;
+  padding: 0 12px 10px;
+}
+ 
+.puntos-canjear-btn {
+  width: calc(100% - 24px);
+  margin: 0 12px 12px;
+  height: 34px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  border: none;
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+ 
+.puntos-canjear-btn:hover {
+  filter: brightness(1.1);
+}
+ 
+/* SIDEBAR PUNTOS CARD */
+.puntos-sidebar-card {
+  margin-top: 20px;
+  padding: 20px 16px;
+  background: linear-gradient(160deg, #111, #070707);
+  border: 1px solid rgba(212,175,55,0.18);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+ 
+.psc-crown {
+  color: var(--gold);
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+ 
+.psc-nivel-label {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+ 
+.psc-nivel-nombre {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+}
+ 
+.psc-pts {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+ 
+.psc-pts-label {
+  font-size: 11px;
+  color: #666;
+}
+ 
+.psc-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 6px 0 2px;
+}
+ 
+.psc-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  border-radius: 6px;
+}
+ 
+.psc-faltan {
+  font-size: 11px;
+  color: #666;
+  line-height: 1.4;
+}
+ 
+.psc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+  border-radius: 8px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 16px;
+  text-decoration: none;
+  margin-top: 6px;
+  transition: filter 0.2s;
+}
+ 
+.psc-btn:hover { filter: brightness(1.1); }
+ 
+/* FOOTER */
+.puntos-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 12px;
+  color: #555;
+}
+ 
+.puntos-footer-socials {
+  display: flex;
+  gap: 14px;
+}
+ 
+.puntos-footer-socials a {
+  color: #555;
+  font-size: 18px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+ 
+.puntos-footer-socials a:hover {
+  color: var(--gold);
+}
+ 
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .puntos-grid {
+    grid-template-columns: 1fr;
+  }
+  .puntos-niveles-card {
+    grid-column: 1 / 2;
+    grid-row: auto;
+  }
+  .puntos-ganar-card {
+    grid-column: 1 / 2;
+  }
+  .puntos-recompensas-card {
+    grid-column: 1 / 2;
+  }
+  .puntos-beneficios-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .puntos-recomp-slider {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+ 
+@media (max-width: 700px) {
+  .puntos-hero-card {
+    flex-direction: column;
+  }
+  .puntos-hero-left {
+    border-right: none;
+    border-bottom: 1px solid rgba(212,175,55,0.12);
+    padding-right: 0;
+    padding-bottom: 20px;
+  }
+  .puntos-hero-right {
+    padding-left: 0;
+    padding-top: 20px;
+  }
+  .puntos-beneficios-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .puntos-recomp-slider {
+    grid-template-columns: 1fr 1fr;
+  }
+}
