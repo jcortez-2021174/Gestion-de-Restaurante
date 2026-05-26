@@ -10,15 +10,18 @@ import { ReservationsPage } from "../../features/auth/pages/ReservationsPage";
 import { MesasPage } from "../../features/auth/pages/MesasPage";
 import { ClientsPage } from "../../features/auth/pages/ClientsPage";
 import { VerifyEmailPage } from "../../features/auth/pages/VerifyEmailPage";
+
 import { UserDashboardPage } from "../../features/auth/pages/UserDashboardPage";
-import { ClientOrderPage } from "../../features/auth/pages/ClientOrderPage";
+import { UserMenuPage } from "../../features/auth/pages/UserMenuPage";
+
+// ✅ IMPORT NUEVO
+import { PuntosAureaPage } from "../../features/auth/pages/PuntosAureaPage";
 
 // =========================
 // RUTA PROTEGIDA
 // =========================
 
 const ProtectedRoute = ({ children }) => {
-
     const token = useAuthStore((state) => state.token);
 
     if (!token) {
@@ -27,7 +30,6 @@ const ProtectedRoute = ({ children }) => {
 
     return children;
 };
-
 
 // =========================
 // ROUTES
@@ -38,11 +40,9 @@ export const AppRoutes = () => {
     const token = useAuthStore((state) => state.token);
 
     return (
-
         <Routes>
 
             {/* LOGIN */}
-
             <Route
                 path="/login"
                 element={
@@ -53,7 +53,6 @@ export const AppRoutes = () => {
             />
 
             {/* DASHBOARD */}
-
             <Route
                 path="/dashboard"
                 element={
@@ -64,7 +63,6 @@ export const AppRoutes = () => {
             />
 
             {/* MENU */}
-
             <Route
                 path="/menu"
                 element={
@@ -75,7 +73,6 @@ export const AppRoutes = () => {
             />
 
             {/* ORDERS */}
-
             <Route
                 path="/orders"
                 element={
@@ -86,7 +83,6 @@ export const AppRoutes = () => {
             />
 
             {/* RESERVATIONS */}
-
             <Route
                 path="/reservations"
                 element={
@@ -97,7 +93,6 @@ export const AppRoutes = () => {
             />
 
             {/* TABLES */}
-
             <Route
                 path="/tables"
                 element={
@@ -106,9 +101,9 @@ export const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+
             {/* CLIENTS */}
-            
-             <Route
+            <Route
                 path="/clients"
                 element={
                     <ProtectedRoute>
@@ -116,24 +111,19 @@ export const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+
             {/* VERIFY EMAIL */}
             <Route
-            path="/verify-email"
-            element={<VerifyEmailPage />}
+                path="/verify-email"
+                element={<VerifyEmailPage />}
             />
-            {/* HOME */}
 
+            {/* HOME */}
             <Route
                 path="/"
                 element={<Navigate to="/login" replace />}
             />
 
-            {/* 404 */}
-
-            <Route
-                path="*"
-                element={<Navigate to="/login" replace />}
-            />
             {/* USER HOME */}
             <Route
                 path="/home"
@@ -143,11 +133,73 @@ export const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
-            <Route path="/user/menu" element={<div>Menú cliente - próximamente</div>} />
-            <Route path="/user/orders" element={ <ProtectedRoute> <ClientOrderPage /></ProtectedRoute>}/>            <Route path="/user/reservations" element={<div>Reservas cliente - próximamente</div>} />
-            <Route path="/user/nosotros" element={<div>Sobre nosotros - próximamente</div>} />
-            <Route path="/user/contacto" element={<div>Contacto - próximamente</div>} />
-        </Routes>
 
+            {/* USER MENU */}
+            <Route
+                path="/user/menu"
+                element={
+                    <ProtectedRoute>
+                        <UserMenuPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* USER ORDERS */}
+            <Route
+                path="/user/orders"
+                element={
+                    <ProtectedRoute>
+                        <div>Órdenes cliente - próximamente</div>
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* USER RESERVATIONS */}
+            <Route
+                path="/user/reservations"
+                element={
+                    <ProtectedRoute>
+                        <div>Reservas cliente - próximamente</div>
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* USER ABOUT */}
+            <Route
+                path="/user/nosotros"
+                element={
+                    <ProtectedRoute>
+                        <div>Sobre nosotros - próximamente</div>
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* USER CONTACT */}
+            <Route
+                path="/user/contacto"
+                element={
+                    <ProtectedRoute>
+                        <div>Contacto - próximamente</div>
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* ✅ PUNTOS AUREA */}
+            <Route
+                path="/user/puntos-aurea"
+                element={
+                    <ProtectedRoute>
+                        <PuntosAureaPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            {/* 404 */}
+            <Route
+                path="*"
+                element={<Navigate to="/login" replace />}
+            />
+
+        </Routes>
     );
 };
