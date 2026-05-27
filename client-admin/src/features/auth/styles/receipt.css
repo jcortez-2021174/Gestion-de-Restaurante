@@ -1,0 +1,405 @@
+/* =========================================
+   RECEIPT PAPER
+========================================= */
+
+.receipt-paper{
+
+    width:680px;
+
+    margin:0 auto;
+
+    background:white;
+
+    padding:32px;
+
+    color:#111;
+
+    font-family:"Poppins",sans-serif;
+
+    box-sizing:border-box;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.receipt-top{
+
+    display:flex;
+
+    justify-content:flex-start;
+
+    align-items:center;
+
+    gap:18px;
+
+    padding-bottom:18px;
+
+    border-bottom:
+    2px solid #d4af37;
+
+    margin-bottom:22px;
+}
+
+.receipt-top h1{
+
+    font-size:32px;
+
+    color:#b68a2d;
+
+    margin-bottom:4px;
+
+    letter-spacing:3px;
+
+    font-weight:700;
+}
+
+.receipt-top p{
+
+    font-size:13px;
+
+    color:#555;
+
+    margin-bottom:6px;
+}
+
+.receipt-top span{
+
+    font-size:11px;
+
+    color:#777;
+
+    font-style:italic;
+
+    display:block;
+
+    line-height:1.5;
+
+    max-width:280px;
+}
+
+/* =========================================
+   LOGO
+========================================= */
+
+.receipt-logo{
+
+    width:120px;
+
+    height:70px;
+
+    background-image:
+    url("/logo-ticket.png");
+
+    background-size:contain;
+
+    background-repeat:no-repeat;
+
+    background-position:center;
+
+    flex-shrink:0;
+}
+
+/* =========================================
+   BUSINESS INFO
+========================================= */
+
+.receipt-business{
+
+    margin-bottom:24px;
+
+    line-height:1.8;
+
+    color:#444;
+
+    font-size:13px;
+}
+
+.receipt-business p{
+
+    margin-bottom:2px;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.receipt-title{
+
+    background:#111;
+
+    color:white;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    text-align:center;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin-bottom:24px;
+}
+
+/* =========================================
+   INFO
+========================================= */
+
+.receipt-info{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:14px;
+
+    margin-bottom:26px;
+}
+
+.receipt-info div{
+
+    background:#f8f8f8;
+
+    border:
+    1px solid #ececec;
+
+    border-radius:12px;
+
+    padding:12px 14px;
+}
+
+.receipt-info span{
+
+    display:block;
+
+    font-size:11px;
+
+    color:#777;
+
+    margin-bottom:4px;
+}
+
+.receipt-info strong{
+
+    font-size:14px;
+
+    color:#111;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.receipt-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-bottom:28px;
+}
+
+.receipt-table thead{
+
+    background:#d4af37;
+
+    color:#111;
+}
+
+.receipt-table th{
+
+    padding:12px;
+
+    font-size:13px;
+
+    text-align:left;
+
+    font-weight:700;
+}
+
+.receipt-table td{
+
+    padding:14px 12px;
+
+    border-bottom:
+    1px solid #ececec;
+
+    font-size:13px;
+
+    color:#222;
+}
+
+.receipt-table tbody tr:last-child td{
+
+    border-bottom:none;
+}
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.receipt-summary{
+
+    margin-left:auto;
+
+    width:260px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    margin-bottom:28px;
+}
+
+.receipt-summary div{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    font-size:14px;
+}
+
+.receipt-total{
+
+    padding-top:12px;
+
+    border-top:
+    2px solid #111;
+
+    margin-top:6px;
+}
+
+.receipt-total span{
+
+    font-size:18px;
+
+    font-weight:700;
+}
+
+.receipt-total strong{
+
+    font-size:28px;
+
+    color:#b68a2d;
+
+    font-weight:700;
+}
+
+/* =========================================
+   PAYMENT
+========================================= */
+
+.receipt-payment{
+
+    padding:18px;
+
+    background:#fafafa;
+
+    border:
+    1px solid #ececec;
+
+    border-radius:14px;
+
+    margin-bottom:28px;
+}
+
+.receipt-payment div{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:10px;
+
+    font-size:13px;
+}
+
+.receipt-payment div:last-child{
+
+    margin-bottom:0;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.receipt-footer{
+
+    text-align:center;
+
+    border-top:
+    1px solid #ececec;
+
+    padding-top:18px;
+}
+
+.receipt-footer p{
+
+    font-size:15px;
+
+    font-weight:700;
+
+    margin-bottom:6px;
+
+    color:#111;
+}
+
+.receipt-footer small{
+
+    font-size:11px;
+
+    color:#666;
+
+    line-height:1.6;
+}
+
+/* =========================================
+   PRINT
+========================================= */
+
+@media print{
+
+    body *{
+
+        visibility:hidden;
+    }
+
+    #receipt-print,
+    #receipt-print *{
+
+        visibility:visible;
+    }
+
+    #receipt-print{
+
+        position:absolute;
+
+        top:0;
+
+        left:0;
+
+        width:100%;
+
+        background:white;
+    }
+
+    @page{
+
+        size:auto;
+
+        margin:8mm;
+    }
+
+}

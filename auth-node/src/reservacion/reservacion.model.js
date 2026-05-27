@@ -46,4 +46,6 @@ const reservacionSchema = new Schema(
 reservacionSchema.index({ idCliente: 1 });
 reservacionSchema.index({ idMesa: 1 });
 
-export const Reservacion = model('Reservacion', reservacionSchema, 'reservacion');
+const Reservacion = model("Reservacion", reservacionSchema);
+
+export default Reservacion;

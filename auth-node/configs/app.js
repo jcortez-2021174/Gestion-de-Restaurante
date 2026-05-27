@@ -17,6 +17,8 @@ import clienteRoutes from '../src/cliente/cliente.routes.js';
 import reservacionRoutes from '../src/reservacion/reservacion.routes.js';
 import pedidoRoutes from "../src/pedido/pedido.routes.js";
 import categoriaRoutes from '../src/categoria/categoria.routes.js';
+import dashboardRoutes from "../src/dashboard/dashboard.routes.js";
+
 const BASE_PATH = '/AureaRestaurant/Admin/v1';
 
 const routes = (app) => {
@@ -26,8 +28,9 @@ const routes = (app) => {
     app.use(`${BASE_PATH}/reservacion`, reservacionRoutes);
     app.use(`${BASE_PATH}/producto`, productoRoutes);
     app.use(`${BASE_PATH}/pedido`, pedidoRoutes);
-    app.use(`${BASE_PATH}/categoria`, categoriaRoutes); // 👈 faltaba esto
-
+    app.use(`${BASE_PATH}/categoria`, categoriaRoutes); 
+    app.use(`${BASE_PATH}/dashboard`, dashboardRoutes);
+    
     app.get(`${BASE_PATH}/health`, (req, res) => {
         res.status(200).json({
             status: 'Healthy',
@@ -61,7 +64,7 @@ export const initServer = async () => {
     try {
         middlewares(app);
         await dbConnection();
-        swaggerDocs(app);  
+      //  swaggerDocs(app);  
         routes(app);
 
         app.listen(PORT, () => {

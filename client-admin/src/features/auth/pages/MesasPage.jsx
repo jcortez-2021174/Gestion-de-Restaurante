@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import ReceiptPrint from "../components/ReceiptPrint";
 
 import "../styles/mesas.css";
 
@@ -17,10 +18,11 @@ import {
 
 export const MesasPage = () => {
 
-    const terrazaTables = [
+    const initialTables = [
 
         {
             id: 1,
+            zone: "Terraza",
             status: "available",
             type: "square",
             people: "4 Pers."
@@ -28,6 +30,7 @@ export const MesasPage = () => {
 
         {
             id: 2,
+            zone: "Terraza",
             status: "available",
             type: "round",
             people: "2 Pers."
@@ -35,6 +38,7 @@ export const MesasPage = () => {
 
         {
             id: 3,
+            zone: "Terraza",
             status: "reserved",
             type: "square",
             people: "4 Pers.",
@@ -43,6 +47,7 @@ export const MesasPage = () => {
 
         {
             id: 4,
+            zone: "Terraza",
             status: "occupied",
             type: "round",
             people: "6 Pers."
@@ -50,6 +55,7 @@ export const MesasPage = () => {
 
         {
             id: 5,
+            zone: "Terraza",
             status: "available",
             type: "square",
             people: "4 Pers."
@@ -57,18 +63,16 @@ export const MesasPage = () => {
 
         {
             id: 6,
+            zone: "Terraza",
             status: "cleaning",
             type: "square",
             people: "4 Pers.",
             label: "Limpieza"
-        }
-
-    ];
-
-    const salonTables = [
+        },
 
         {
             id: 7,
+            zone: "Salón Principal",
             status: "occupied",
             type: "round",
             people: "4 Pers."
@@ -76,6 +80,7 @@ export const MesasPage = () => {
 
         {
             id: 8,
+            zone: "Salón Principal",
             status: "occupied",
             type: "square",
             people: "2 Pers."
@@ -83,6 +88,7 @@ export const MesasPage = () => {
 
         {
             id: 9,
+            zone: "Salón Principal",
             status: "available",
             type: "round",
             people: "2 Pers."
@@ -90,13 +96,15 @@ export const MesasPage = () => {
 
         {
             id: 10,
-            status: "occupied active-table",
+            zone: "Salón Principal",
+            status: "occupied",
             type: "rect",
             people: "6 Pers."
         },
 
         {
             id: 11,
+            zone: "Salón Principal",
             status: "available",
             type: "square",
             people: "4 Pers."
@@ -104,6 +112,7 @@ export const MesasPage = () => {
 
         {
             id: 12,
+            zone: "Salón Principal",
             status: "reserved",
             type: "square",
             people: "4 Pers.",
@@ -112,6 +121,7 @@ export const MesasPage = () => {
 
         {
             id: 13,
+            zone: "Salón Principal",
             status: "available",
             type: "square",
             people: "4 Pers."
@@ -119,6 +129,7 @@ export const MesasPage = () => {
 
         {
             id: 14,
+            zone: "Salón Principal",
             status: "cleaning",
             type: "square",
             people: "4 Pers.",
@@ -127,6 +138,7 @@ export const MesasPage = () => {
 
         {
             id: 15,
+            zone: "Salón Principal",
             status: "occupied",
             type: "round",
             people: "4 Pers."
@@ -134,85 +146,144 @@ export const MesasPage = () => {
 
         {
             id: 16,
+            zone: "Salón Principal",
             status: "available",
             type: "square",
             people: "2 Pers."
-        },
+        }
 
-        {
-            id: 17,
-            status: "occupied",
-            type: "square",
-            people: "2 Pers."
-        },
+    ];
 
-        {
-            id: 18,
+    const [tables, setTables] = useState(initialTables);
+
+    const [selectedTable, setSelectedTable] = useState(initialTables[9]);
+
+    const [activeFilter, setActiveFilter] = useState("Todas");
+
+    const [search, setSearch] = useState("");
+
+    const [showOrderModal, setShowOrderModal] = useState(false);
+
+    const filteredTables = useMemo(() => {
+
+        return tables.filter((table) => {
+
+            const matchesSearch =
+                `Mesa ${table.id}`
+                    .toLowerCase()
+                    .includes(search.toLowerCase());
+
+            if (activeFilter === "Todas") {
+                return matchesSearch;
+            }
+
+            if (activeFilter === "Disponibles") {
+                return matchesSearch && table.status === "available";
+            }
+
+            if (activeFilter === "Ocupadas") {
+                return matchesSearch && table.status === "occupied";
+            }
+
+            if (activeFilter === "Reservadas") {
+                return matchesSearch && table.status === "reserved";
+            }
+
+            if (activeFilter === "Limpieza") {
+                return matchesSearch && table.status === "cleaning";
+            }
+
+            return matchesSearch;
+
+        });
+
+    }, [tables, activeFilter, search]);
+
+    const availableCount =
+        tables.filter(t => t.status === "available").length;
+
+    const occupiedCount =
+        tables.filter(t => t.status === "occupied").length;
+
+    const reservedCount =
+        tables.filter(t => t.status === "reserved").length;
+
+    const cleaningCount =
+        tables.filter(t => t.status === "cleaning").length;
+
+    const createTable = () => {
+
+        const newTable = {
+
+            id: tables.length + 1,
+            zone: "Salón Principal",
             status: "available",
             type: "square",
             people: "4 Pers."
+
+        };
+
+        setTables([...tables, newTable]);
+
+    };
+
+    const freeTable = () => {
+
+        const updated = tables.map((table) =>
+
+            table.id === selectedTable.id
+
+                ? {
+                    ...table,
+                    status: "available"
+                }
+
+                : table
+
+        );
+
+        setTables(updated);
+
+        setSelectedTable({
+            ...selectedTable,
+            status: "available"
+        });
+
+    };
+
+    const closeTable = () => {
+
+        const updated = tables.filter(
+            table => table.id !== selectedTable.id
+        );
+
+        setTables(updated);
+
+        if (updated.length > 0) {
+            setSelectedTable(updated[0]);
         }
 
-    ];
-
-    const privateTables = [
-
-        {
-            id: 19,
-            status: "reserved",
-            type: "rect",
-            people: "8 Pers.",
-            time: "18:30"
-        },
-
-        {
-            id: 20,
-            status: "occupied",
-            type: "rect",
-            people: "6 Pers."
-        },
-
-        {
-            id: 21,
-            status: "disabled",
-            type: "rect",
-            people: "10 Pers.",
-            label: "Fuera de Servicio"
-        },
-
-        {
-            id: 22,
-            status: "available",
-            type: "rect",
-            people: "10 Pers."
-        }
-
-    ];
-
-    const [selectedTable] = useState(salonTables[3]);
+    };
 
     const renderTable = (table) => (
 
         <div
             key={table.id}
-            className={`table-card ${table.status} ${table.type}`}
+            className={`table-card ${table.status} ${table.type} ${selectedTable.id === table.id ? "active-table" : ""}`}
+            onClick={() => setSelectedTable(table)}
         >
 
-            {/* GLOW */}
             <div className="table-glow"></div>
 
-            {/* CHAIRS */}
             <span className="chair top"></span>
             <span className="chair bottom"></span>
             <span className="chair left"></span>
             <span className="chair right"></span>
 
-            {/* NUMBER */}
             <div className="table-number">
                 Mesa {table.id}
             </div>
 
-            {/* PEOPLE */}
             <div className="table-capacity">
 
                 <FaUsers />
@@ -223,7 +294,6 @@ export const MesasPage = () => {
 
             </div>
 
-            {/* TIME */}
             {
                 table.time &&
 
@@ -238,7 +308,6 @@ export const MesasPage = () => {
                 </div>
             }
 
-            {/* LABEL */}
             {
                 table.label &&
 
@@ -255,7 +324,6 @@ export const MesasPage = () => {
 
         <div className="container">
 
-            {/* SIDEBAR */}
             <aside className="sidebar">
 
                 <div className="logo-box">
@@ -265,144 +333,70 @@ export const MesasPage = () => {
                 <ul className="menu">
 
                     <Link to="/dashboard" className="menu-link">
-                        <li>
-                            <i className="ri-home-5-line"></i>
-                            Inicio
-                        </li>
+                        <li><i className="ri-home-5-line"></i>Inicio</li>
                     </Link>
 
                     <Link to="/menu" className="menu-link">
-                        <li>
-                            <i className="ri-restaurant-line"></i>
-                            Menú
-                        </li>
+                        <li><i className="ri-restaurant-line"></i>Menú</li>
                     </Link>
 
                     <Link to="/orders" className="menu-link">
-                        <li>
-                            <i className="ri-shopping-cart-line"></i>
-                            Pedidos
-                        </li>
+                        <li><i className="ri-shopping-cart-line"></i>Pedidos</li>
                     </Link>
 
                     <Link to="/reservations" className="menu-link">
-                        <li>
-                            <i className="ri-calendar-line"></i>
-                            Reservas
-                        </li>
+                        <li><i className="ri-calendar-line"></i>Reservas</li>
                     </Link>
 
                     <Link to="/tables" className="menu-link">
                         <li className="active">
-                            <i className="ri-table-line"></i>
-                            Mesas
+                            <i className="ri-table-line"></i>Mesas
                         </li>
                     </Link>
 
                     <Link to="/clients" className="menu-link">
-                        <li>
-                            <i className="ri-user-line"></i>
-                            Clientes
-                        </li>
+                        <li><i className="ri-user-line"></i>Clientes</li>
                     </Link>
 
                     <Link to="/reports" className="menu-link">
-                        <li>
-                            <i className="ri-bar-chart-line"></i>
-                            Reportes
-                        </li>
+                        <li><i className="ri-bar-chart-line"></i>Reportes</li>
                     </Link>
 
                     <Link to="/settings" className="menu-link">
-                        <li>
-                            <i className="ri-settings-3-line"></i>
-                            Configuración
-                        </li>
+                        <li><i className="ri-settings-3-line"></i>Configuración</li>
                     </Link>
 
                 </ul>
 
-                <div className="sidebar-image">
+               <div className="sidebar-image">
 
-                    <img src="/vino.jpg" alt="" />
+    <img
+        src="/vino.jpg"
+        alt=""
+    />
 
-                    <div className="overlay"></div>
+    <div className="overlay"></div>
 
-                    <div className="sidebar-decor">
-                        <i className="ri-goblet-line"></i>
-                    </div>
+    <div className="sidebar-decor">
 
-                    <p>
-                        Elegancia y servicio
-                        <br />
-                        en cada mesa.
-                    </p>
+        <i className="ri-goblet-line"></i>
 
-                </div>
+    </div>
+
+    <p>
+        Elegancia y servicio premium.
+    </p>
+
+</div>
 
             </aside>
 
-            {/* MAIN */}
             <main className="main">
 
-                {/* HEADER */}
-                <div className="header">
-
-                    <div>
-
-                        <h1>
-                            Gestión de Mesas
-                        </h1>
-
-                        <p>
-                            Visualiza el estado del restaurante en tiempo real.
-                        </p>
-
-                    </div>
-
-                    <div className="user-box">
-
-                        <div className="notification">
-
-                            <i className="ri-notification-3-line"></i>
-
-                            <span className="badge">
-                                5
-                            </span>
-
-                        </div>
-
-                        <div className="divider"></div>
-
-                        <div className="user">
-
-                            <i className="ri-user-line"></i>
-
-                            <div className="user-info">
-
-                                <span>
-                                    Administrador
-                                </span>
-
-                                <small>
-                                    admin@aurea.com
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {/* CONTENT */}
                 <section className="tables-layout">
 
-                    {/* LEFT */}
                     <div className="tables-content card">
 
-                        {/* TOP */}
                         <div className="tables-top">
 
                             <div className="tables-title">
@@ -414,7 +408,10 @@ export const MesasPage = () => {
 
                             </div>
 
-                            <button className="new-table-btn">
+                            <button
+                                className="new-table-btn"
+                                onClick={createTable}
+                            >
 
                                 <FaPlus />
 
@@ -424,30 +421,35 @@ export const MesasPage = () => {
 
                         </div>
 
-                        {/* FILTERS */}
                         <div className="tables-filters">
 
                             <div className="tabs">
 
-                                <button className="active">
-                                    Todas
-                                </button>
+                                {
+                                    [
+                                        "Todas",
+                                        "Disponibles",
+                                        "Ocupadas",
+                                        "Reservadas",
+                                        "Limpieza"
+                                    ].map((tab) => (
 
-                                <button>
-                                    Disponibles
-                                </button>
+                                        <button
+                                            key={tab}
+                                            className={
+                                                activeFilter === tab
+                                                    ? "active"
+                                                    : ""
+                                            }
+                                            onClick={() =>
+                                                setActiveFilter(tab)
+                                            }
+                                        >
+                                            {tab}
+                                        </button>
 
-                                <button>
-                                    Ocupadas
-                                </button>
-
-                                <button>
-                                    Reservadas
-                                </button>
-
-                                <button>
-                                    Limpieza
-                                </button>
+                                    ))
+                                }
 
                             </div>
 
@@ -456,6 +458,10 @@ export const MesasPage = () => {
                                 <input
                                     type="text"
                                     placeholder="Buscar mesa..."
+                                    value={search}
+                                    onChange={(e) =>
+                                        setSearch(e.target.value)
+                                    }
                                 />
 
                                 <FaSearch />
@@ -464,7 +470,6 @@ export const MesasPage = () => {
 
                         </div>
 
-                        {/* STATS */}
                         <div className="tables-stats">
 
                             <div className="stat-card available">
@@ -474,7 +479,7 @@ export const MesasPage = () => {
                                 </div>
 
                                 <div>
-                                    <h3>12</h3>
+                                    <h3>{availableCount}</h3>
                                     <span>Disponibles</span>
                                 </div>
 
@@ -487,7 +492,7 @@ export const MesasPage = () => {
                                 </div>
 
                                 <div>
-                                    <h3>5</h3>
+                                    <h3>{occupiedCount}</h3>
                                     <span>Ocupadas</span>
                                 </div>
 
@@ -500,7 +505,7 @@ export const MesasPage = () => {
                                 </div>
 
                                 <div>
-                                    <h3>3</h3>
+                                    <h3>{reservedCount}</h3>
                                     <span>Reservadas</span>
                                 </div>
 
@@ -513,7 +518,7 @@ export const MesasPage = () => {
                                 </div>
 
                                 <div>
-                                    <h3>2</h3>
+                                    <h3>{cleaningCount}</h3>
                                     <span>Limpieza</span>
                                 </div>
 
@@ -521,62 +526,50 @@ export const MesasPage = () => {
 
                         </div>
 
-                        {/* RESTAURANT MAP */}
                         <div className="restaurant-map">
 
                             <div className="map-header">
-
-                                <h3>
-                                    Plano del Restaurante
-                                </h3>
-
+                                <h3>Plano del Restaurante</h3>
                             </div>
 
                             {/* TERRAZA */}
+
                             <div className="zone">
 
-                                <div className="zone-title">
+                                <h4 className="zone-title">
                                     TERRAZA
-                                </div>
+                                </h4>
 
-                                <div className="tables-grid terrace-grid">
+                                <div className="tables-grid">
 
                                     {
-                                        terrazaTables.map(renderTable)
+                                        filteredTables
+                                            .filter(table =>
+                                                table.zone === "Terraza"
+                                            )
+                                            .map(renderTable)
                                     }
 
                                 </div>
 
                             </div>
 
-                            {/* SALON */}
+                            {/* SALÓN */}
+
                             <div className="zone">
 
-                                <div className="zone-title">
+                                <h4 className="zone-title">
                                     SALÓN PRINCIPAL
-                                </div>
+                                </h4>
 
-                                <div className="tables-grid salon-grid">
-
-                                    {
-                                        salonTables.map(renderTable)
-                                    }
-
-                                </div>
-
-                            </div>
-
-                            {/* PRIVADO */}
-                            <div className="zone">
-
-                                <div className="zone-title">
-                                    SALÓN PRIVADO
-                                </div>
-
-                                <div className="tables-grid private-grid">
+                                <div className="tables-grid">
 
                                     {
-                                        privateTables.map(renderTable)
+                                        filteredTables
+                                            .filter(table =>
+                                                table.zone === "Salón Principal"
+                                            )
+                                            .map(renderTable)
                                     }
 
                                 </div>
@@ -587,7 +580,6 @@ export const MesasPage = () => {
 
                     </div>
 
-                    {/* RIGHT */}
                     <aside className="table-details card">
 
                         <h2>
@@ -600,8 +592,16 @@ export const MesasPage = () => {
                                 Mesa {selectedTable.id}
                             </h3>
 
-                            <span className="badge occupied">
-                                Ocupada
+                            <span className={`badge ${selectedTable.status}`}>
+                                {
+                                    selectedTable.status === "available"
+                                        ? "Disponible"
+                                        : selectedTable.status === "occupied"
+                                            ? "Ocupada"
+                                            : selectedTable.status === "reserved"
+                                                ? "Reservada"
+                                                : "Limpieza"
+                                }
                             </span>
 
                             <div className="detail-list">
@@ -611,15 +611,8 @@ export const MesasPage = () => {
                                     <FaUsers />
 
                                     <div>
-
-                                        <small>
-                                            Capacidad
-                                        </small>
-
-                                        <p>
-                                            6 personas
-                                        </p>
-
+                                        <small>Capacidad</small>
+                                        <p>{selectedTable.people}</p>
                                     </div>
 
                                 </div>
@@ -629,15 +622,8 @@ export const MesasPage = () => {
                                     <FaMapMarkerAlt />
 
                                     <div>
-
-                                        <small>
-                                            Ubicación
-                                        </small>
-
-                                        <p>
-                                            Salón Principal
-                                        </p>
-
+                                        <small>Ubicación</small>
+                                        <p>{selectedTable.zone}</p>
                                     </div>
 
                                 </div>
@@ -647,15 +633,8 @@ export const MesasPage = () => {
                                     <FaUserTie />
 
                                     <div>
-
-                                        <small>
-                                            Mesero Asignado
-                                        </small>
-
-                                        <p>
-                                            Juan Pérez
-                                        </p>
-
+                                        <small>Mesero Asignado</small>
+                                        <p>Juan Pérez</p>
                                     </div>
 
                                 </div>
@@ -665,15 +644,8 @@ export const MesasPage = () => {
                                     <FaClock />
 
                                     <div>
-
-                                        <small>
-                                            Tiempo en uso
-                                        </small>
-
-                                        <p>
-                                            1h 35m
-                                        </p>
-
+                                        <small>Tiempo en uso</small>
+                                        <p>1h 35m</p>
                                     </div>
 
                                 </div>
@@ -682,88 +654,98 @@ export const MesasPage = () => {
 
                         </div>
 
-                        {/* ORDER */}
-                        <div className="current-order">
+                        {
+                            selectedTable.status === "occupied" && (
 
-                            <h4>
-                                Pedido Actual
-                            </h4>
+                                <div className="current-order">
 
-                            <div className="order-product">
+                                    <h4>
+                                        Pedido Actual
+                                    </h4>
 
-                                <img
-                                    src="/plato1.jpeg"
-                                    alt=""
-                                />
+                              <div className="order-product">
 
-                                <div>
+    <div className="order-product-left">
 
-                                    <p>
-                                        Costillas Premium
-                                    </p>
+        <img
+            src="/plato1.jpeg"
+            alt=""
+        />
 
-                                    <small>
-                                        x2
-                                    </small>
+        <div className="order-product-info">
+
+            <p>
+                Costillas Premium
+            </p>
+
+            <small>x2</small>
+
+        </div>
+
+    </div>
+
+    <strong>Q330</strong>
+
+</div>
+
+<div className="order-product">
+
+    <div className="order-product-left">
+
+        <img
+            src="/plato2.jpeg"
+            alt=""
+        />
+
+        <div className="order-product-info">
+
+            <p>
+                Vino Reserva
+            </p>
+
+            <small>x1</small>
+
+        </div>
+
+    </div>
+
+    <strong>Q180</strong>
+
+</div>
+
+
+                                    <div className="totals">
+
+                                        <div>
+                                            <span>Subtotal</span>
+                                            <strong>Q510</strong>
+                                        </div>
+
+                                        <div>
+                                            <span>IVA</span>
+                                            <strong>Q61</strong>
+                                        </div>
+
+                                        <div className="total-final">
+                                            <span>Total</span>
+                                            <strong>Q571</strong>
+                                        </div>
+
+                                    </div>
 
                                 </div>
 
-                                <strong>
-                                    Q330
-                                </strong>
+                            )
+                        }
 
-                            </div>
-
-                            <div className="order-product">
-
-                                <img
-                                    src="/plato2.jpeg"
-                                    alt=""
-                                />
-
-                                <div>
-
-                                    <p>
-                                        Vino Reserva
-                                    </p>
-
-                                    <small>
-                                        x1
-                                    </small>
-
-                                </div>
-
-                                <strong>
-                                    Q180
-                                </strong>
-
-                            </div>
-
-                            <div className="totals">
-
-                                <div>
-                                    <span>Subtotal</span>
-                                    <strong>Q510</strong>
-                                </div>
-
-                                <div>
-                                    <span>IVA</span>
-                                    <strong>Q61</strong>
-                                </div>
-
-                                <div className="total-final">
-                                    <span>Total</span>
-                                    <strong>Q571</strong>
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* BUTTONS */}
                         <div className="detail-buttons">
 
-                            <button className="gold-btn">
+                            <button
+                                className="gold-btn"
+                                onClick={() =>
+                                    setShowOrderModal(true)
+                                }
+                            >
 
                                 <FaShoppingCart />
 
@@ -771,11 +753,17 @@ export const MesasPage = () => {
 
                             </button>
 
-                            <button className="dark-btn">
+                            <button
+                                className="dark-btn"
+                                onClick={freeTable}
+                            >
                                 Liberar Mesa
                             </button>
 
-                            <button className="danger-btn">
+                            <button
+                                className="danger-btn"
+                                onClick={closeTable}
+                            >
                                 Cerrar Mesa
                             </button>
 
@@ -786,6 +774,230 @@ export const MesasPage = () => {
                 </section>
 
             </main>
+
+            {
+                showOrderModal && (
+
+                    <div
+                        className="order-modal-overlay"
+                        onClick={() =>
+                            setShowOrderModal(false)
+                        }
+                    >
+
+                        <div
+                            className="order-modal"
+                            onClick={(e) =>
+                                e.stopPropagation()
+                            }
+                        >
+
+                            <div className="order-modal-header">
+
+                                <h2>
+                                    Pedido Mesa {selectedTable.id}
+                                </h2>
+
+                                <button
+                                    className="close-modal-btn"
+                                    onClick={() =>
+                                        setShowOrderModal(false)
+                                    }
+                                >
+                                    ✕
+                                </button>
+
+                            </div>
+
+                            <div className="order-modal-products">
+
+                                <div className="modal-product">
+
+                                    <img
+                                        src="/plato1.jpeg"
+                                        alt=""
+                                    />
+
+                                    <div>
+
+                                        <h4>
+                                            Costillas Premium
+                                        </h4>
+
+                                        <p>x2</p>
+
+                                    </div>
+
+                                    <strong>Q330</strong>
+
+                                </div>
+
+                                <div className="modal-product">
+
+                                    <img
+                                        src="/plato2.jpeg"
+                                        alt=""
+                                    />
+
+                                    <div>
+
+                                        <h4>
+                                            Vino Reserva
+                                        </h4>
+
+                                        <p>x1</p>
+
+                                    </div>
+
+                                    <strong>Q180</strong>
+
+                                </div>
+
+                            </div>
+
+                            <div className="modal-totals">
+
+                                <div>
+
+                                    <span>Subtotal</span>
+
+                                    <strong>Q510</strong>
+
+                                </div>
+
+                                <div>
+
+                                    <span>IVA</span>
+
+                                    <strong>Q61</strong>
+
+                                </div>
+
+                                <div className="modal-total-final">
+
+                                    <span>Total</span>
+
+                                    <strong>Q571</strong>
+
+                                </div>
+
+                            </div>
+
+                            <div className="modal-buttons">
+
+    <button
+        className="gold-btn"
+        onClick={() => {
+
+            const printContent =
+                document.getElementById(
+                    "receipt-print"
+                ).innerHTML;
+
+            const printWindow =
+                window.open(
+                    "",
+                    "",
+                    "width=900,height=700"
+                );
+
+            printWindow.document.write(`
+
+                <html>
+
+                    <head>
+
+                        <title>
+                            Recibo Aurea
+                        </title>
+
+                        <link
+                            rel="stylesheet"
+                            href="/receipt.css"
+                        />
+
+                    </head>
+
+                    <body>
+
+                        ${printContent}
+
+                    </body>
+
+                </html>
+
+            `);
+
+            printWindow.document.close();
+
+            printWindow.focus();
+
+            setTimeout(() => {
+
+                printWindow.print();
+
+            },500);
+
+        }}
+    >
+        Imprimir Recibo
+    </button>
+
+    <button
+        className="dark-btn"
+        onClick={() => {
+
+            const content =
+                document.getElementById(
+                    "receipt-print"
+                ).outerHTML;
+
+            const blob =
+                new Blob(
+                    [content],
+                    {
+                        type:"text/html"
+                    }
+                );
+
+            const link =
+                document.createElement("a");
+
+            link.href =
+                URL.createObjectURL(blob);
+
+            link.download =
+                `recibo-mesa-${selectedTable.id}.html`;
+
+            link.click();
+
+        }}
+    >
+        Exportar Recibo
+    </button>
+
+</div>
+
+                        </div>
+
+                    </div>
+
+                )
+            }
+
+            <div style={{ display:"none" }}>
+
+                {
+                    selectedTable && (
+
+                        <ReceiptPrint
+                            selectedTable={selectedTable}
+                        />
+
+                    )
+                }
+
+            </div>
 
         </div>
 
