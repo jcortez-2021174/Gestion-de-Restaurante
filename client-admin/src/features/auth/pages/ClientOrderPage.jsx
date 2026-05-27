@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useOrders } from "../../../context/OrdersContext";
+import "../styles/dashboard.css";
 
 import "../styles/orders.css"; 
 
