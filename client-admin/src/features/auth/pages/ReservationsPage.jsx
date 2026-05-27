@@ -1,93 +1,412 @@
-import { Link } from "react-router-dom";
+import {
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
+import { Link }
+from "react-router-dom";
+
+import {
+    useReservations
+} from "../../../context/ReservationsContext";
+
 import "../styles/reservations.css";
 
 export const ReservationsPage = () => {
+
+    const {
+
+        reservations,
+
+        setReservations,
+
+        updateReservationStatus,
+
+        deleteReservation
+
+    } = useReservations();
+
+    /* ===================================
+       STATES
+    =================================== */
+
+    const [selectedReservation,
+    setSelectedReservation] =
+    useState(null);
+
+    const [activeFilter,
+    setActiveFilter] =
+    useState("Todas");
+
+    const [search,
+    setSearch] =
+    useState("");
+
+    const [showModal,
+    setShowModal] =
+    useState(false);
+
+    const [newReservation,
+    setNewReservation] =
+    useState({
+
+        client:"",
+
+        phone:"",
+
+        date:"",
+
+        hour:"",
+
+        people:"",
+
+        table:"",
+
+        notes:""
+
+    });
+
+    /* ===================================
+       AUTO SELECT
+    =================================== */
+
+    useEffect(() => {
+
+        if(
+            reservations.length > 0 &&
+            !selectedReservation
+        ){
+
+            setSelectedReservation(
+                reservations[0]
+            );
+        }
+
+    }, [reservations]);
+
+    /* ===================================
+       FILTERS
+    =================================== */
+
+    const filteredReservations =
+    useMemo(() => {
+
+        let filtered =
+            [...reservations];
+
+        if(activeFilter === "Confirmadas"){
+
+            filtered =
+                filtered.filter(
+                    (r) =>
+                        r.status ===
+                        "Confirmada"
+                );
+        }
+
+        if(activeFilter === "Canceladas"){
+
+            filtered =
+                filtered.filter(
+                    (r) =>
+                        r.status ===
+                        "Cancelada"
+                );
+        }
+
+        if(activeFilter === "Hoy"){
+
+            const today =
+                new Date()
+                .toLocaleDateString();
+
+            filtered =
+                filtered.filter(
+                    (r) =>
+                        r.date === today
+                );
+        }
+
+        filtered =
+            filtered.filter((r) =>
+
+                r.client
+                .toLowerCase()
+                .includes(
+                    search.toLowerCase()
+                ) ||
+
+                r.id
+                .toLowerCase()
+                .includes(
+                    search.toLowerCase()
+                )
+            );
+
+        return filtered;
+
+    }, [
+        reservations,
+        activeFilter,
+        search
+    ]);
+
+    /* ===================================
+       ADD RESERVATION
+    =================================== */
+
+    const addReservation = () => {
+
+        if(
+
+            !newReservation.client ||
+
+            !newReservation.phone ||
+
+            !newReservation.date ||
+
+            !newReservation.hour ||
+
+            !newReservation.people ||
+
+            !newReservation.table
+
+        ){
+
+            alert(
+                "Completa todos los campos"
+            );
+
+            return;
+        }
+
+        const reservation = {
+
+            id:
+                "#RES" +
+                Math.floor(
+                    1000 +
+                    Math.random() * 9000
+                ),
+
+            client:
+                newReservation.client,
+
+            phone:
+                newReservation.phone,
+
+            date:
+                newReservation.date,
+
+            hour:
+                newReservation.hour,
+
+            people:
+                newReservation.people,
+
+            table:
+                newReservation.table,
+
+            notes:
+                newReservation.notes,
+
+            status:
+                "Pendiente",
+
+            createdAt:
+                new Date()
+                .toLocaleDateString()
+
+        };
+
+        setReservations((prev) => [
+
+            reservation,
+
+            ...prev
+
+        ]);
+
+        setShowModal(false);
+
+        setNewReservation({
+
+            client:"",
+
+            phone:"",
+
+            date:"",
+
+            hour:"",
+
+            people:"",
+
+            table:"",
+
+            notes:""
+
+        });
+
+    };
 
     return (
 
         <div className="container">
 
             {/* SIDEBAR */}
+
             <aside className="sidebar">
 
                 <div className="logo-box">
-                    <img src="/logo.png" alt="logo" />
+
+                    <img
+                        src="/logo.png"
+                        alt="logo"
+                    />
+
                 </div>
 
                 <ul className="menu">
 
-                    <Link to="/dashboard" className="menu-link">
+                    <Link
+                        to="/dashboard"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-home-5-line"></i>
+
                             Inicio
+
                         </li>
                     </Link>
 
-                    <Link to="/menu" className="menu-link">
+                    <Link
+                        to="/menu"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-restaurant-line"></i>
+
                             Menú
+
                         </li>
                     </Link>
 
-                    <Link to="/orders" className="menu-link">
+                    <Link
+                        to="/orders"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-shopping-cart-line"></i>
+
                             Pedidos
+
                         </li>
                     </Link>
 
-                    <Link to="/reservations" className="menu-link">
+                    <Link
+                        to="/reservations"
+                        className="menu-link"
+                    >
                         <li className="active">
+
                             <i className="ri-calendar-line"></i>
+
                             Reservas
+
+                            <span className="badge">
+
+                                {
+                                    reservations.filter(
+                                        (r) =>
+                                            r.status !==
+                                            "Finalizada"
+                                    ).length
+                                }
+
+                            </span>
+
                         </li>
                     </Link>
 
-                    <Link to="/tables" className="menu-link">
+                    <Link
+                        to="/tables"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-table-line"></i>
+
                             Mesas
+
                         </li>
                     </Link>
 
-                    <Link to="/clients" className="menu-link">
+                    <Link
+                        to="/clients"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-user-line"></i>
+
                             Clientes
+
                         </li>
                     </Link>
 
-                    <Link to="/reports" className="menu-link">
+                    <Link
+                        to="/reports"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-bar-chart-line"></i>
+
                             Reportes
+
                         </li>
                     </Link>
 
-                    <Link to="/settings" className="menu-link">
+                    <Link
+                        to="/settings"
+                        className="menu-link"
+                    >
                         <li>
+
                             <i className="ri-settings-3-line"></i>
+
                             Configuración
+
                         </li>
                     </Link>
 
                 </ul>
 
-                <div className="sidebar-image">
+                <div className="sidebar-image reservations-sidebar">
 
-                    <img src="/vino.jpg" alt="vino" />
+                    <img
+                        src="/vino.jpg"
+                        alt=""
+                    />
 
                     <div className="overlay"></div>
 
                     <div className="sidebar-decor">
-                        <i className="ri-goblet-line"></i>
+
+                        <i className="ri-calendar-check-line"></i>
+
                     </div>
 
                     <p>
-                        No es solo comida,
-                        <br />
-                        es una experiencia.
+
+                        Las mejores experiencias
+                        comienzan con una reserva.
+
                     </p>
 
                 </div>
@@ -95,17 +414,21 @@ export const ReservationsPage = () => {
             </aside>
 
             {/* MAIN */}
+
             <main className="main">
 
                 {/* HEADER */}
+
                 <div className="header">
 
                     <div>
 
-                        <h2>Reservaciones</h2>
+                        <h2>
+                            RESERVACIONES
+                        </h2>
 
                         <p>
-                            Gestión de reservaciones en tiempo real.
+                            Gestión premium de reservas.
                         </p>
 
                     </div>
@@ -117,230 +440,240 @@ export const ReservationsPage = () => {
                             <i className="ri-notification-3-line"></i>
 
                             <span className="badge">
-                                3
+
+                                {
+                                    reservations.filter(
+                                        (r) =>
+                                            r.status !==
+                                            "Finalizada"
+                                    ).length
+                                }
+
                             </span>
 
                         </div>
 
-                        <div className="divider"></div>
-
-                        <div className="user">
-
-                            <i className="ri-user-line"></i>
-
-                            <div className="user-info">
-
-                                <span>Administrador</span>
-
-                                <small>
-                                    admin@aurea.com
-                                </small>
-
-                            </div>
-
-                            <i className="ri-arrow-down-s-line"></i>
-
-                        </div>
+                        
 
                     </div>
 
                 </div>
 
                 {/* CONTENT */}
-                <div className="reservations-layout">
+<div className="reservations-layout">
 
-                    {/* LEFT */}
-                    <section className="reservations-table">
+    {/* LEFT */}
 
-                        <div className="section-header">
+    <section className="reservations-table">
 
-                            <h2>
+        <div className="section-header">
 
-                                <i className="ri-calendar-check-line"></i>
+            <h2>
 
-                                RESERVACIONES
+                <i className="ri-calendar-check-line"></i>
 
-                            </h2>
+                RESERVACIONES
 
-                            <button className="new-btn">
+            </h2>
 
-                                <i className="ri-add-line"></i>
+            <button
+                className="new-btn"
+                onClick={() =>
+                    setShowModal(true)
+                }
+            >
 
-                                Nueva Reserva
+                <i className="ri-add-line"></i>
 
-                            </button>
+                Nueva Reserva
 
-                        </div>
+            </button>
 
-                        {/* FILTERS */}
-                        <div className="filters">
+        </div>
 
-                            <div className="tabs">
+        {/* FILTERS */}
 
-                                <button className="active">
-                                    Todas
-                                </button>
+        <div className="filters">
 
-                                <button>Hoy</button>
+            <div className="tabs">
 
-                                <button>Mañana</button>
+                {
+                    [
+                        "Todas",
+                        "Hoy",
+                        "Confirmadas",
+                        "Canceladas"
+                    ].map((tab,index) => (
 
-                                <button>Esta Semana</button>
+                        <button
+                            key={index}
+                            className={
+                                activeFilter === tab
+                                ? "active"
+                                : ""
+                            }
+                            onClick={() =>
+                                setActiveFilter(tab)
+                            }
+                        >
 
-                                <button>Confirmadas</button>
+                            {tab}
 
-                                <button>Canceladas</button>
+                        </button>
 
-                            </div>
+                    ))
+                }
 
-                            <div className="search-box">
+            </div>
 
-                                <input
-                                    type="text"
-                                    placeholder="Buscar reserva..."
-                                />
+            <div className="search-box">
 
-                                <i className="ri-search-line"></i>
+                <input
+                    type="text"
+                    placeholder="Buscar reserva..."
+                    value={search}
+                    onChange={(e) =>
+                        setSearch(
+                            e.target.value
+                        )
+                    }
+                />
 
-                            </div>
+                <i className="ri-search-line"></i>
 
-                        </div>
+            </div>
 
-                        {/* TABLE HEADER */}
-                        <div className="table-header">
+        </div>
 
-                            <span>ID</span>
-                            <span>Cliente</span>
-                            <span>Fecha</span>
-                            <span>Hora</span>
-                            <span>Personas</span>
-                            <span>Mesa</span>
-                            <span>Estado</span>
-                            <span>Acciones</span>
+        {/* TABLE HEADER */}
 
-                        </div>
+        <div className="table-header">
 
-                        {/* ROW 1 */}
-                        <div className="reservation-row active-row">
+            <span>ID</span>
+            <span>Cliente</span>
+            <span>Fecha</span>
+            <span>Hora</span>
+            <span>Personas</span>
+            <span>Mesa</span>
+            <span>Estado</span>
+            <span>Acciones</span>
 
-                            <span>#RES1001</span>
+        </div>
+
+        {/* SCROLL SOLO AQUÍ */}
+
+        <div className="reservations-scroll">
+
+            {
+                filteredReservations.map(
+                    (
+                        reservation,
+                        index
+                    ) => (
+
+                        <div
+                            key={index}
+                            className={`reservation-row ${
+                                selectedReservation?.id ===
+                                reservation.id
+                                ? "active-row"
+                                : ""
+                            }`}
+                            onClick={() =>
+                                setSelectedReservation(
+                                    reservation
+                                )
+                            }
+                        >
+
+                            <span>
+                                {reservation.id}
+                            </span>
 
                             <div>
 
-                                <h4>Carlos Cortez</h4>
+                                <h4>
+                                    {reservation.client}
+                                </h4>
 
-                                <small>5555 1234</small>
+                                <small>
+                                    {reservation.phone}
+                                </small>
 
                             </div>
 
-                            <span>24/05/2025</span>
+                            <span>
+                                {reservation.date}
+                            </span>
 
-                            <span>19:00</span>
+                            <span>
+                                {reservation.hour}
+                            </span>
 
-                            <span>4</span>
+                            <span>
+                                {reservation.people}
+                            </span>
 
-                            <span>Mesa #5</span>
+                            <span>
+                                {reservation.table}
+                            </span>
 
-                            <span className="status confirmed">
-                                Confirmada
+                            <span
+                                className={`status ${
+                                    reservation.status ===
+                                    "Confirmada"
+
+                                    ? "confirmed"
+
+                                    : reservation.status ===
+                                    "Cancelada"
+
+                                    ? "cancelled"
+
+                                    : "pending"
+                                }`}
+                            >
+
+                                {reservation.status}
+
                             </span>
 
                             <div className="actions">
 
                                 <button>
+
                                     Ver
+
                                 </button>
 
                                 <button>
+
                                     <i className="ri-more-2-fill"></i>
+
                                 </button>
 
                             </div>
 
                         </div>
 
-                        {/* ROW 2 */}
-                        <div className="reservation-row">
+                    )
+                )
+            }
 
-                            <span>#RES1002</span>
+        </div>
 
-                            <div>
+    </section>
 
-                                <h4>Ana López</h4>
+    {/* RIGHT */}
 
-                                <small>5555 5678</small>
+    <aside className="details-card">
 
-                            </div>
+        <div className="details-content">
 
-                            <span>24/05/2025</span>
+            {
+                selectedReservation ? (
 
-                            <span>20:00</span>
-
-                            <span>2</span>
-
-                            <span>Mesa #8</span>
-
-                            <span className="status confirmed">
-                                Confirmada
-                            </span>
-
-                            <div className="actions">
-
-                                <button>
-                                    Ver
-                                </button>
-
-                                <button>
-                                    <i className="ri-more-2-fill"></i>
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                        {/* ROW 3 */}
-                        <div className="reservation-row">
-
-                            <span>#RES1003</span>
-
-                            <div>
-
-                                <h4>Luis Ramírez</h4>
-
-                                <small>5555 8765</small>
-
-                            </div>
-
-                            <span>25/05/2025</span>
-
-                            <span>18:30</span>
-
-                            <span>6</span>
-
-                            <span>Mesa #12</span>
-
-                            <span className="status pending">
-                                Pendiente
-                            </span>
-
-                            <div className="actions">
-
-                                <button>
-                                    Ver
-                                </button>
-
-                                <button>
-                                    <i className="ri-more-2-fill"></i>
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                    {/* RIGHT */}
-                    <aside className="details-card">
+                    <>
 
                         <h2>
 
@@ -351,52 +684,60 @@ export const ReservationsPage = () => {
                         </h2>
 
                         <div className="badge-status">
-                            Confirmada
+
+                            {
+                                selectedReservation.status
+                            }
+
                         </div>
 
-                        <h3>#RES1001</h3>
+                        <h3>
+
+                            {
+                                selectedReservation.client
+                            }
+
+                        </h3>
 
                         <p className="reservation-date">
-                            Reserva realizada el 22/05/2025
+
+                            Reserva realizada el{" "}
+
+                            {
+                                selectedReservation.createdAt
+                            }
+
                         </p>
 
-                        <div className="detail-item">
+                      <div className="detail-item">
 
-                            <i className="ri-user-line"></i>
+    <i className="ri-calendar-line"></i>
 
-                            <div>
+    <div className="detail-text">
 
-                                <small>Cliente</small>
+        <small>Fecha</small>
 
-                                <p>Carlos Cortez</p>
+        <p>{selectedReservation.date}</p>
 
-                            </div>
+    </div>
 
-                        </div>
-
-                        <div className="detail-item">
-
-                            <i className="ri-calendar-line"></i>
-
-                            <div>
-
-                                <small>Fecha</small>
-
-                                <p>24 Mayo 2025</p>
-
-                            </div>
-
-                        </div>
+</div>
 
                         <div className="detail-item">
 
                             <i className="ri-time-line"></i>
 
-                            <div>
+                            <div className="detail-text">
 
                                 <small>Hora</small>
 
-                                <p>19:00 PM</p>
+                                <p>
+
+                                    {
+                                        selectedReservation.hour
+                                    }
+
+                                </p>
 
                             </div>
 
@@ -406,11 +747,17 @@ export const ReservationsPage = () => {
 
                             <i className="ri-group-line"></i>
 
-                            <div>
+                            <div className="detail-text">
 
                                 <small>Personas</small>
 
-                                <p>4 Personas</p>
+                                <p>
+
+                                    {
+                                        selectedReservation.people
+                                    }
+
+                                </p>
 
                             </div>
 
@@ -420,11 +767,17 @@ export const ReservationsPage = () => {
 
                             <i className="ri-table-line"></i>
 
-                            <div>
+                            <div className="detail-text">
 
                                 <small>Mesa</small>
 
-                                <p>Mesa #5</p>
+                                <p>
+
+                                    {
+                                        selectedReservation.table
+                                    }
+
+                                </p>
 
                             </div>
 
@@ -434,42 +787,209 @@ export const ReservationsPage = () => {
 
                             <i className="ri-message-2-line"></i>
 
-                            <div>
+                            <div className="detail-text">
 
                                 <small>Notas</small>
 
                                 <p>
-                                    Celebración de aniversario.
+
+                                    {
+                                        selectedReservation.notes
+                                    }
+
                                 </p>
 
                             </div>
 
                         </div>
 
-                        <div className="detail-buttons">
+                        {/* ACTIONS */}
 
-                            <button className="edit-btn">
-                                Editar Reserva
-                            </button>
+                    <div className="detail-buttons">
 
-                            <button className="cancel-btn">
-                                Cancelar Reserva
-                            </button>
+    {
+        selectedReservation.status ===
+        "Pendiente" && (
 
-                            <button className="reminder-btn">
-                                Enviar Recordatorio
-                            </button>
+            <>
 
-                        </div>
+                <button
+                    className="edit-btn"
+                    onClick={() => {
 
-                    </aside>
+                        updateReservationStatus(
+                            selectedReservation.id,
+                            "Confirmada"
+                        );
 
-                </div>
+                        setSelectedReservation({
 
-            </main>
+                            ...selectedReservation,
+
+                            status:"Confirmada"
+                        });
+
+                    }}
+                >
+
+                    Confirmar Reserva
+
+                </button>
+
+                <button
+                    className="cancel-btn"
+                    onClick={() => {
+
+                        updateReservationStatus(
+                            selectedReservation.id,
+                            "Cancelada"
+                        );
+
+                        setSelectedReservation({
+
+                            ...selectedReservation,
+
+                            status:"Cancelada"
+                        });
+
+                    }}
+                >
+
+                    Rechazar Reserva
+
+                </button>
+
+            </>
+
+        )
+    }
+
+    {
+        selectedReservation.status ===
+        "Confirmada" && (
+
+            <>
+
+                <button
+                    className="edit-btn"
+                    onClick={() => {
+
+                        updateReservationStatus(
+                            selectedReservation.id,
+                            "Finalizada"
+                        );
+
+                        setSelectedReservation({
+
+                            ...selectedReservation,
+
+                            status:"Finalizada"
+                        });
+
+                    }}
+                >
+
+                    Cliente Llegó
+
+                </button>
+
+                <button
+                    className="cancel-btn"
+                    onClick={() => {
+
+                        updateReservationStatus(
+                            selectedReservation.id,
+                            "Cancelada"
+                        );
+
+                        setSelectedReservation({
+
+                            ...selectedReservation,
+
+                            status:"Cancelada"
+                        });
+
+                    }}
+                >
+
+                    Cancelar Reserva
+
+                </button>
+
+            </>
+
+        )
+    }
+
+    {
+        selectedReservation.status ===
+        "Cancelada" && (
+
+            <button
+                className="delete-btn"
+                onClick={() => {
+
+                    deleteReservation(
+                        selectedReservation.id
+                    );
+
+                    setSelectedReservation(null);
+
+                }}
+            >
+
+                Eliminar Reserva
+
+            </button>
+
+        )
+    }
+
+    {
+        selectedReservation.status ===
+        "Finalizada" && (
+
+            <button
+                className="delete-btn"
+                onClick={() => {
+
+                    deleteReservation(
+                        selectedReservation.id
+                    );
+
+                    setSelectedReservation(null);
+
+                }}
+            >
+
+                Finalizar Registro
+
+            </button>
+
+        )
+    }
+
+</div>
+
+                    </>
+
+                ) : (
+
+                    <div className="empty-detail">
+
+                        Selecciona una reserva
+
+                    </div>
+
+                )
+            }
 
         </div>
 
-    );
+    </aside>
 
+</div>
+</main>
+       </div>     
+    );
 };

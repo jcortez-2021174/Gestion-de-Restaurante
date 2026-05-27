@@ -1,51 +1,27 @@
-@import "./dashboard.css";
+@import "./layout.css";
 
-/* LAYOUT */
+/* ===================================
+   LAYOUT
+=================================== */
+
 .orders-layout{
     display:grid;
     grid-template-columns:1.7fr 0.9fr;
     gap:22px;
 }
 
-/* CONTENT */
-.orders-content{
-    min-height:750px;
-}
+/* ===================================
+   TOP
+=================================== */
 
-/* TOP */
 .orders-top{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:25px;
+
     gap:20px;
-}
 
-.tabs{
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-}
-
-.tabs button{
-    height:48px;
-    padding:0 22px;
-    border-radius:14px;
-    border:1px solid var(--border);
-    background:#0b0b0b;
-    color:white;
-    cursor:pointer;
-    transition:0.25s;
-}
-
-.tabs button.active{
-    background:linear-gradient(
-        90deg,
-        var(--gold),
-        var(--gold-soft)
-    );
-    color:black;
-    font-weight:700;
+    margin-bottom:26px;
 }
 
 .top-actions{
@@ -57,15 +33,30 @@
 .top-actions input{
     width:240px;
     height:48px;
+
     border-radius:14px;
-    border:1px solid var(--border);
+
+    border:1px solid rgba(255,255,255,0.08);
+
     background:#0b0b0b;
+
     color:white;
+
     padding:0 16px;
+
     outline:none;
+
+    transition:0.25s;
 }
 
-/* TABLE */
+.top-actions input:focus{
+    border-color:rgba(212,175,55,0.35);
+}
+
+/* ===================================
+   ORDERS TABLE
+=================================== */
+
 .orders-table{
     display:flex;
     flex-direction:column;
@@ -74,6 +65,7 @@
 
 .order-row{
     display:grid;
+
     grid-template-columns:
     1fr
     1fr
@@ -89,11 +81,16 @@
 
     padding:22px;
 
-    border-radius:18px;
+    border-radius:20px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #0b0b0b,
+        #070707
+    );
 
     border:1px solid rgba(255,255,255,0.05);
-
-    background:#0b0b0b;
 
     cursor:pointer;
 
@@ -101,8 +98,12 @@
 }
 
 .order-row:hover{
+    transform:translateY(-4px);
+
     border-color:rgba(212,175,55,0.35);
-    transform:translateY(-3px);
+
+    box-shadow:
+    0 16px 30px rgba(0,0,0,0.35);
 }
 
 .order-row h4{
@@ -113,13 +114,20 @@
 .order-row span{
     color:#9d9d9d;
     font-size:14px;
-    line-height:1.5;
+    line-height:1.6;
 }
+
+/* ===================================
+   STATUS
+=================================== */
 
 .status{
     padding:10px 14px;
+
     border-radius:12px;
+
     text-align:center;
+
     font-size:13px;
     font-weight:700;
 }
@@ -139,40 +147,67 @@
     color:#8dff9f;
 }
 
+/* ===================================
+   BUTTON VIEW
+=================================== */
+
 .btn-view{
     height:42px;
-    border:none;
+
     border-radius:12px;
-    background:transparent;
+
     border:1px solid rgba(212,175,55,0.25);
+
+    background:transparent;
+
     color:var(--gold);
+
     cursor:pointer;
+
+    transition:0.25s;
 }
 
-/* RIGHT */
-.order-details{
-    min-height:750px;
+.btn-view:hover{
+    background:rgba(212,175,55,0.08);
+
+    border-color:rgba(212,175,55,0.4);
 }
+
+/* ===================================
+   ORDER DETAILS
+=================================== */
 
 .detail-top{
     display:flex;
     align-items:center;
     gap:12px;
+
     margin:20px 0;
 }
 
 .badge-new{
+    padding:8px 14px;
+
+    border-radius:12px;
+
     background:#6b1f1f;
     color:#ffb3b3;
-    padding:8px 14px;
-    border-radius:12px;
+
     font-size:13px;
 }
 
 .detail-box{
-    padding:22px;
-    border-radius:18px;
-    background:#0b0b0b;
+    padding:24px;
+
+    border-radius:20px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #0b0b0b,
+        #070707
+    );
+
     border:1px solid rgba(255,255,255,0.05);
 
     display:flex;
@@ -187,7 +222,10 @@
     line-height:1.7;
 }
 
-/* PRODUCTS */
+/* ===================================
+   PRODUCTS
+=================================== */
+
 .products-list{
     display:flex;
     flex-direction:column;
@@ -198,21 +236,32 @@
     display:flex;
     align-items:center;
     gap:14px;
+
     padding:14px;
+
     border-radius:16px;
-    background:#0b0b0b;
+
+    background:#111111;
+
+    border:1px solid rgba(255,255,255,0.04);
 }
 
 .product-item img{
     width:70px;
     height:70px;
+
     object-fit:cover;
+
     border-radius:14px;
 }
 
-/* TOTALS */
+/* ===================================
+   TOTALS
+=================================== */
+
 .totals{
     margin-top:24px;
+
     display:flex;
     flex-direction:column;
     gap:14px;
@@ -221,11 +270,14 @@
 .totals div{
     display:flex;
     justify-content:space-between;
+    align-items:center;
 }
 
 .total-final{
     margin-top:10px;
+
     padding-top:18px;
+
     border-top:1px solid rgba(255,255,255,0.08);
 }
 
@@ -234,17 +286,45 @@
     font-size:28px;
 }
 
-/* BUTTONS */
+/* ===================================
+   BUTTON SUCCESS
+=================================== */
+
 .btn-success{
-    flex:1;
+    width:100%;
     height:58px;
+
     border:none;
-    border-radius:14px;
-    background:#2f6f2f;
+
+    border-radius:16px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #2f6f2f,
+        #3e8f3e
+    );
+
     color:white;
+
     font-size:16px;
+    font-weight:700;
+
     cursor:pointer;
+
+    transition:0.25s;
 }
+
+.btn-success:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 12px 24px rgba(63,143,63,0.22);
+}
+
+/* ===================================
+   RESPONSIVE
+=================================== */
 
 @media(max-width:1200px){
 
@@ -268,4 +348,150 @@
     .top-actions input{
         width:100%;
     }
+
+}
+
+@media(max-width:768px){
+
+    .detail-top{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+}
+
+.status.Entregado{
+    background:#123a4e;
+    color:#7fd8ff;
+}
+
+.btn-danger{
+
+    width:100%;
+    height:58px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#7a1f1f;
+
+    color:white;
+
+    font-size:16px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.25s;
+
+    margin-top:12px;
+}
+
+/* ===================================
+   MENU BADGE FIX
+=================================== */
+
+.menu li{
+    position:relative;
+}
+
+.badge{
+
+    min-width:22px;
+    height:22px;
+
+    padding:0 6px;
+
+    border-radius:999px;
+
+    background:var(--gold);
+
+    color:black;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:12px;
+    font-weight:700;
+
+    position:absolute;
+
+    top:-8px;
+    right:-8px;
+
+    z-index:5;
+}
+
+.notification{
+    position:relative;
+}
+
+.notification .badge{
+
+    top:-10px;
+    right:-12px;
+}
+
+/* ===================================
+   EXTRA BUTTONS
+=================================== */
+
+.btn-gold{
+
+    width:100%;
+    height:58px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:var(--gold);
+
+    color:black;
+
+    font-size:16px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.25s;
+
+    margin-top:12px;
+}
+
+.btn-gold:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.btn-outline{
+
+    width:100%;
+    height:58px;
+
+    border:1px solid rgba(212,175,55,0.25);
+
+    border-radius:16px;
+
+    background:transparent;
+
+    color:var(--gold);
+
+    font-size:16px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.25s;
+
+    margin-top:12px;
+}
+
+.btn-outline:hover{
+
+    background:rgba(212,175,55,0.08);
+
 }

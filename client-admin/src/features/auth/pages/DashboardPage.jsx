@@ -1,76 +1,164 @@
 import "../styles/dashboard.css";
+
 import { Link } from "react-router-dom";
+import {
+  useMenu
+} from "../../../context/MenuContext";
+import { useEffect, useState } from "react";
+
+import {
+  getDashboardStats
+} from "../../../services/dashboard.service";
 
 export const DashboardPage = () => {
+
+  const {
+    dishes,
+    addDish,
+    editDish,
+    deleteDish
+  } = useMenu();
+
+  const [stats, setStats] = useState({
+    pedidosTotales: 0,
+    reservasTotales: 0,
+    mesasOcupadas: 0,
+    clientesTotales: 0
+  });
+
+ const [newPlate, setNewPlate] = useState({
+  name: "",
+  price: "",
+  description: "",
+  image: ""
+});
+
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [selectedPlate, setSelectedPlate] = useState(null);
+
+  useEffect(() => {
+
+    loadDashboardStats();
+
+  }, []);
+
+  const loadDashboardStats = async () => {
+
+    try {
+
+      const data = await getDashboardStats();
+
+      setStats(data.stats);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
   return (
+
     <div className="container">
 
       {/* SIDEBAR */}
       <aside className="sidebar">
 
         <div className="logo-box">
+
           <img src="/logo.png" alt="logo" />
+
         </div>
 
         <ul className="menu">
 
-    <Link to="/dashboard" className="menu-link">
-        <li>
-            <i className="ri-home-5-line"></i>
-            Inicio
-        </li>
-    </Link>
+          <li>
+            <Link to="/dashboard" className="menu-link">
 
-    <Link to="/menu" className="menu-link">
-        <li>
-            <i className="ri-restaurant-line"></i>
-            Menú
-        </li>
-    </Link>
+              <i className="ri-home-5-line"></i>
 
-    <Link to="/orders" className="menu-link">
-        <li>
-            <i className="ri-shopping-cart-line"></i>
-            Pedidos
-        </li>
-    </Link>
+              Inicio
 
-    <Link to="/reservations" className="menu-link">
-        <li>
-            <i className="ri-calendar-line"></i>
-            Reservas
-        </li>
-    </Link>
+            </Link>
+          </li>
 
-    <Link to="/tables" className="menu-link">
-        <li>
-            <i className="ri-table-line"></i>
-            Mesas
-        </li>
-    </Link>
+          <li>
+            <Link to="/menu" className="menu-link">
 
-    <Link to="/clients" className="menu-link">
-        <li>
-            <i className="ri-user-line"></i>
-            Clientes
-        </li>
-    </Link>
+              <i className="ri-restaurant-line"></i>
 
-    <Link to="/reports" className="menu-link">
-        <li>
-            <i className="ri-bar-chart-line"></i>
-            Reportes
-        </li>
-    </Link>
+              Menú
 
-    <Link to="/settings" className="menu-link">
-        <li>
-            <i className="ri-settings-3-line"></i>
-            Configuración
-        </li>
-    </Link>
+            </Link>
+          </li>
 
-</ul>
+          <li>
+            <Link to="/orders" className="menu-link">
+
+              <i className="ri-shopping-cart-line"></i>
+
+              Pedidos
+
+            </Link>
+          </li>
+
+          <li>
+            <Link to="/reservations" className="menu-link">
+
+              <i className="ri-calendar-line"></i>
+
+              Reservas
+
+            </Link>
+          </li>
+
+          <li>
+            <Link to="/tables" className="menu-link">
+
+              <i className="ri-table-line"></i>
+
+              Mesas
+
+            </Link>
+          </li>
+
+          <li>
+            <Link to="/clients" className="menu-link">
+
+              <i className="ri-user-line"></i>
+
+              Clientes
+
+            </Link>
+          </li>
+
+          <li>
+            <Link to="/reports" className="menu-link">
+
+              <i className="ri-bar-chart-line"></i>
+
+              Reportes
+
+            </Link>
+          </li>
+
+          <li>
+            <Link to="/settings" className="menu-link">
+
+              <i className="ri-settings-3-line"></i>
+
+              Configuración
+
+            </Link>
+          </li>
+
+        </ul>
+
         <div className="sidebar-image">
 
           <img src="/vino.jpg" alt="vino" />
@@ -78,13 +166,17 @@ export const DashboardPage = () => {
           <div className="overlay"></div>
 
           <div className="sidebar-decor">
+
             <i className="ri-goblet-line"></i>
+
           </div>
 
           <p>
+
             No es solo comida,
             <br />
             es una experiencia.
+
           </p>
 
         </div>
@@ -98,18 +190,27 @@ export const DashboardPage = () => {
         <div className="header">
 
           <div>
+
             <h2>Bienvenido a Aurea</h2>
 
             <p>
               Tradición e innovación en cada plato.
             </p>
+
           </div>
 
           <div className="user-box">
 
             <div className="notification">
+
               <i className="ri-notification-3-line"></i>
-              <span className="badge">3</span>
+
+              <span className="badge">
+
+                {stats.pedidosTotales}
+
+              </span>
+
             </div>
 
             <div className="divider"></div>
@@ -119,13 +220,53 @@ export const DashboardPage = () => {
               <i className="ri-user-line"></i>
 
               <div className="user-info">
+
                 <span>Administrador</span>
+
                 <small>admin@aurea.com</small>
+
               </div>
 
               <i className="ri-arrow-down-s-line"></i>
 
             </div>
+
+          </div>
+
+        </div>
+
+        {/* STATS */}
+        <div className="stats-grid">
+
+          <div className="stats-card">
+
+            <h4>Pedidos Totales</h4>
+
+            <h2>{stats.pedidosTotales}</h2>
+
+          </div>
+
+          <div className="stats-card">
+
+            <h4>Reservas Totales</h4>
+
+            <h2>{stats.reservasTotales}</h2>
+
+          </div>
+
+          <div className="stats-card">
+
+            <h4>Mesas Ocupadas</h4>
+
+            <h2>{stats.mesasOcupadas}</h2>
+
+          </div>
+
+          <div className="stats-card">
+
+            <h4>Clientes Totales</h4>
+
+            <h2>{stats.clientesTotales}</h2>
 
           </div>
 
@@ -141,111 +282,91 @@ export const DashboardPage = () => {
 
               <h3>MENÚ DESTACADO</h3>
 
-              <button className="btn-mini">
+              <Link
+                to="/menu"
+                className="btn-mini"
+              >
+
                 <i className="ri-arrow-right-line"></i>
+
                 Ver menú completo
-              </button>
+
+              </Link>
 
             </div>
 
             <div className="menu-grid">
 
-              {/* ITEM */}
-              <div className="menu-card">
+              {
+                dishes.map((plate) => (
 
-                <img src="/plato1.jpeg" alt="" />
+                  <div
+                    key={plate.id}
+                    className="menu-card"
+                  >
 
-                <div className="menu-card-content">
-                  <h4>Costillas de Cordero</h4>
+                    <img
+                      src={plate.image || `/plato${plate.id}.jpeg`}         
+                                   alt=""
+                    />
 
-                  <p>
-                    Jugosas y perfectamente asadas
-                  </p>
+                    <div className="menu-card-content">
 
-                  <span>Q165.00</span>
-                </div>
+                      <h4>{plate.name}</h4>
 
-              </div>
+                      <p>
+                        Especialidad gourmet de la casa
+                      </p>
 
-              {/* ITEM */}
-              <div className="menu-card">
+                      <span>
+                        Q{plate.price}
+                      </span>
 
-                <img src="/plato2.jpeg" alt="" />
+                    </div>
 
-                <div className="menu-card-content">
-
-                  <h4>Cordero al Horno</h4>
-
-                  <p>
-                    Cocción lenta con hierbas
-                  </p>
-
-                  <span>Q185.00</span>
-
-                </div>
-
-              </div>
-
-              {/* ITEM */}
-              <div className="menu-card">
-
-                <img src="/plato3.jpeg" alt="" />
-
-                <div className="menu-card-content">
-
-                  <h4>Brochetas</h4>
-
-                  <p>
-                    Toque fresco de limón
-                  </p>
-
-                  <span>Q140.00</span>
-
-                </div>
-
-              </div>
-
-              {/* ITEM */}
-              <div className="menu-card">
-
-                <img src="/plato4.jpeg" alt="" />
-
-                <div className="menu-card-content">
-
-                  <h4>Tarta</h4>
-
-                  <p>
-                    Base crujiente gourmet
-                  </p>
-
-                  <span>Q120.00</span>
-
-                </div>
-
-              </div>
+                  </div>
+                ))
+              }
 
             </div>
 
-            {/* ACTIONS */}
             <div className="actions">
 
-              <button className="btn-gold">
+              <button
+                className="btn-gold"
+                onClick={() => setShowAddModal(true)}
+              >
 
                 <i className="ri-add-line"></i>
+
                 Agregar Plato
 
               </button>
 
-              <button className="btn-outline">
+              <button
+                className="btn-outline"
+                onClick={() => {
+                  setSelectedPlate(null);
+                  setShowEditModal(true);
+                }}
+              >
 
                 <i className="ri-edit-line"></i>
+
                 Editar Plato
 
               </button>
 
-              <button className="btn-danger">
+              <button
+                className="btn-danger"
+                onClick={() => {
+                  setSelectedPlate(null);
+                  setShowDeleteModal(true);
+                }}
+              >
 
                 <i className="ri-delete-bin-line"></i>
+
                 Eliminar Plato
 
               </button>
@@ -281,16 +402,20 @@ export const DashboardPage = () => {
 
                 <input type="time" />
 
-                <i className="ri-arrow-down-s-line arrow-input"></i>
-
               </div>
 
             </div>
 
-            <button class="btn-reserva">
-    <i class="fa-solid fa-calendar-check"></i>
-    Reservar Mesa
-</button>
+            <Link
+              to="/reservations"
+              className="btn-reserva"
+            >
+
+              <i className="ri-calendar-check-line"></i>
+
+              Reservar Mesa
+
+            </Link>
 
           </div>
 
@@ -299,21 +424,27 @@ export const DashboardPage = () => {
 
             <h3>PEDIDOS</h3>
 
-            <button>
+            <Link
+              to="/orders"
+              className="pedido-btn"
+            >
 
               <i className="ri-motorbike-line"></i>
 
               Pedir a Domicilio
 
-            </button>
+            </Link>
 
-            <button>
+            <Link
+              to="/orders"
+              className="pedido-btn"
+            >
 
               <i className="ri-shopping-bag-line"></i>
 
               Ordenar para Llevar
 
-            </button>
+            </Link>
 
           </div>
 
@@ -328,184 +459,542 @@ export const DashboardPage = () => {
 
             <div className="quick-grid">
 
-              <div>
-                <i className="ri-file-list-3-line"></i>
-                <p>Gestión de pedidos</p>
-              </div>
+              <Link
+                to="/orders"
+                className="quick-link"
+              >
 
-              <div>
-                <i className="ri-restaurant-line"></i>
-                <p>Control de mesas</p>
-              </div>
+                <div>
 
-              <div>
-                <i className="ri-bar-chart-grouped-line"></i>
-                <p>Historial de ventas</p>
-              </div>
+                  <i className="ri-file-list-3-line"></i>
 
-              <div>
-                <i className="ri-user-line"></i>
-                <p>Usuarios</p>
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* MARIDAJE */}
-          <div className="card maridaje">
-
-            <div className="maridaje-content">
-
-              <h3>Maridaje Perfecto</h3>
-
-              <p>
-                El acompañamiento ideal para realizar
-                cada sabor.
-              </p>
-
-              <ul>
-
-                <li>
-                  <i className="ri-checkbox-circle-line"></i>
-                  Vino recomendado
-                </li>
-
-                <li>
-                  <i className="ri-checkbox-circle-line"></i>
-                  Corte premium
-                </li>
-
-                <li>
-                  <i className="ri-checkbox-circle-line"></i>
-                  Experiencia gourmet
-                </li>
-
-              </ul>
-
-            </div>
-
-          </div>
-
-          {/* MESAS */}
-          <div className="card mesas">
-
-            <div className="card-header">
-
-              <h3>Estado de Mesas</h3>
-
-              <button className="btn-mini">
-                Ver todas
-              </button>
-
-            </div>
-
-            <div className="mesas-list">
-
-              {/* ITEM */}
-              <div className="mesa-item">
-
-                <div className="mesa-info">
-
-                  <span className="mesa-nombre">
-                    Mesa #5
-                  </span>
-
-                  <span className="mesa-hora">
-                    7:30 PM
-                  </span>
+                  <p>Gestión de pedidos</p>
 
                 </div>
 
-                <div className="mesa-right">
+              </Link>
 
-                  <div className="personas">
+              <Link
+                to="/tables"
+                className="quick-link"
+              >
 
-                    <i className="ri-user-line"></i>
+                <div>
 
-                    <span>4</span>
+                  <i className="ri-restaurant-line"></i>
 
-                  </div>
-
-                  <span className="estado ocupado">
-                    Ocupada
-                  </span>
-
-                </div>
-
-              </div>
-
-              {/* ITEM */}
-              <div className="mesa-item">
-
-                <div className="mesa-info">
-
-                  <span className="mesa-nombre">
-                    Mesa #8
-                  </span>
-
-                  <span className="mesa-hora">
-                    Disponible
-                  </span>
+                  <p>Control de mesas</p>
 
                 </div>
 
-                <div className="mesa-right">
+              </Link>
 
-                  <div className="personas">
+              <Link
+                to="/reports"
+                className="quick-link"
+              >
 
-                    <i className="ri-user-line"></i>
+                <div>
 
-                    <span>2</span>
+                  <i className="ri-bar-chart-grouped-line"></i>
 
-                  </div>
-
-                  <span className="estado disponible">
-                    Disponible
-                  </span>
-
-                </div>
-
-              </div>
-
-              {/* ITEM */}
-              <div className="mesa-item">
-
-                <div className="mesa-info">
-
-                  <span className="mesa-nombre">
-                    Mesa #12
-                  </span>
-
-                  <span className="mesa-hora">
-                    9:00 PM
-                  </span>
+                  <p>Historial de ventas</p>
 
                 </div>
 
-                <div className="mesa-right">
+              </Link>
 
-                  <div className="personas">
+              <Link
+                to="/clients"
+                className="quick-link"
+              >
 
-                    <i className="ri-user-line"></i>
+                <div>
 
-                    <span>6</span>
+                  <i className="ri-user-line"></i>
 
-                  </div>
-
-                  <span className="estado reservada">
-                    Reservada
-                  </span>
+                  <p>Usuarios</p>
 
                 </div>
 
-              </div>
+              </Link>
 
             </div>
 
           </div>
 
         </div>
+
+
+  {/* MODAL AGREGAR */}
+{
+  showAddModal && (
+
+    <div className="modal-overlay">
+
+      <div className="modal-box">
+
+        <h2>Agregar Plato</h2>
+
+        <p>
+          Completa la información del nuevo plato.
+        </p>
+
+        <form className="modal-form">
+
+          <input
+            type="text"
+            placeholder="Nombre del plato"
+            value={newPlate.name}
+            onChange={(e) =>
+              setNewPlate({
+                ...newPlate,
+                name: e.target.value
+              })
+            }
+          />
+
+          <input
+            type="number"
+            placeholder="Precio"
+            value={newPlate.price}
+            onChange={(e) =>
+              setNewPlate({
+                ...newPlate,
+                price: e.target.value
+              })
+            }
+          />
+
+          <textarea
+            placeholder="Descripción"
+            value={newPlate.description}
+            onChange={(e) =>
+              setNewPlate({
+                ...newPlate,
+                description: e.target.value
+              })
+            }
+          ></textarea>
+
+          <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+
+    const file =
+      e.target.files[0];
+
+    if(file){
+
+      const imageUrl =
+        URL.createObjectURL(file);
+
+      setNewPlate({
+        ...newPlate,
+        image: imageUrl
+      });
+    }
+  }}
+/>
+
+{
+  newPlate.image && (
+
+    <img
+      src={newPlate.image}
+      alt="preview"
+      className="preview-image"
+    />
+
+  )
+}
+
+
+          <div className="modal-actions">
+
+            <button
+              type="button"
+              className="modal-cancel"
+              onClick={() => {
+
+                setNewPlate({
+                  nombre: "",
+                  precio: "",
+                  descripcion: "",
+                  imagen: ""
+                });
+
+                setShowAddModal(false);
+
+              }}
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              className="modal-save"
+              onClick={() => {
+
+             if(
+  !newPlate.name ||
+  !newPlate.price
+){
+  alert(
+    "Completa todos los campos"
+  );
+
+  return;
+}
+
+addDish({
+
+  id: Date.now(),
+
+  name: newPlate.name,
+
+  category: "Dashboard",
+
+  price: Number(newPlate.price).toFixed(2),
+
+  status: "Disponible",
+
+  image:
+    newPlate.image ||
+    "/plato1.jpeg",
+
+  description:
+    newPlate.description
+
+});
+
+                alert(
+                  "Plato agregado correctamente"
+                );
+
+     setNewPlate({
+  name: "",
+  price: "",
+  description: "",
+  image: ""
+});
+
+                setShowAddModal(false);
+
+              }}
+            >
+              Guardar Plato
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+  )
+}
+{
+  showEditModal && (
+
+    <div className="modal-overlay">
+
+      <div className="modal-box">
+
+        <h2>Editar Plato</h2>
+
+        <p>
+          Selecciona el plato que deseas editar.
+        </p>
+
+        {
+          !selectedPlate ? (
+
+            <div className="plate-list">
+
+              {
+                dishes.map((plate) => (
+
+                  <button
+                    key={plate.id}
+                    className="plate-option"
+                    onClick={() =>
+                      setSelectedPlate({
+                        ...plate
+                      })
+                    }
+                  >
+
+                    <div>
+
+                      <h4>{plate.name}</h4>
+
+                      <span>
+                        Q{plate.price}
+                      </span>
+
+                    </div>
+
+                    <i className="ri-edit-line"></i>
+
+                  </button>
+                ))
+              }
+
+            </div>
+
+          ) : (
+
+            <form className="modal-form">
+
+              <input
+                type="text"
+                value={selectedPlate.name}
+                onChange={(e) =>
+                  setSelectedPlate({
+                    ...selectedPlate,
+                    name: e.target.value
+                  })
+                }
+              />
+
+              <input
+                type="number"
+                value={selectedPlate.price}
+                onChange={(e) =>
+                  setSelectedPlate({
+                    ...selectedPlate,
+                    price: e.target.value
+                  })
+                }
+              />
+
+              <textarea
+                value={selectedPlate.description}
+                onChange={(e) =>
+                  setSelectedPlate({
+                    ...selectedPlate,
+                    description: e.target.value
+                  })
+                }
+              ></textarea>
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+
+                  const file =
+                    e.target.files[0];
+
+                  if(file){
+
+                    const imageUrl =
+                      URL.createObjectURL(file);
+
+                    setSelectedPlate({
+                      ...selectedPlate,
+                      image: imageUrl
+                    });
+                  }
+                }}
+              />
+
+              {
+                selectedPlate.image && (
+
+                  <img
+                    src={selectedPlate.image}
+                    alt="preview"
+                    className="preview-image"
+                  />
+
+                )
+              }
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  className="modal-cancel"
+                  onClick={() => {
+
+                    setSelectedPlate(null);
+
+                    setShowEditModal(false);
+
+                  }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  className="modal-save"
+                  onClick={() => {
+
+                    editDish({
+                      ...selectedPlate,
+
+                      price:
+                        Number(
+                          selectedPlate.price
+                        ).toFixed(2)
+                    });
+
+                    alert(
+                      "Plato actualizado correctamente"
+                    );
+
+                    setSelectedPlate(null);
+
+                    setShowEditModal(false);
+
+                  }}
+                >
+                  Guardar Cambios
+                </button>
+
+              </div>
+
+            </form>
+          )
+        }
+
+      </div>
+
+    </div>
+  )
+}
+
+
+{
+  showDeleteModal && (
+
+    <div className="modal-overlay">
+
+      <div className="modal-box">
+
+        {
+          !selectedPlate ? (
+
+            <>
+
+              <h2>
+                Eliminar Plato
+              </h2>
+
+              <p>
+                Selecciona el plato
+                que deseas eliminar.
+              </p>
+
+              <div className="plate-list">
+
+                {
+                  dishes.map((plate) => (
+
+                    <button
+                      key={plate.id}
+                      className="plate-option delete-option"
+                      onClick={() =>
+                        setSelectedPlate({
+                          ...plate
+                        })
+                      }
+                    >
+
+                      <div>
+
+                        <h4>
+                          {plate.name}
+                        </h4>
+
+                        <span>
+                          Q{plate.price}
+                        </span>
+
+                      </div>
+
+                      <i className="ri-delete-bin-line"></i>
+
+                    </button>
+
+                  ))
+                }
+
+              </div>
+
+            </>
+
+          ) : (
+
+            <>
+
+              <h2>
+                Confirmar Eliminación
+              </h2>
+
+              <p>
+                ¿Seguro que deseas eliminar
+                {" "}
+                <strong>
+                  {selectedPlate.name}
+                </strong>
+                ?
+              </p>
+
+              <div className="modal-actions">
+
+                <button
+                  type="button"
+                  className="modal-cancel"
+                  onClick={() => {
+
+                    setSelectedPlate(null);
+
+                  }}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  className="modal-delete"
+                  onClick={() => {
+
+                    deleteDish(
+                      selectedPlate.id
+                    );
+
+                    alert(
+                      "Plato eliminado"
+                    );
+
+                    setSelectedPlate(null);
+
+                    setShowDeleteModal(false);
+
+                  }}
+                >
+                  Eliminar
+                </button>
+
+              </div>
+
+            </>
+
+          )
+        }
+
+      </div>
+
+    </div>
+
+  )
+}
 
       </main>
 

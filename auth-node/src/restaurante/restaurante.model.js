@@ -47,4 +47,6 @@ restauranteSchema.index({ isActive: 1 });
 restauranteSchema.index({ nombre: 1 });
 restauranteSchema.index({ isActive: 1, nombre: 1 });
 
-export default model('Restaurante', restauranteSchema);
+const Restaurante = model("Restaurante", restauranteSchema);
+
+export default Restaurante;

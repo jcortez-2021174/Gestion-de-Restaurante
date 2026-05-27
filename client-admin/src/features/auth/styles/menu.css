@@ -453,3 +453,332 @@
 .menu-link{
     text-decoration:none;
 }
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.actions{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+}
+
+.btn-gold,
+.btn-danger{
+    height:50px;
+
+    padding:0 22px;
+
+    border:none;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-size:15px;
+    font-weight:700;
+
+    transition:0.25s;
+}
+
+.btn-gold{
+    background:
+    linear-gradient(
+        90deg,
+        var(--gold),
+        var(--gold-soft)
+    );
+
+    color:black;
+}
+
+.btn-gold:hover{
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 12px 22px rgba(212,175,55,0.25);
+}
+
+.btn-danger{
+    background:#ff4747;
+    color:white;
+}
+
+.btn-danger:hover{
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 12px 22px rgba(255,71,71,0.22);
+}
+
+/* =========================
+   MODALS
+========================= */
+
+.modal-overlay{
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,0.72);
+
+    backdrop-filter:blur(5px);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:20px;
+
+    z-index:9999;
+
+    animation:fadeIn 0.25s ease;
+}
+
+.modal-box{
+    width:100%;
+    max-width:560px;
+
+    background:
+    linear-gradient(
+        180deg,
+        #111111,
+        #080808
+    );
+
+    border:1px solid rgba(212,175,55,0.14);
+
+    border-radius:26px;
+
+    padding:30px;
+
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+
+    box-shadow:
+    0 25px 50px rgba(0,0,0,0.45);
+
+    animation:scaleIn 0.25s ease;
+}
+
+.modal-box h2{
+    font-size:30px;
+
+    background:
+    linear-gradient(
+        90deg,
+        white,
+        var(--gold-soft)
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.modal-form{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.modal-form input,
+.modal-form textarea,
+.modal-form select{
+    width:100%;
+
+    background:#0b0b0b;
+
+    border:1px solid rgba(255,255,255,0.06);
+
+    border-radius:16px;
+
+    padding:16px;
+
+    color:white;
+
+    outline:none;
+
+    transition:0.25s;
+}
+
+.modal-form input:focus,
+.modal-form textarea:focus,
+.modal-form select:focus{
+    border-color:rgba(212,175,55,0.35);
+}
+
+.modal-form textarea{
+    min-height:130px;
+    resize:none;
+}
+
+/* =========================
+   MODAL ACTIONS
+========================= */
+
+.modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:14px;
+    margin-top:10px;
+}
+
+.modal-cancel,
+.modal-save,
+.modal-delete{
+    height:50px;
+
+    min-width:140px;
+
+    border:none;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-size:15px;
+    font-weight:700;
+
+    transition:0.25s;
+}
+
+.modal-cancel{
+    background:#1b1b1b;
+    color:white;
+}
+
+.modal-cancel:hover{
+    background:#242424;
+}
+
+.modal-save{
+    background:
+    linear-gradient(
+        90deg,
+        var(--gold),
+        var(--gold-soft)
+    );
+
+    color:black;
+}
+
+.modal-save:hover{
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 12px 22px rgba(212,175,55,0.22);
+}
+
+.modal-delete{
+    background:#ff4747;
+    color:white;
+}
+
+.modal-delete:hover{
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 12px 22px rgba(255,71,71,0.22);
+}
+
+/* =========================
+   MODAL PREVIEW IMAGE
+========================= */
+
+.preview-image{
+    width:100%;
+    height:220px;
+
+    object-fit:cover;
+
+    border-radius:18px;
+
+    border:1px solid rgba(212,175,55,0.12);
+}
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state{
+    padding:50px 20px;
+
+    text-align:center;
+
+    color:#9a9a9a;
+}
+
+.empty-state i{
+    font-size:52px;
+
+    color:var(--gold);
+
+    margin-bottom:18px;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+    }
+
+    to{
+        opacity:1;
+    }
+}
+
+@keyframes scaleIn{
+    from{
+        opacity:0;
+        transform:scale(0.92);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+}
+
+/* =========================
+   RESPONSIVE EXTRA
+========================= */
+
+@media(max-width:700px){
+
+    .modal-box{
+        padding:22px;
+    }
+
+    .modal-actions{
+        flex-direction:column;
+    }
+
+    .modal-cancel,
+    .modal-save,
+    .modal-delete{
+        width:100%;
+    }
+
+    .dish-banner{
+        height:220px;
+    }
+}
+
+.preview-image{
+
+  width:100%;
+
+  height:220px;
+
+  object-fit:cover;
+
+  border-radius:18px;
+
+  margin-top:12px;
+
+}

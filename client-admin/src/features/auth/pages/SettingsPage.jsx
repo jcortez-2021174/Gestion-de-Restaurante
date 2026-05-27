@@ -76,21 +76,21 @@ export const SettingsPage = () => {
 
                 <div className="sidebar-image">
 
-                    <img src="/vino.jpg" alt="vino" />
+  <img src="/vino.jpg" alt="configuración" />
 
-                    <div className="overlay"></div>
+  <div className="overlay"></div>
 
-                    <div className="sidebar-decor">
-                        <i className="ri-settings-4-line"></i>
-                    </div>
+  <div className="sidebar-decor">
+    <i className="ri-settings-3-line"></i>
+  </div>
 
-                    <p>
-                        Ajusta cada detalle
-                        <br />
-                        de tu restaurante.
-                    </p>
+  <p>
+    La excelencia nace
+    <br />
+    de una buena gestión.
+  </p>
 
-                </div>
+</div>
 
             </aside>
 

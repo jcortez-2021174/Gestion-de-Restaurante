@@ -123,21 +123,21 @@ export const ReportsPage = () => {
 
                 <div className="sidebar-image">
 
-                    <img src="/vino.jpg" alt="vino" />
+  <img src="/vino.jpg" alt="reportes" />
 
-                    <div className="overlay"></div>
+  <div className="overlay"></div>
 
-                    <div className="sidebar-decor">
-                        <i className="ri-line-chart-line"></i>
-                    </div>
+  <div className="sidebar-decor">
+    <i className="ri-bar-chart-box-line"></i>
+  </div>
 
-                    <p>
-                        Analiza cada detalle
-                        <br />
-                        y optimiza el negocio.
-                    </p>
+  <p>
+    Cada métrica cuenta
+    <br />
+    una historia de crecimiento.
+  </p>
 
-                </div>
+</div>
 
             </aside>
 

@@ -126,21 +126,21 @@ export const ClientsPage = () => {
 
                 <div className="sidebar-image">
 
-                    <img src="/vino.jpg" alt="" />
+  <img src="/vino.jpg" alt="clientes" />
 
-                    <div className="overlay"></div>
+  <div className="overlay"></div>
 
-                    <div className="sidebar-decor">
-                        <i className="ri-goblet-line"></i>
-                    </div>
+  <div className="sidebar-decor">
+    <i className="ri-user-heart-line"></i>
+  </div>
 
-                    <p>
-                        Tradición e innovación
-                        <br />
-                        en cada plato.
-                    </p>
+  <p>
+    Nuestros clientes son
+    <br />
+    el corazón del restaurante.
+  </p>
 
-                </div>
+</div>
 
             </aside>
 
