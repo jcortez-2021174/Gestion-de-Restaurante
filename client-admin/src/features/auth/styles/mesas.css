@@ -1021,3 +1021,379 @@
     }
 
 }
+
+/* =========================================
+   ORDER MODAL
+========================================= */
+
+.order-modal-overlay{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,0.72);
+
+    backdrop-filter:blur(8px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:9999;
+
+    padding:20px;
+}
+
+.order-modal{
+
+    width:100%;
+    max-width:700px;
+
+    background:#0c0c0c;
+
+    border-radius:30px;
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    padding:32px;
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,0.55);
+}
+
+.order-modal-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:30px;
+}
+
+.order-modal-header h2{
+
+    color:white;
+    font-size:32px;
+}
+
+.close-modal-btn{
+
+    width:44px;
+    height:44px;
+
+    border:none;
+    border-radius:14px;
+
+    background:#171717;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:18px;
+}
+
+.order-modal-products{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:20px;
+}
+
+.modal-product{
+
+    display:flex;
+    align-items:center;
+
+    gap:18px;
+
+    padding-bottom:20px;
+
+    border-bottom:
+    1px solid rgba(255,255,255,0.06);
+}
+
+.modal-product img{
+
+    width:90px;
+    height:90px;
+
+    border-radius:18px;
+
+    object-fit:cover;
+}
+
+.modal-product h4{
+
+    color:white;
+    margin-bottom:6px;
+}
+
+.modal-product p{
+
+    color:#9d9d9d;
+}
+
+.modal-product strong{
+
+    margin-left:auto;
+
+    color:white;
+
+    font-size:20px;
+}
+
+.modal-totals{
+
+    margin-top:28px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:16px;
+}
+
+.modal-totals div{
+
+    display:flex;
+    justify-content:space-between;
+
+    color:#d8d8d8;
+}
+
+.modal-total-final{
+
+    padding-top:20px;
+
+    border-top:
+    1px solid rgba(255,255,255,0.08);
+}
+
+.modal-total-final strong{
+
+    color:var(--gold);
+
+    font-size:32px;
+}
+
+.modal-buttons{
+
+    display:flex;
+    gap:16px;
+
+    margin-top:30px;
+}
+
+.modal-buttons button{
+
+    flex:1;
+}
+
+.order-product{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:16px;
+
+    padding:14px 0;
+
+    border-bottom:
+    1px solid rgba(255,255,255,0.06);
+}
+
+.order-product-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+}
+
+.order-product img{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:14px;
+
+    object-fit:cover;
+
+    flex-shrink:0;
+}
+
+.order-product-info{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+}
+
+.order-product-info p{
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    margin:0;
+}
+
+.order-product-info small{
+
+    color:#9d9d9d;
+
+    font-size:13px;
+}
+
+.order-product strong{
+
+    color:white;
+
+    font-size:18px;
+
+    font-weight:700;
+}
+
+/* =========================================
+   SIDEBAR IMAGE
+========================================= */
+
+/* =========================================
+   SIDEBAR IMAGE
+========================================= */
+
+.table-details .sidebar-image{
+
+    position:relative !important;
+
+    width:100% !important;
+
+    height:220px !important;
+
+    min-height:220px !important;
+
+    max-height:220px !important;
+
+    border-radius:24px !important;
+
+    overflow:hidden !important;
+
+    margin-top:24px !important;
+
+    display:block !important;
+
+    flex:none !important;
+
+    border:
+    1px solid rgba(212,175,55,0.12);
+
+    box-shadow:
+    0 10px 40px rgba(0,0,0,0.45);
+}
+
+.table-details .sidebar-image img{
+
+    width:100% !important;
+
+    height:100% !important;
+
+    object-fit:cover !important;
+
+    display:block !important;
+}
+
+.table-details .sidebar-image .overlay{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+    linear-gradient(
+        to top,
+        rgba(0,0,0,0.92),
+        rgba(0,0,0,0.15)
+    );
+
+    z-index:1;
+}
+
+.table-details .sidebar-decor{
+
+    position:absolute;
+
+    top:18px;
+
+    left:18px;
+
+    width:46px;
+
+    height:46px;
+
+    border-radius:14px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:
+    rgba(212,175,55,0.14);
+
+    border:
+    1px solid rgba(212,175,55,0.22);
+
+    z-index:2;
+}
+
+.table-details .sidebar-decor i{
+
+    color:#d4af37;
+
+    font-size:20px;
+}
+
+.table-details .sidebar-image p{
+
+    position:absolute;
+
+    left:20px;
+
+    right:20px;
+
+    bottom:20px;
+
+    color:#d4af37;
+
+    font-size:15px;
+
+    line-height:1.6;
+
+    font-weight:700;
+
+    z-index:3;
+
+    margin:0;
+}
+
+/* =========================================
+   GOLD TEXT
+========================================= */
+
+.gold-text{
+
+    color:#d4af37;
+
+    font-weight:700;
+}

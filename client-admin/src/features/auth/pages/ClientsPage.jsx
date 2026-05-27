@@ -1,161 +1,286 @@
+import { useEffect, useMemo, useState } from "react";
+
 import { Link } from "react-router-dom";
 
 import "../styles/clients.css";
 
 export const ClientsPage = () => {
 
-    const clientsData = [
+    const [clientsData, setClientsData] = useState([]);
 
-        {
-            initials: "JP",
-            name: "Fernanda Mendez EL AMOR DE MI VIDA",
-            email: "fernanda.mendez@email.com",
-            phone: "+502 5555-1234",
-            total: "Q4,850.00",
-            lastVisit: "25/05/2025"
-        },
+    const [selectedClient, setSelectedClient] = useState(null);
 
-        {
-            initials: "ML",
-            name: "María López",
-            email: "maria.lopez@email.com",
-            phone: "+502 5555-5678",
-            total: "Q3,250.00",
-            lastVisit: "22/05/2025"
-        },
+    const [search, setSearch] = useState("");
 
-        {
-            initials: "CA",
-            name: "Carlos Álvarez",
-            email: "carlos.alvarez@email.com",
-            phone: "+502 5555-8765",
-            total: "Q2,980.00",
-            lastVisit: "20/05/2025"
-        },
+    const [loading, setLoading] = useState(true);
 
-        {
-            initials: "LG",
-            name: "Lucía Gómez",
-            email: "lucia.gomez@email.com",
-            phone: "+502 5555-4321",
-            total: "Q2,450.00",
-            lastVisit: "18/05/2025"
-        },
+    const API_URL =
+        "http://localhost:3000";
 
-        {
-            initials: "FM",
-            name: "Fernando Morales",
-            email: "fernando.morales@email.com",
-            phone: "+502 5555-1122",
-            total: "Q1,760.00",
-            lastVisit: "15/05/2025"
+    /* =========================================
+       GET CLIENTS
+    ========================================= */
+
+    useEffect(() => {
+
+        getClientsDashboard();
+
+    }, []);
+
+    const getClientsDashboard = async () => {
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/clientes/dashboard`
+            );
+
+            const data = await response.json();
+
+            setClientsData(data.clientes || []);
+
+            if(data.clientes?.length > 0){
+
+                setSelectedClient(
+                    data.clientes[0]
+                );
+
+            }
+
+            setLoading(false);
+
+        } catch (error) {
+
+            console.log(error);
+
+            setLoading(false);
+
         }
 
-    ];
+    };
+
+    /* =========================================
+       SEARCH
+    ========================================= */
+
+    const filteredClients = useMemo(() => {
+
+        return clientsData.filter((client) =>
+
+            client.name
+                ?.toLowerCase()
+                .includes(
+                    search.toLowerCase()
+                )
+
+        );
+
+    }, [search, clientsData]);
+
+    /* =========================================
+       LOADING
+    ========================================= */
+
+    if(loading){
+
+        return (
+
+            <div className="loading-screen">
+
+                <div className="loader"></div>
+
+            </div>
+
+        );
+
+    }
 
     return (
 
         <div className="container">
 
             {/* SIDEBAR */}
+
             <aside className="sidebar">
 
                 <div className="logo-box">
-                    <img src="/logo.png" alt="" />
+
+                    <img
+                        src="/logo.png"
+                        alt=""
+                    />
+
                 </div>
 
                 <ul className="menu">
 
-                    <Link to="/dashboard" className="menu-link">
+                    <Link
+                        to="/dashboard"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-home-5-line"></i>
+
                             Inicio
+
                         </li>
+
                     </Link>
 
-                    <Link to="/menu" className="menu-link">
+                    <Link
+                        to="/menu"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-restaurant-line"></i>
+
                             Menú
+
                         </li>
+
                     </Link>
 
-                    <Link to="/orders" className="menu-link">
+                    <Link
+                        to="/orders"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-shopping-cart-line"></i>
+
                             Pedidos
+
                         </li>
+
                     </Link>
 
-                    <Link to="/reservations" className="menu-link">
+                    <Link
+                        to="/reservations"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-calendar-line"></i>
+
                             Reservas
+
                         </li>
+
                     </Link>
 
-                    <Link to="/tables" className="menu-link">
+                    <Link
+                        to="/tables"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-table-line"></i>
+
                             Mesas
+
                         </li>
+
                     </Link>
 
-                    <Link to="/clients" className="menu-link">
+                    <Link
+                        to="/clients"
+                        className="menu-link"
+                    >
+
                         <li className="active">
+
                             <i className="ri-user-line"></i>
+
                             Clientes
+
                         </li>
+
                     </Link>
 
-                    <Link to="/reports" className="menu-link">
+                    <Link
+                        to="/reports"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-bar-chart-line"></i>
+
                             Reportes
+
                         </li>
+
                     </Link>
 
-                    <Link to="/settings" className="menu-link">
+                    <Link
+                        to="/settings"
+                        className="menu-link"
+                    >
+
                         <li>
+
                             <i className="ri-settings-3-line"></i>
+
                             Configuración
+
                         </li>
+
                     </Link>
 
                 </ul>
 
+                {/* SIDEBAR IMAGE */}
+
                 <div className="sidebar-image">
 
-  <img src="/vino.jpg" alt="clientes" />
+                    <img
+                        src="/vino.jpg"
+                        alt=""
+                    />
 
-  <div className="overlay"></div>
+                    <div className="overlay"></div>
 
-  <div className="sidebar-decor">
-    <i className="ri-user-heart-line"></i>
-  </div>
+                    <div className="sidebar-decor">
 
-  <p>
-    Nuestros clientes son
-    <br />
-    el corazón del restaurante.
-  </p>
+                        <i className="ri-user-heart-line"></i>
 
-</div>
+                    </div>
+
+                    <p>
+
+                        Nuestros clientes son
+                        <br />
+                        el corazón del restaurante.
+
+                    </p>
+
+                </div>
 
             </aside>
 
             {/* MAIN */}
+
             <main className="main">
 
                 {/* HEADER */}
+
                 <div className="header">
 
                     <div>
 
-                        <h1>Clientes</h1>
+                        <h1>
+                            Clientes
+                        </h1>
 
                         <p>
-                            Gestiona la información de tus clientes.
+                            Gestiona la actividad en tiempo real.
                         </p>
 
                     </div>
@@ -163,8 +288,11 @@ export const ClientsPage = () => {
                     <div className="clients-header-actions">
 
                         <button className="btn-gold">
+
                             <i className="ri-add-line"></i>
+
                             Nuevo Cliente
+
                         </button>
 
                         <div className="search-box">
@@ -174,48 +302,85 @@ export const ClientsPage = () => {
                             <input
                                 type="text"
                                 placeholder="Buscar cliente..."
+                                value={search}
+                                onChange={(e) =>
+                                    setSearch(
+                                        e.target.value
+                                    )
+                                }
                             />
 
                         </div>
 
                         <button className="btn-filter">
+
                             <i className="ri-filter-3-line"></i>
+
                         </button>
 
                     </div>
 
                 </div>
 
-                {/* LAYOUT */}
+                {/* CONTENT */}
+
                 <section className="clients-layout">
 
                     {/* LEFT */}
+
                     <div className="clients-content card">
 
                         <div className="clients-table-header">
 
-                            <span>Cliente</span>
-                            <span>Contacto</span>
-                            <span>Total Compras</span>
-                            <span>Última Visita</span>
-                            <span>Acciones</span>
+                            <span>
+                                Cliente
+                            </span>
+
+                            <span>
+                                Contacto
+                            </span>
+
+                            <span>
+                                Plato Favorito
+                            </span>
+
+                            <span>
+                                Última Visita
+                            </span>
+
+                            <span>
+                                Acciones
+                            </span>
 
                         </div>
 
                         <div className="clients-table">
 
                             {
-                                clientsData.map((client, index) => (
+                                filteredClients.map((client) => (
 
                                     <div
-                                        className={`client-row ${index === 0 ? "selected" : ""}`}
-                                        key={index}
+                                        className={`client-row ${
+                                            selectedClient?._id === client._id
+                                                ? "selected"
+                                                : ""
+                                        }`}
+                                        key={client._id}
+                                        onClick={() =>
+                                            setSelectedClient(client)
+                                        }
                                     >
+
+                                        {/* CLIENT */}
 
                                         <div className="client-info">
 
                                             <div className="client-avatar">
-                                                {client.initials}
+
+                                                {
+                                                    client.initials
+                                                }
+
                                             </div>
 
                                             <div>
@@ -232,6 +397,8 @@ export const ClientsPage = () => {
 
                                         </div>
 
+                                        {/* CONTACT */}
+
                                         <div className="client-contact">
 
                                             <i className="ri-phone-line"></i>
@@ -242,22 +409,60 @@ export const ClientsPage = () => {
 
                                         </div>
 
-                                        <div className="client-total">
-                                            {client.total}
+                                        {/* FAVORITE FOOD */}
+
+                                        <div className="favorite-food">
+
+                                            <img
+                                                src={
+                                                    client.favoriteImage ||
+                                                    "/plato1.jpeg"
+                                                }
+                                                alt=""
+                                            />
+
+                                            <div>
+
+                                                <small>
+                                                    Favorito
+                                                </small>
+
+                                                <strong>
+                                                    {
+                                                        client.productoFavorito ||
+                                                        "Sin datos"
+                                                    }
+                                                </strong>
+
+                                            </div>
+
                                         </div>
 
+                                        {/* VISIT */}
+
                                         <div className="client-visit">
-                                            {client.lastVisit}
+
+                                            {
+                                                client.ultimaVisita ||
+                                                "Sin visitas"
+                                            }
+
                                         </div>
+
+                                        {/* ACTIONS */}
 
                                         <div className="client-actions">
 
                                             <button>
+
                                                 <i className="ri-eye-line"></i>
+
                                             </button>
 
                                             <button>
+
                                                 <i className="ri-pencil-line"></i>
+
                                             </button>
 
                                         </div>
@@ -269,214 +474,349 @@ export const ClientsPage = () => {
 
                         </div>
 
-                        {/* PAGINATION */}
-                        <div className="pagination">
-
-                            <button>
-                                Anterior
-                            </button>
-
-                            <button className="active">
-                                1
-                            </button>
-
-                            <button>
-                                2
-                            </button>
-
-                            <button>
-                                3
-                            </button>
-
-                            <span>...</span>
-
-                            <button>
-                                6
-                            </button>
-
-                            <button>
-                                Siguiente
-                            </button>
-
-                        </div>
-
-                        <small className="results-text">
-                            Mostrando 1 a 8 de 45 clientes
-                        </small>
-
                     </div>
 
                     {/* RIGHT */}
+
                     <aside className="client-details card">
 
-                        <div className="client-profile">
+                        {
+                            selectedClient && (
 
-                            <div className="profile-avatar">
-                                JP
-                            </div>
+                                <>
 
-                            <div>
+                                    {/* PROFILE */}
 
-                                <h2>
-                                    Juan Pérez
-                                </h2>
+                                    <div className="client-profile">
 
-                                <span className="vip-badge">
-                                    Cliente Frecuente
-                                </span>
+                                        <div className="profile-avatar">
 
-                                <p>
-                                    juan.perez@email.com
-                                </p>
+                                            {
+                                                selectedClient.initials
+                                            }
 
-                                <p>
-                                    +502 5555-1234
-                                </p>
+                                        </div>
 
-                            </div>
+                                        <div>
 
-                        </div>
+                                            <h2>
 
-                        {/* INFO */}
-                        <div className="detail-section">
+                                                {
+                                                    selectedClient.name
+                                                }
 
-                            <h3>
-                                Información Personal
-                            </h3>
+                                            </h2>
 
-                            <div className="detail-item">
-                                <i className="ri-calendar-line"></i>
-                                <span>Fecha de registro:</span>
-                                <strong>10/03/2025</strong>
-                            </div>
+                                            <span className="vip-badge">
 
-                            <div className="detail-item">
-                                <i className="ri-cake-2-line"></i>
-                                <span>Cumpleaños:</span>
-                                <strong>15/07</strong>
-                            </div>
+                                                {
+                                                    selectedClient.totalPedidos >= 10
+                                                        ? "Cliente Frecuente"
+                                                        : "Cliente"
+                                                }
 
-                            <div className="detail-item">
-                                <i className="ri-map-pin-line"></i>
-                                <span>Dirección:</span>
-                                <strong>Zona 10, Guatemala</strong>
-                            </div>
+                                            </span>
 
-                        </div>
+                                            <p>
 
-                        {/* STATS */}
-                        <div className="detail-section">
+                                                {
+                                                    selectedClient.email
+                                                }
 
-                            <h3>
-                                Resumen de Actividad
-                            </h3>
+                                            </p>
 
-                            <div className="stats-grid">
+                                            <p>
 
-                                <div className="stat-box">
+                                                {
+                                                    selectedClient.phone
+                                                }
 
-                                    <i className="ri-wallet-3-line"></i>
+                                            </p>
 
-                                    <div>
-                                        <span>Total Compras</span>
-                                        <strong>Q4,850.00</strong>
-                                    </div>
-
-                                </div>
-
-                                <div className="stat-box">
-
-                                    <i className="ri-shopping-bag-line"></i>
-
-                                    <div>
-                                        <span>Pedidos</span>
-                                        <strong>12</strong>
-                                    </div>
-
-                                </div>
-
-                                <div className="stat-box">
-
-                                    <i className="ri-calendar-check-line"></i>
-
-                                    <div>
-                                        <span>Reservas</span>
-                                        <strong>8</strong>
-                                    </div>
-
-                                </div>
-
-                                <div className="stat-box">
-
-                                    <i className="ri-time-line"></i>
-
-                                    <div>
-                                        <span>Última Visita</span>
-                                        <strong>25/05/2025</strong>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        {/* HISTORY */}
-                        <div className="detail-section">
-
-                            <h3>
-                                Historial Reciente
-                            </h3>
-
-                            <div className="history-list">
-
-                                <div className="history-item">
-
-                                    <div>
-
-                                        <h4>
-                                            Pedido #PED1025
-                                        </h4>
-
-                                        <span>
-                                            25/05/2025
-                                        </span>
+                                        </div>
 
                                     </div>
 
-                                    <strong>
-                                        Q850.00
-                                    </strong>
+                                    {/* FAVORITE FOOD */}
 
-                                </div>
+                                    <div className="favorite-food-card">
 
-                                <div className="history-item">
+                                        <img
+                                            src={
+                                                selectedClient.favoriteImage ||
+                                                "/plato1.jpeg"
+                                            }
+                                            alt=""
+                                        />
 
-                                    <div>
+                                        <div>
 
-                                        <h4>
-                                            Reserva #RES2056
-                                        </h4>
+                                            <small>
+                                                Plato Favorito
+                                            </small>
 
-                                        <span>
-                                            Mesa 6 - 8:00 PM
-                                        </span>
+                                            <h3>
+
+                                                {
+                                                    selectedClient.productoFavorito ||
+                                                    "Sin datos"
+                                                }
+
+                                            </h3>
+
+                                            <p>
+
+                                                Pedido más frecuente
+                                                del cliente.
+
+                                            </p>
+
+                                        </div>
 
                                     </div>
 
-                                    <strong>
-                                        Confirmada
-                                    </strong>
+                                    {/* INFO */}
 
-                                </div>
+                                    <div className="detail-section">
 
-                            </div>
+                                        <h3>
 
-                            <button className="btn-gold full">
-                                Ver historial completo
-                            </button>
+                                            Información Personal
 
-                        </div>
+                                        </h3>
+
+                                        <div className="detail-item">
+
+                                            <i className="ri-calendar-line"></i>
+
+                                            <span>
+                                                Registro:
+                                            </span>
+
+                                            <strong>
+
+                                                {
+                                                    selectedClient.fechaRegistro ||
+                                                    "No disponible"
+                                                }
+
+                                            </strong>
+
+                                        </div>
+
+                                        <div className="detail-item">
+
+                                            <i className="ri-map-pin-line"></i>
+
+                                            <span>
+                                                Dirección:
+                                            </span>
+
+                                            <strong>
+
+                                                {
+                                                    selectedClient.direccion ||
+                                                    "No disponible"
+                                                }
+
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                    {/* STATS */}
+
+                                    <div className="detail-section">
+
+                                        <h3>
+
+                                            Resumen de Actividad
+
+                                        </h3>
+
+                                        <div className="stats-grid">
+
+                                            <div className="stat-box">
+
+                                                <i className="ri-wallet-3-line"></i>
+
+                                                <div>
+
+                                                    <span>
+                                                        Compras
+                                                    </span>
+
+                                                    <strong>
+
+                                                        Q{
+                                                            selectedClient.totalCompras ||
+                                                            0
+                                                        }
+
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div className="stat-box">
+
+                                                <i className="ri-shopping-bag-line"></i>
+
+                                                <div>
+
+                                                    <span>
+                                                        Pedidos
+                                                    </span>
+
+                                                    <strong>
+
+                                                        {
+                                                            selectedClient.totalPedidos ||
+                                                            0
+                                                        }
+
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div className="stat-box">
+
+                                                <i className="ri-restaurant-line"></i>
+
+                                                <div>
+
+                                                    <span>
+                                                        Favorito
+                                                    </span>
+
+                                                    <strong>
+
+                                                        {
+                                                            selectedClient.productoFavorito ||
+                                                            "-"
+                                                        }
+
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div className="stat-box">
+
+                                                <i className="ri-time-line"></i>
+
+                                                <div>
+
+                                                    <span>
+                                                        Última Visita
+                                                    </span>
+
+                                                    <strong>
+
+                                                        {
+                                                            selectedClient.ultimaVisita ||
+                                                            "-"
+                                                        }
+
+                                                    </strong>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    {/* HISTORY */}
+
+                                    <div className="detail-section">
+
+                                        <h3>
+
+                                            Historial Reciente
+
+                                        </h3>
+
+                                        <div className="history-list">
+
+                                            {
+                                                selectedClient.historial?.length > 0
+                                                    ? (
+
+                                                        selectedClient.historial.map(
+                                                            (pedido, index) => (
+
+                                                                <div
+                                                                    className="history-item"
+                                                                    key={index}
+                                                                >
+
+                                                                    <div>
+
+                                                                        <h4>
+
+                                                                            Pedido #
+                                                                            {
+                                                                                pedido.codigo
+                                                                            }
+
+                                                                        </h4>
+
+                                                                        <span>
+
+                                                                            {
+                                                                                pedido.fecha
+                                                                            }
+
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                    <strong>
+
+                                                                        Q{
+                                                                            pedido.total
+                                                                        }
+
+                                                                    </strong>
+
+                                                                </div>
+
+                                                            )
+                                                        )
+
+                                                    )
+                                                    : (
+
+                                                        <div className="empty-history">
+
+                                                            No hay historial reciente.
+
+                                                        </div>
+
+                                                    )
+                                            }
+
+                                        </div>
+
+                                        <button className="btn-gold full">
+
+                                            Ver historial completo
+
+                                        </button>
+
+                                    </div>
+
+                                </>
+
+                            )
+                        }
 
                     </aside>
 

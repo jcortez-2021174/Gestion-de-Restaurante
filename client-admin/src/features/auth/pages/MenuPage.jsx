@@ -7,9 +7,6 @@ import "../styles/menu.css";
 
 export const MenuPage = () => {
 
-    /* =========================
-       STATES
-    ========================= */
 
     const {
   dishes,
@@ -40,9 +37,6 @@ export const MenuPage = () => {
         description: ""
     });
 
-    /* =========================
-       FILTERS
-    ========================= */
 
     const filteredDishes = dishes.filter((dish) => {
 
@@ -59,9 +53,6 @@ export const MenuPage = () => {
         return matchesCategory && matchesSearch;
     });
 
-    /* =========================
-       STATS
-    ========================= */
 
     const totalDishes = dishes.length;
 
@@ -452,9 +443,6 @@ export const MenuPage = () => {
 
                 </section>
 
-/* =========================
-   MODAL AGREGAR
-========================= */
 
 {
   showAddModal && (
