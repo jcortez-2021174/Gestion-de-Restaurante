@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../../auth/store/authStore";
 import { useState } from "react";
 import "../styles/dashboard.css";
 

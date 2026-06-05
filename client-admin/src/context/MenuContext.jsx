@@ -55,7 +55,7 @@ export const MenuProvider = ({
       )
     );
   };
-
+  
   const deleteDish = (id) => {
 
     setDishes((prev) =>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../../auth/store/authStore";
 import { useOrders } from "../../../context/OrdersContext";
 import "../styles/dashboard.css";
 
