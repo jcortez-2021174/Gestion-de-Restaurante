@@ -1,4 +1,4 @@
-import { restaurantApi, ApiError } from '@/shared/apis/api';
+import { restaurantApi, ApiError } from '../shared/apis/api';
 
 const DASHBOARD_BASE = '/dashboard';
 

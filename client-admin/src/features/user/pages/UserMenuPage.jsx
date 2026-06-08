@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../auth/store/authStore";
 import { useCartStore } from "../store/carStore";
-import "../styles/dashboard.css";
 import "../styles/usermenu.css";
 
 const CATEGORIAS = [
