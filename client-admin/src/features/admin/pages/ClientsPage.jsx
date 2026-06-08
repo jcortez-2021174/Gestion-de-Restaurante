@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-
+import { obtenerDashboard } from "../../../services/clientes.service";
 import { Link } from "react-router-dom";
 
 import "../styles/clients.css";
@@ -13,10 +13,6 @@ export const ClientsPage = () => {
     const [search, setSearch] = useState("");
 
     const [loading, setLoading] = useState(true);
-
-    const API_URL =
-        "http://localhost:3000";
-
     /* =========================================
        GET CLIENTS
     ========================================= */
@@ -28,37 +24,33 @@ export const ClientsPage = () => {
     }, []);
 
     const getClientsDashboard = async () => {
+        
 
-        try {
+    try {
 
-            const response = await fetch(
-                `${API_URL}/clientes/dashboard`
+        const data = await obtenerDashboard();
+
+        setClientsData(data.clientes || []);
+
+        if (data.clientes?.length > 0) {
+
+            setSelectedClient(
+                data.clientes[0]
             );
-
-            const data = await response.json();
-
-            setClientsData(data.clientes || []);
-
-            if(data.clientes?.length > 0){
-
-                setSelectedClient(
-                    data.clientes[0]
-                );
-
-            }
-
-            setLoading(false);
-
-        } catch (error) {
-
-            console.log(error);
-
-            setLoading(false);
 
         }
 
-    };
+    } catch (error) {
 
+        console.error(error);
+
+    } finally {
+
+        setLoading(false);
+
+    }
+
+};
     /* =========================================
        SEARCH
     ========================================= */
