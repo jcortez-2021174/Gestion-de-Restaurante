@@ -3,7 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./App.jsx";
-
+import "../features/auth/styles/layout.css";
 import { MenuProvider }
 from "../context/MenuContext";
 

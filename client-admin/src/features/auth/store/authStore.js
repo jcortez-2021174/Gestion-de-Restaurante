@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { axiosAuth } from '../../../shared/apis/api';
-
+import { authApi } from '../../../shared/apis/api';
 export const useAuthStore = create(
     persist(
         (set, get) => ({
@@ -27,7 +26,7 @@ export const useAuthStore = create(
                     set({ loading: true, error: null });
 
                     // Petición directa a tu backend de .NET
-                    const response = await axiosAuth.post('/auth/login', { 
+                    const response = await authApi.post('/auth/login', {
                         emailOrUsername, 
                         password 
                     });

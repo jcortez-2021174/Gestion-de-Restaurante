@@ -1,14 +1,11 @@
 import "../styles/dashboard.css";
+import { AdminLayout } from "../../../shared/layouts/AdminLayout";
 
 import { Link } from "react-router-dom";
-import {
-  useMenu
-} from "../../../context/MenuContext";
+import { useMenu } from "../../../context/MenuContext";
 import { useEffect, useState } from "react";
 
-import {
-  getDashboardStats
-} from "../../../services/dashboard.service";
+import { obtenerEstadisticas } from "../../../services/dashboard.service";
 
 export const DashboardPage = () => {
 
@@ -47,193 +44,29 @@ export const DashboardPage = () => {
 
   }, []);
 
-  const loadDashboardStats = async () => {
+   const loadDashboardStats = async () => {
 
     try {
 
-      const data = await getDashboardStats();
+        const data = await obtenerEstadisticas();
 
-      setStats(data.stats);
+        console.log("Dashboard Data:", data);
+
+        setStats(data.stats || data);
 
     } catch (error) {
 
-      console.log(error);
+        console.error("Error Dashboard:", error);
 
     }
-  };
+
+};
 
   return (
 
-    <div className="container">
-
-      {/* SIDEBAR */}
-      <aside className="sidebar">
-
-        <div className="logo-box">
-
-          <img src="/logo.png" alt="logo" />
-
-        </div>
-
-        <ul className="menu">
-
-          <li>
-            <Link to="/dashboard" className="menu-link">
-
-              <i className="ri-home-5-line"></i>
-
-              Inicio
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/menu" className="menu-link">
-
-              <i className="ri-restaurant-line"></i>
-
-              Menú
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/orders" className="menu-link">
-
-              <i className="ri-shopping-cart-line"></i>
-
-              Pedidos
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/reservations" className="menu-link">
-
-              <i className="ri-calendar-line"></i>
-
-              Reservas
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/tables" className="menu-link">
-
-              <i className="ri-table-line"></i>
-
-              Mesas
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/clients" className="menu-link">
-
-              <i className="ri-user-line"></i>
-
-              Clientes
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/reports" className="menu-link">
-
-              <i className="ri-bar-chart-line"></i>
-
-              Reportes
-
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/settings" className="menu-link">
-
-              <i className="ri-settings-3-line"></i>
-
-              Configuración
-
-            </Link>
-          </li>
-
-        </ul>
-
-        <div className="sidebar-image">
-
-          <img src="/vino.jpg" alt="vino" />
-
-          <div className="overlay"></div>
-
-          <div className="sidebar-decor">
-
-            <i className="ri-goblet-line"></i>
-
-          </div>
-
-          <p>
-
-            No es solo comida,
-            <br />
-            es una experiencia.
-
-          </p>
-
-        </div>
-
-      </aside>
-
-      {/* MAIN */}
-      <main className="main">
-
-        {/* HEADER */}
-        <div className="header">
-
-          <div>
-
-            <h2>Bienvenido a Aurea</h2>
-
-            <p>
-              Tradición e innovación en cada plato.
-            </p>
-
-          </div>
-
-          <div className="user-box">
-
-            <div className="notification">
-
-              <i className="ri-notification-3-line"></i>
-
-              <span className="badge">
-
-                {stats.pedidosTotales}
-
-              </span>
-
-            </div>
-
-            <div className="divider"></div>
-
-            <div className="user">
-
-              <i className="ri-user-line"></i>
-
-              <div className="user-info">
-
-                <span>Administrador</span>
-
-                <small>admin@aurea.com</small>
-
-              </div>
-
-              <i className="ri-arrow-down-s-line"></i>
-
-            </div>
-
-          </div>
-
-        </div>
+    <AdminLayout
+    notificationCount={stats.pedidosTotales}
+>
 
         {/* STATS */}
         <div className="stats-grid">
@@ -995,9 +828,6 @@ addDish({
 
   )
 }
-
-      </main>
-
-    </div>
+      </AdminLayout>
   );
 };
