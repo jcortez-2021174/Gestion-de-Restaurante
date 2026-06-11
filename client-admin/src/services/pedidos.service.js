@@ -1,5 +1,6 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api';
 import { createOrderPayload, isMongoObjectId } from '@/features/user/order.contract';
+import { cachedGet, invalidateRequestCache } from '@/shared/apis/request-cache';
 
 const PEDIDOS_BASE = '/pedido';
 export const ESTADOS_PEDIDO = [
@@ -39,12 +40,12 @@ const wrapRequest = async (request, fallbackMessage) => {
 };
 
 export const obtenerTodos = async () => wrapRequest(
-  () => restaurantApi.get(PEDIDOS_BASE),
+  () => cachedGet(restaurantApi, PEDIDOS_BASE, {}, 2000),
   'No se pudieron cargar los pedidos.'
 );
 
 export const obtenerMisPedidos = async () => wrapRequest(
-  () => restaurantApi.get(`${PEDIDOS_BASE}/mis-pedidos`),
+  () => cachedGet(restaurantApi, `${PEDIDOS_BASE}/mis-pedidos`, {}, 2000),
   'No se pudo cargar tu historial de pedidos.'
 );
 
@@ -68,7 +69,11 @@ export const crear = async (cartItems, mesaId = null) => {
   }
 
   return wrapRequest(
-    () => restaurantApi.post(PEDIDOS_BASE, createOrderPayload(cartItems, mesaId)),
+    async () => {
+      const response = await restaurantApi.post(PEDIDOS_BASE, createOrderPayload(cartItems, mesaId));
+      invalidateRequestCache(PEDIDOS_BASE);
+      return response;
+    },
     'No se pudo crear el pedido.'
   );
 };
@@ -84,7 +89,11 @@ export const cambiarEstado = async (id, estado) => {
   }
 
   return wrapRequest(
-    () => restaurantApi.patch(`${PEDIDOS_BASE}/${id}/estado`, { estado }),
+    async () => {
+      const response = await restaurantApi.patch(`${PEDIDOS_BASE}/${id}/estado`, { estado });
+      invalidateRequestCache(PEDIDOS_BASE, '/dashboard');
+      return response;
+    },
     'No se pudo actualizar el estado.'
   );
 };

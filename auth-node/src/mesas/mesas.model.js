@@ -16,9 +16,21 @@ const mesasSchema = new Schema(
     },
     EstadoMesa: {
       type: String,
-      enum: ['DISPONIBLE', 'RESERVADA', 'OCUPADA'],
+      enum: ['DISPONIBLE', 'RESERVADA', 'OCUPADA', 'FUERA_SERVICIO'],
       default: 'DISPONIBLE',
     },
+    Zona: {
+      type: String,
+      enum: ['TERRAZA', 'INTERIOR', 'VIP', 'EVENTOS'],
+      default: 'INTERIOR',
+    },
+    Forma: {
+      type: String,
+      enum: ['CIRCULO', 'RECTANGULO'],
+      default: 'RECTANGULO',
+    },
+    PosicionX: { type: Number, min: 0, max: 100, default: 50 },
+    PosicionY: { type: Number, min: 0, max: 100, default: 50 },
     IdRestaurante: {
       type: String,
       required: [true, 'El ID del restaurante es obligatorio'],

@@ -24,10 +24,10 @@ const reservacionSchema = new Schema(
     estadoReservacion: {
       type: String,
       enum: {
-        values: ['RESERVADA', 'CANCELADA', 'EXPIRADA'],
-        message: 'El estado debe ser RESERVADA, CANCELADA o EXPIRADA',
+        values: ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA'],
+        message: 'Estado de reservacion invalido',
       },
-      default: 'RESERVADA',
+      default: 'PENDIENTE',
       uppercase: true,
     },
     idCliente: {
@@ -44,6 +44,12 @@ const reservacionSchema = new Schema(
       type: String,
       default: '',
       trim: true,
+    },
+    notas: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [500, 'Las notas no pueden superar 500 caracteres'],
     },
     isActive: {
       type: Boolean,

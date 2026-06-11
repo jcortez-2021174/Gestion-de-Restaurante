@@ -340,3 +340,4 @@
     height: 210px;
   }
 }
+.dashboard-loyalty-card{display:flex;align-items:center;gap:16px;margin-bottom:22px;padding:18px 22px;border:1px solid rgba(212,175,55,.25);border-radius:18px;background:linear-gradient(135deg,rgba(212,175,55,.12),rgba(15,15,15,.92))}.dashboard-loyalty-card>i{font-size:32px;color:var(--gold)}.dashboard-loyalty-card>div{display:grid;flex:1}.dashboard-loyalty-card span{color:#aaa;font-size:12px}.dashboard-loyalty-card strong{color:#fff;font-size:19px}@media(max-width:600px){.dashboard-loyalty-card{align-items:flex-start;flex-direction:column}}

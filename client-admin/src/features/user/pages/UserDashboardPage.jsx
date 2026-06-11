@@ -11,6 +11,7 @@ import {
 } from "../components/UserUi";
 import { useCartStore } from "../store/carStore";
 import { mapVisibleMenuProducts } from "../menu.products";
+import { obtenerMisPuntos } from "../../../services/puntos.service";
 import "../styles/user-dashboard.css";
 
 const services = [
@@ -47,23 +48,31 @@ const services = [
 export const UserDashboardPage = () => {
   const user = useAuthStore((state) => state.user);
   const agregarItem = useCartStore((state) => state.agregarItem);
+  const sincronizarCatalogo = useCartStore((state) => state.sincronizarCatalogo);
   const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loyalty, setLoyalty] = useState(null);
 
   useEffect(() => {
     let active = true;
 
     listarProductos()
       .then((response) => {
-        if (active) setFeaturedProducts(mapVisibleMenuProducts(response).slice(0, 4));
+        if (active) {
+          const products = mapVisibleMenuProducts(response);
+          setFeaturedProducts(products.slice(0, 4));
+          sincronizarCatalogo(products);
+        }
       })
       .catch(() => {
         if (active) setFeaturedProducts([]);
       });
 
+    obtenerMisPuntos().then(setLoyalty).catch(() => setLoyalty(null));
+
     return () => {
       active = false;
     };
-  }, []);
+  }, [sincronizarCatalogo]);
 
   return (
     <UserShell contentClassName="user-dashboard">
@@ -72,7 +81,7 @@ export const UserDashboardPage = () => {
           <img src="/Plato5.png" alt="" className="dashboard-hero-image" />
           <div className="dashboard-hero-overlay" />
           <div className="dashboard-profile">
-            <UserProfileCard user={user} compact />
+            <UserProfileCard user={user} compact level={loyalty?.nivel} />
           </div>
           <div className="dashboard-hero-copy">
             <span className="dashboard-kicker">Bienvenido a Aurea</span>
@@ -93,6 +102,13 @@ export const UserDashboardPage = () => {
       </section>
 
       <section className="dashboard-featured" id="menu-destacado">
+        {loyalty && (
+          <div className="dashboard-loyalty-card">
+            <i className="ri-vip-crown-line" />
+            <div><span>Nivel {loyalty.nivel}</span><strong>{loyalty.puntos.toLocaleString("es-GT")} Puntos Aurea</strong></div>
+            <SecondaryButton to="/user/puntos">Ver recompensas</SecondaryButton>
+          </div>
+        )}
         <SectionHeader
           eyebrow="Selección Aurea"
           title="Menú destacado"

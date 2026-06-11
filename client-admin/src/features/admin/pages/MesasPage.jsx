@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FaChair, FaPlus, FaSearch, FaUsers } from "react-icons/fa";
 import { AdminLayout } from "../../../shared/layouts/AdminLayout";
 import {
@@ -8,23 +8,31 @@ import {
     obtenerTodas
 } from "../../../services/mesas.service";
 import "../styles/mesas.css";
+import { useSmartPolling } from "../../../shared/hooks/useSmartPolling";
 
 const ESTADOS = {
     DISPONIBLE: "available",
     OCUPADA: "occupied",
-    RESERVADA: "reserved"
+    RESERVADA: "reserved",
+    FUERA_SERVICIO: "disabled"
 };
 
 const LABELS = {
     DISPONIBLE: "Disponible",
     OCUPADA: "Ocupada",
-    RESERVADA: "Reservada"
+    RESERVADA: "Reservada",
+    FUERA_SERVICIO: "Fuera de servicio"
 };
+
+const ZONAS = ["TERRAZA", "INTERIOR", "VIP", "EVENTOS"];
 
 const emptyForm = {
     numero: "",
     capacidad: "",
-    estado: "DISPONIBLE"
+    estado: "DISPONIBLE",
+    zona: "INTERIOR",
+    forma: "RECTANGULO",
+    posicion: { x: 50, y: 50 }
 };
 
 export const MesasPage = () => {
@@ -55,9 +63,7 @@ export const MesasPage = () => {
         }
     };
 
-    useEffect(() => {
-        loadTables();
-    }, []);
+    useSmartPolling(loadTables, 30000);
 
     const filteredTables = useMemo(() => tables.filter((table) => {
         const matchesSearch = `Mesa ${table.numero}`
@@ -85,7 +91,10 @@ export const MesasPage = () => {
         setForm({
             numero: table.numero,
             capacidad: table.capacidad,
-            estado: table.estado
+            estado: table.estado,
+            zona: table.zona || "INTERIOR",
+            forma: table.forma || "RECTANGULO",
+            posicion: table.posicion || { x: 50, y: 50 }
         });
     };
 
@@ -126,7 +135,7 @@ export const MesasPage = () => {
     const renderTable = (table) => (
         <div
             key={table.id}
-            className={`table-card ${ESTADOS[table.estado] || "available"} square ${selectedTable?.id === table.id ? "active-table" : ""}`}
+            className={`table-card ${ESTADOS[table.estado] || "available"} ${table.forma === "CIRCULO" ? "round" : "rect"} ${selectedTable?.id === table.id ? "active-table" : ""}`}
             onClick={() => setSelectedTable(table)}
         >
             <div className="table-glow"></div>
@@ -168,7 +177,7 @@ export const MesasPage = () => {
 
                     <div className="tables-filters">
                         <div className="tabs">
-                            {["Todas", "DISPONIBLE", "OCUPADA", "RESERVADA"].map((filter) => (
+                            {["Todas", "DISPONIBLE", "OCUPADA", "RESERVADA", "FUERA_SERVICIO"].map((filter) => (
                                 <button
                                     key={filter}
                                     className={activeFilter === filter ? "active" : ""}
@@ -209,13 +218,20 @@ export const MesasPage = () => {
                         </div>
                     </div>
 
-                    <div className="tables-section card">
+                    <div className="tables-section card restaurant-map">
                         {loading ? (
                             <div className="loading-state">Cargando mesas...</div>
                         ) : filteredTables.length ? (
-                            <div className="tables-grid">
-                                {filteredTables.map(renderTable)}
-                            </div>
+                            ZONAS.map((zone) => {
+                                const zoneTables = filteredTables.filter((table) => (table.zona || "INTERIOR") === zone);
+                                if (!zoneTables.length) return null;
+                                return (
+                                    <section className="zone" key={zone}>
+                                        <div className="zone-title">{zone.charAt(0) + zone.slice(1).toLowerCase()}</div>
+                                        <div className="tables-grid">{zoneTables.map(renderTable)}</div>
+                                    </section>
+                                );
+                            })
                         ) : (
                             <div className="empty-state">No hay mesas para mostrar.</div>
                         )}
@@ -248,7 +264,29 @@ export const MesasPage = () => {
                             <option value="DISPONIBLE">Disponible</option>
                             <option value="OCUPADA">Ocupada</option>
                             <option value="RESERVADA">Reservada</option>
+                            <option value="FUERA_SERVICIO">Fuera de servicio</option>
                         </select>
+                        <select
+                            value={form.zona}
+                            onChange={(event) => setForm({ ...form, zona: event.target.value })}
+                        >
+                            {ZONAS.map((zone) => <option key={zone} value={zone}>{zone}</option>)}
+                        </select>
+                        <select
+                            value={form.forma}
+                            onChange={(event) => setForm({ ...form, forma: event.target.value })}
+                        >
+                            <option value="RECTANGULO">Rectangular</option>
+                            <option value="CIRCULO">Circular</option>
+                        </select>
+                        <div className="table-position-inputs">
+                            <label>Posicion X
+                                <input type="range" min="0" max="100" value={form.posicion.x} onChange={(event) => setForm({ ...form, posicion: { ...form.posicion, x: Number(event.target.value) } })} />
+                            </label>
+                            <label>Posicion Y
+                                <input type="range" min="0" max="100" value={form.posicion.y} onChange={(event) => setForm({ ...form, posicion: { ...form.posicion, y: Number(event.target.value) } })} />
+                            </label>
+                        </div>
 
                         <button className="gold-btn" disabled={saving} onClick={saveTable}>
                             {saving ? "Guardando..." : editingId ? "Guardar Cambios" : "Crear Mesa"}
@@ -269,6 +307,10 @@ export const MesasPage = () => {
                             <div className="detail-item">
                                 <span>Estado</span>
                                 <strong>{LABELS[selectedTable.estado]}</strong>
+                            </div>
+                            <div className="detail-item">
+                                <span>Zona</span>
+                                <strong>{selectedTable.zona || "INTERIOR"}</strong>
                             </div>
 
                             <div className="table-actions">

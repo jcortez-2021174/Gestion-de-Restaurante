@@ -10,10 +10,14 @@ import {
   listarReservacionesPorMesaCtrl,
   cambiarEstadoReservacionCtrl,
   cancelarReservacionCtrl,
+  agregarMiReservacion,
+  listarMisReservaciones,
+  cancelarMiReservacion,
 } from './reservacion.controller.js';
 import { validateJWT } from '../../middlewares/validate-jwt.js';
 import { authorizeRole } from '../../middlewares/authorize-role.js';
 import { checkValidators } from '../../middlewares/check-validators.js';
+import { resolveCliente } from '../../middlewares/resolve-cliente.js';
 
 const router = Router();
 
@@ -24,7 +28,8 @@ const validateReservationPayload = [
   body('horaInicio').notEmpty().withMessage('horaInicio es requerida').matches(/^([01]\d|2[0-3]):[0-5]\d$/),
   body('horaFin').notEmpty().withMessage('horaFin es requerida').matches(/^([01]\d|2[0-3]):[0-5]\d$/),
   body('personas').isInt({ min: 1, max: 50 }),
-  body('estado').optional().isIn(['RESERVADA', 'CANCELADA', 'EXPIRADA']),
+  body('estado').optional().isIn(['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA']),
+  body('notas').optional().isString().isLength({ max: 500 }),
   checkValidators,
 ];
 
@@ -45,9 +50,15 @@ const validateMesaId = [
 ];
 
 const validateEstado = [
-  body('estado').isIn(['RESERVADA', 'CANCELADA', 'EXPIRADA']),
+  body('estado').isIn(['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA']),
   checkValidators,
 ];
+
+const validateCustomerPayload = validateReservationPayload.filter((validator, index) => index !== 0);
+
+router.post('/mis-reservaciones', validateJWT, resolveCliente, validateCustomerPayload, agregarMiReservacion);
+router.get('/mis-reservaciones', validateJWT, resolveCliente, listarMisReservaciones);
+router.patch('/mis-reservaciones/:id/cancelar', validateJWT, resolveCliente, validateReservationId, cancelarMiReservacion);
 
 router.use(validateJWT, authorizeRole('ADMIN_ROLE'));
 

@@ -42,6 +42,16 @@ const clienteSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    puntosAurea: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    puntosReferencias: {
+      type: [String],
+      default: [],
+      select: false,
+    },
   },
   {
     timestamps: true,

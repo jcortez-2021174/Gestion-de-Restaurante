@@ -44,12 +44,12 @@ export const SectionHeader = ({ eyebrow, title, description, action }) => (
   </div>
 );
 
-export const UserProfileCard = ({ user, compact = false }) => (
+export const UserProfileCard = ({ user, compact = false, level }) => (
   <div className={`user-profile-card${compact ? " is-compact" : ""}`}>
     <span className="user-profile-icon"><i className="ri-user-line" /></span>
     <span className="user-profile-copy">
       <strong>{user?.username || user?.name || "Cliente Aurea"}</strong>
-      <small>Cliente Premium</small>
+      <small>{level ? `Nivel ${level}` : "Cliente Premium"}</small>
     </span>
   </div>
 );

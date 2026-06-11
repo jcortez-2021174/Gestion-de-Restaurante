@@ -12,6 +12,8 @@ import {
 import Pedido from '../pedido/pedido.model.js';
 
 import Cliente from './cliente.model.js';
+import Reservacion from '../reservacion/reservacion.model.js';
+import { progresoNivel } from '../puntos/puntos.constants.js';
 
 /* =========================================
    AGREGAR CLIENTE
@@ -327,7 +329,7 @@ export const getClientesDashboard = async (req, res) => {
 
                 clientes.map(async (cliente) => {
 
-                    const pedidos =
+                    const [pedidos, reservaciones] = await Promise.all([
                         await Pedido.find({
 
                             IdCliente:
@@ -339,7 +341,11 @@ export const getClientesDashboard = async (req, res) => {
                         )
                         .sort({
                             Fecha: -1
-                        });
+                        }),
+                        Reservacion.find({ idCliente: cliente._id })
+                            .sort({ fechaReservacion: -1 })
+                            .limit(10),
+                    ]);
 
                     /* =========================================
                        TOTAL COMPRAS
@@ -450,12 +456,7 @@ export const getClientesDashboard = async (req, res) => {
                        INICIALES
                     ========================================= */
 
-                    const initials =
-
-                        `${cliente.nombre?.[0] || ''}
-                        ${cliente.apellido?.[0] || ''}`
-
-                        .replace(' ', '');
+                    const initials = `${cliente.nombre?.[0] || ''}${cliente.apellido?.[0] || ''}`;
 
                     return {
 
@@ -464,9 +465,7 @@ export const getClientesDashboard = async (req, res) => {
 
                         initials,
 
-                        name:
-                            `${cliente.nombre}
-                            ${cliente.apellido}`,
+                        name: `${cliente.nombre} ${cliente.apellido}`.trim(),
 
                         email:
                             cliente.correo,
@@ -495,6 +494,19 @@ export const getClientesDashboard = async (req, res) => {
                             '/plato1.jpeg',
 
                         historial
+                        ,
+                        reservaciones: reservaciones.map((reserva) => ({
+                            id: reserva._id,
+                            fecha: reserva.fechaReservacion,
+                            horaInicio: reserva.horaInicio,
+                            horaFin: reserva.horaFin,
+                            personas: reserva.cantidadPersonas,
+                            estado: reserva.estadoReservacion,
+                        })),
+                        isActive: cliente.isActive,
+                        provisionado: Boolean(cliente.authUserId),
+                        puntosAurea: cliente.puntosAurea || 0,
+                        nivelAurea: progresoNivel(cliente.puntosAurea || 0).nivel,
 
                     };
 

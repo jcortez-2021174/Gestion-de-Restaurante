@@ -12,6 +12,17 @@ export const listarProductos = async () => {
     .sort({ createdAt: -1 });
 };
 
+export const buscarProductos = async ({ buscar, categoria, disponibilidad } = {}) => {
+  const query = {};
+  if (buscar) query.nombre = { $regex: buscar.trim(), $options: 'i' };
+  if (categoria) query.idCategoria = categoria;
+  if (disponibilidad) query.disponibilidad = disponibilidad;
+
+  return Producto.find(query)
+    .populate('idCategoria', 'nombre descripcion estado')
+    .sort({ createdAt: -1 });
+};
+
 export const obtenerProductoPorId = async (id) => {
   return await Producto.findById(id)
     .populate('idCategoria', 'nombre');

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { crear, obtenerMisPedidos } from "../../../services/pedidos.service";
 import { useAuthStore } from "../../auth/store/authStore";
@@ -13,6 +13,7 @@ import {
 } from "../components/UserUi";
 import { useCartStore } from "../store/carStore";
 import "../styles/client-orders.css";
+import { useSmartPolling } from "../../../shared/hooks/useSmartPolling";
 
 const formatMoney = (value) => `Q${Number(value || 0).toFixed(2)}`;
 const formatDate = (value) => new Intl.DateTimeFormat("es-GT", {
@@ -46,13 +47,7 @@ export const ClientOrderPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    // Initial remote synchronization and subsequent background refresh.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadHistory();
-    const interval = window.setInterval(() => loadHistory({ silent: true }), 15000);
-    return () => window.clearInterval(interval);
-  }, [loadHistory]);
+  useSmartPolling(() => loadHistory({ silent: pedidos.length > 0 }), 20000);
 
   const estimatedTotal = useMemo(
     () => carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0),

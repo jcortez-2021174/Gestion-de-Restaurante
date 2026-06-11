@@ -1,5 +1,13 @@
 import categoriaService from './categoria.service.js';
 
+const sendError = (res, error, fallbackStatus = 400) => res
+    .status(error.status || fallbackStatus)
+    .json({
+        success: false,
+        code: error.code || 'CATEGORY_ERROR',
+        message: error.message,
+    });
+
 const crear = async (req, res) =>
 {
     try
@@ -9,7 +17,7 @@ const crear = async (req, res) =>
     }
     catch (error)
     {
-        res.status(400).json({ mensaje: error.message });
+        sendError(res, error);
     }
 };
 
@@ -22,7 +30,7 @@ const listar = async (req, res) =>
     }
     catch (error)
     {
-        res.status(500).json({ mensaje: 'Error al obtener categorias' });
+        sendError(res, error, 500);
     }
 };
 
@@ -35,7 +43,7 @@ const obtener = async (req, res) =>
     }
     catch (error)
     {
-        res.status(404).json({ mensaje: error.message });
+        sendError(res, error, 404);
     }
 };
 
@@ -48,7 +56,7 @@ const actualizar = async (req, res) =>
     }
     catch (error)
     {
-        res.status(400).json({ mensaje: error.message });
+        sendError(res, error);
     }
 };
 
@@ -61,7 +69,7 @@ const eliminar = async (req, res) =>
     }
     catch (error)
     {
-        res.status(404).json({ mensaje: error.message });
+        sendError(res, error, 404);
     }
 };
 

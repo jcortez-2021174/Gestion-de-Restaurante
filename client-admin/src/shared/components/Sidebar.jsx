@@ -53,6 +53,13 @@ export const Sidebar = () => {
                 </li>
 
                 <li>
+                    <Link to="/rewards" className="menu-link">
+                        <i className="ri-gift-line"></i>
+                        Recompensas
+                    </Link>
+                </li>
+
+                <li>
                     <Link to="/reports" className="menu-link">
                         <i className="ri-bar-chart-line"></i>
                         Reportes

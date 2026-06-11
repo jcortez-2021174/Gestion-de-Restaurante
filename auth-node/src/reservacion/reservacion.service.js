@@ -1,6 +1,7 @@
 import Reservacion from './reservacion.model.js';
 import Cliente from '../cliente/cliente.model.js';
 import Mesas from '../mesas/mesas.model.js';
+import { encolarReservacion } from '../notificaciones/notificacion.service.js';
 
 class ReservacionError extends Error {
   constructor(code, message, status = 400) {
@@ -16,7 +17,7 @@ const toDateOnly = (value) => {
   return date;
 };
 
-const mapEstado = (estado = 'RESERVADA') => estado.toUpperCase();
+const mapEstado = (estado = 'PENDIENTE') => estado.toUpperCase();
 
 const toPersistence = (data) => ({
   idCliente: data.clienteId,
@@ -26,6 +27,7 @@ const toPersistence = (data) => ({
   horaFin: data.horaFin,
   cantidadPersonas: data.personas,
   estadoReservacion: mapEstado(data.estado),
+  notas: data.notas || '',
   isActive: true,
 });
 
@@ -52,29 +54,55 @@ export const mapReservacionDto = (reservacion) => {
     horaFin: reservacion.horaFin,
     personas: reservacion.cantidadPersonas,
     estado: reservacion.estadoReservacion,
+    notas: reservacion.notas || '',
     fechaCreacion: reservacion.createdAt,
   };
 };
 
-const assertReferencesExist = async ({ clienteId, mesaId }) => {
-  const [clienteExists, mesaExists] = await Promise.all([
+const assertReferencesExist = async ({ clienteId, mesaId, personas }) => {
+  const [clienteExists, mesa] = await Promise.all([
     Cliente.exists({ _id: clienteId, isActive: true }),
-    Mesas.exists({ _id: mesaId }),
+    Mesas.findById(mesaId),
   ]);
 
   if (!clienteExists) {
     throw new ReservacionError('CLIENT_NOT_FOUND', 'Cliente no encontrado', 404);
   }
 
-  if (!mesaExists) {
+  if (!mesa) {
     throw new ReservacionError('TABLE_NOT_FOUND', 'Mesa no encontrada', 404);
   }
+
+  if (personas && mesa.Capacidad < personas) {
+    throw new ReservacionError('TABLE_CAPACITY_EXCEEDED', 'La mesa no tiene capacidad suficiente', 409);
+  }
+
+  return mesa;
 };
 
 export const crearReservacion = async (data) => {
-  await assertReferencesExist(data);
+  const mesa = await assertReferencesExist(data);
+  const conflict = await Reservacion.exists({
+    idMesa: data.mesaId,
+    fechaReservacion: toDateOnly(data.fecha),
+    estadoReservacion: { $in: ['PENDIENTE', 'CONFIRMADA'] },
+    horaInicio: { $lt: data.horaFin },
+    horaFin: { $gt: data.horaInicio },
+    isActive: true,
+  });
+  if (conflict) {
+    throw new ReservacionError('TABLE_ALREADY_RESERVED', 'La mesa ya tiene una reserva en ese horario', 409);
+  }
+
   const reservacion = await Reservacion.create(toPersistence(data));
+  mesa.EstadoMesa = 'RESERVADA';
+  await mesa.save();
   const populated = await populateReservacion(Reservacion.findById(reservacion._id));
+  await encolarReservacion({
+    reserva: mapReservacionDto(populated),
+    cliente: populated.idCliente,
+    estado: 'CREADA',
+  });
   return mapReservacionDto(populated);
 };
 
@@ -121,6 +149,11 @@ export const listarReservacionesPorMesa = async (mesaId, fecha = null) => {
 };
 
 export const actualizarReservacion = async (id, data) => {
+  const current = await Reservacion.findById(id);
+  if (!current) {
+    throw new ReservacionError('RESERVATION_NOT_FOUND', 'Reservacion no encontrada', 404);
+  }
+
   await assertReferencesExist(data);
   const reservacion = await Reservacion.findByIdAndUpdate(
     id,
@@ -132,14 +165,35 @@ export const actualizarReservacion = async (id, data) => {
     throw new ReservacionError('RESERVATION_NOT_FOUND', 'Reservacion no encontrada', 404);
   }
 
+  if (current.idMesa.toString() !== data.mesaId.toString()) {
+    const activeOnPreviousTable = await Reservacion.exists({
+      _id: { $ne: current._id },
+      idMesa: current.idMesa,
+      estadoReservacion: { $in: ['PENDIENTE', 'CONFIRMADA'] },
+      isActive: true,
+    });
+    if (!activeOnPreviousTable) {
+      await Mesas.findByIdAndUpdate(current.idMesa, { EstadoMesa: 'DISPONIBLE' });
+    }
+  }
+  if (['PENDIENTE', 'CONFIRMADA'].includes(reservacion.estadoReservacion)) {
+    await Mesas.findByIdAndUpdate(reservacion.idMesa, { EstadoMesa: 'RESERVADA' });
+  }
+
   const populated = await populateReservacion(Reservacion.findById(reservacion._id));
+  await encolarReservacion({
+    reserva: mapReservacionDto(populated),
+    cliente: populated.idCliente,
+    estado: reservacion.estadoReservacion,
+  });
   return mapReservacionDto(populated);
 };
 
 const validStateTransitions = {
-  RESERVADA: ['CANCELADA', 'EXPIRADA'],
+  PENDIENTE: ['CONFIRMADA', 'CANCELADA'],
+  CONFIRMADA: ['COMPLETADA', 'CANCELADA'],
   CANCELADA: [],
-  EXPIRADA: [],
+  COMPLETADA: [],
 };
 
 export const cambiarEstadoReservacion = async (id, nuevoEstado) => {
@@ -161,7 +215,18 @@ export const cambiarEstadoReservacion = async (id, nuevoEstado) => {
   reservacion.estadoReservacion = estado;
   await reservacion.save();
 
+  if (['CANCELADA', 'COMPLETADA'].includes(estado)) {
+    await Mesas.findByIdAndUpdate(reservacion.idMesa, { EstadoMesa: 'DISPONIBLE' });
+  } else {
+    await Mesas.findByIdAndUpdate(reservacion.idMesa, { EstadoMesa: 'RESERVADA' });
+  }
+
   const populated = await populateReservacion(Reservacion.findById(reservacion._id));
+  await encolarReservacion({
+    reserva: mapReservacionDto(populated),
+    cliente: populated.idCliente,
+    estado,
+  });
   return mapReservacionDto(populated);
 };
 
@@ -169,6 +234,15 @@ export const eliminarReservacion = async (id) => {
   const reservacion = await Reservacion.findByIdAndDelete(id);
   if (!reservacion) {
     throw new ReservacionError('RESERVATION_NOT_FOUND', 'Reservacion no encontrada', 404);
+  }
+
+  const activeOnTable = await Reservacion.exists({
+    idMesa: reservacion.idMesa,
+    estadoReservacion: { $in: ['PENDIENTE', 'CONFIRMADA'] },
+    isActive: true,
+  });
+  if (!activeOnTable) {
+    await Mesas.findByIdAndUpdate(reservacion.idMesa, { EstadoMesa: 'DISPONIBLE' });
   }
 
   return reservacion;
@@ -180,7 +254,7 @@ export const cancelarReservacion = async (id, razon = '') => {
     throw new ReservacionError('RESERVATION_NOT_FOUND', 'Reservacion no encontrada', 404);
   }
 
-  if (reservacion.estadoReservacion !== 'RESERVADA') {
+  if (!['PENDIENTE', 'CONFIRMADA'].includes(reservacion.estadoReservacion)) {
     throw new ReservacionError(
       'INVALID_RESERVATION_STATUS_TRANSITION',
       `No se puede cancelar una reservacion en estado ${reservacion.estadoReservacion}`,
@@ -191,7 +265,21 @@ export const cancelarReservacion = async (id, razon = '') => {
   reservacion.estadoReservacion = 'CANCELADA';
   reservacion.razonCancelacion = razon || '';
   await reservacion.save();
+  await Mesas.findByIdAndUpdate(reservacion.idMesa, { EstadoMesa: 'DISPONIBLE' });
 
   const populated = await populateReservacion(Reservacion.findById(reservacion._id));
+  await encolarReservacion({
+    reserva: mapReservacionDto(populated),
+    cliente: populated.idCliente,
+    estado: 'CANCELADA',
+  });
   return mapReservacionDto(populated);
+};
+
+export const cancelarReservacionCliente = async (id, clienteId, razon = '') => {
+  const reservacion = await Reservacion.findOne({ _id: id, idCliente: clienteId, isActive: true });
+  if (!reservacion) {
+    throw new ReservacionError('RESERVATION_NOT_FOUND', 'Reservacion no encontrada', 404);
+  }
+  return cancelarReservacion(id, razon);
 };

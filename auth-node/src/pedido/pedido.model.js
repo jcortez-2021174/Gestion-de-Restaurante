@@ -71,6 +71,10 @@ const pedidoSchema = new Schema(
       default: '',
       trim: true,
     },
+    PuntosAcreditados: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

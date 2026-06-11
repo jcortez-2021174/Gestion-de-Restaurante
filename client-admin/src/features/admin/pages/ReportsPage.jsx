@@ -1,518 +1,117 @@
+import { useCallback, useEffect, useState } from "react";
+import { AdminLayout } from "../../../shared/layouts/AdminLayout";
+import { obtenerReportes } from "../../../services/dashboard.service";
 import "../styles/reports.css";
-import { Link } from "react-router-dom";
+import { ExportButtons } from "../../../shared/components/ExportButtons";
+
+const iso = (date) => date.toISOString().slice(0, 10);
+const money = (value) => `Q${Number(value || 0).toFixed(2)}`;
+
+const period = (name) => {
+  const end = new Date();
+  const start = new Date(end);
+  if (name === "dia") start.setHours(0, 0, 0, 0);
+  if (name === "semana") start.setDate(end.getDate() - 6);
+  if (name === "mes") start.setDate(1);
+  if (name === "anio") start.setMonth(0, 1);
+  return { desde: iso(start), hasta: iso(end) };
+};
 
 export const ReportsPage = () => {
-
-    const metrics = [
-        {
-            title: "Ventas Totales",
-            value: "Q44,580.00",
-            growth: "+16%"
-        },
-        {
-            title: "Pedidos Completados",
-            value: "128",
-            growth: "+11%"
-        },
-        {
-            title: "Reservas Confirmadas",
-            value: "56",
-            growth: "+8%"
-        },
-        {
-            title: "Clientes Atendidos",
-            value: "342",
-            growth: "+13%"
-        }
-    ];
-
-    const products = [
-        {
-            image: "/plato1.jpeg",
-            name: "Costillas de Cordero",
-            category: "Plato Fuerte",
-            sales: 48,
-            income: "Q7,490.00"
-        },
-        {
-            image: "/plato2.jpeg",
-            name: "Cordero al Horno",
-            category: "Especialidad",
-            sales: 36,
-            income: "Q5,100.00"
-        },
-        {
-            image: "/plato3.jpeg",
-            name: "Brochetas Gourmet",
-            category: "Premium",
-            sales: 30,
-            income: "Q3,850.00"
-        }
-    ];
-
-    return (
-
-        <div className="container">
-
-            {/* SIDEBAR */}
-            <aside className="sidebar">
-
-                <div className="logo-box">
-                    <img src="/logo.png" alt="logo" />
-                </div>
-
-                <ul className="menu">
-
-                    <Link to="/dashboard" className="menu-link">
-                        <li>
-                            <i className="ri-home-5-line"></i>
-                            Inicio
-                        </li>
-                    </Link>
-
-                    <Link to="/menu" className="menu-link">
-                        <li>
-                            <i className="ri-restaurant-line"></i>
-                            Menú
-                        </li>
-                    </Link>
-
-                    <Link to="/orders" className="menu-link">
-                        <li>
-                            <i className="ri-shopping-cart-line"></i>
-                            Pedidos
-                        </li>
-                    </Link>
-
-                    <Link to="/reservations" className="menu-link">
-                        <li>
-                            <i className="ri-calendar-line"></i>
-                            Reservas
-                        </li>
-                    </Link>
-
-                    <Link to="/tables" className="menu-link">
-                        <li>
-                            <i className="ri-table-line"></i>
-                            Mesas
-                        </li>
-                    </Link>
-
-                    <Link to="/clients" className="menu-link">
-                        <li>
-                            <i className="ri-user-line"></i>
-                            Clientes
-                        </li>
-                    </Link>
-
-                    <Link to="/reports" className="menu-link active-link">
-                        <li>
-                            <i className="ri-bar-chart-box-line"></i>
-                            Reportes
-                        </li>
-                    </Link>
-
-                    <Link to="/settings" className="menu-link">
-                        <li>
-                            <i className="ri-settings-3-line"></i>
-                            Configuración
-                        </li>
-                    </Link>
-
-                </ul>
-
-                <div className="sidebar-image">
-
-  <img src="/vino.jpg" alt="reportes" />
-
-  <div className="overlay"></div>
-
-  <div className="sidebar-decor">
-    <i className="ri-bar-chart-box-line"></i>
-  </div>
-
-  <p>
-    Cada métrica cuenta
-    <br />
-    una historia de crecimiento.
-  </p>
-
-</div>
-
-            </aside>
-
-            {/* MAIN */}
-            <main className="main">
-
-                {/* HEADER */}
-                <div className="header">
-
-                    <div>
-
-                        <h2>
-                            Reportes y Estadísticas
-                        </h2>
-
-                        <p>
-                            Información estratégica y rendimiento del restaurante.
-                        </p>
-
-                    </div>
-
-                    <div className="user-box">
-
-                        <div className="notification">
-
-                            <i className="ri-notification-3-line"></i>
-
-                            <span className="badge">
-                                3
-                            </span>
-
-                        </div>
-
-                        <div className="divider"></div>
-
-                        <div className="user">
-
-                            <i className="ri-user-line"></i>
-
-                            <div className="user-info">
-
-                                <span>
-                                    Administrador
-                                </span>
-
-                                <small>
-                                    admin@aurea.com
-                                </small>
-
-                            </div>
-
-                            <i className="ri-arrow-down-s-line"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                {/* REPORTS */}
-                <div className="reports-layout">
-
-                    {/* LEFT */}
-                    <div className="reports-content">
-
-                        {/* TOP */}
-                        <div className="reports-top">
-
-                            <div>
-
-                                <h3 className="section-title">
-
-                                    <i className="ri-bar-chart-grouped-line"></i>
-
-                                    Reportes Generales
-
-                                </h3>
-
-                                <div className="tabs">
-
-                                    <button className="active">
-                                        General
-                                    </button>
-
-                                    <button>
-                                        Ventas
-                                    </button>
-
-                                    <button>
-                                        Pedidos
-                                    </button>
-
-                                    <button>
-                                        Reservas
-                                    </button>
-
-                                    <button>
-                                        Clientes
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                            <div className="top-actions">
-
-                                <input type="date" />
-
-                                <button className="btn-export">
-
-                                    <i className="ri-file-download-line"></i>
-
-                                    Exportar Reporte
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                        {/* METRICS */}
-                        <div className="stats-grid">
-
-                            {
-                                metrics.map((metric, index) => (
-
-                                    <div
-                                        className="stat-card"
-                                        key={index}
-                                    >
-
-                                        <span>
-                                            {metric.title}
-                                        </span>
-
-                                        <h2>
-                                            {metric.value}
-                                        </h2>
-
-                                        <p>
-                                            {metric.growth} este mes
-                                        </p>
-
-                                    </div>
-
-                                ))
-                            }
-
-                        </div>
-
-                        {/* CHART */}
-                        <div className="chart-box">
-
-                            <div className="chart-header">
-
-                                <h3>
-                                    Rendimiento Semanal
-                                </h3>
-
-                                <button className="btn-mini">
-                                    Últimos 7 días
-                                </button>
-
-                            </div>
-
-                            <div className="chart-placeholder">
-
-                                <div className="chart-line"></div>
-
-                            </div>
-
-                        </div>
-
-                        {/* PRODUCTS */}
-                        <div className="products-section">
-
-                            <div className="section-header">
-
-                                <h3>
-                                    Productos Más Vendidos
-                                </h3>
-
-                            </div>
-
-                            <div className="products-table">
-
-                                {
-                                    products.map((product, index) => (
-
-                                        <div
-                                            className="product-row"
-                                            key={index}
-                                        >
-
-                                            <div className="product-info">
-
-                                                <img
-                                                    src={product.image}
-                                                    alt=""
-                                                />
-
-                                                <div>
-
-                                                    <h4>
-                                                        {product.name}
-                                                    </h4>
-
-                                                    <span>
-                                                        {product.category}
-                                                    </span>
-
-                                                </div>
-
-                                            </div>
-
-                                            <span>
-                                                {product.sales} ventas
-                                            </span>
-
-                                            <strong>
-                                                {product.income}
-                                            </strong>
-
-                                        </div>
-
-                                    ))
-                                }
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {/* RIGHT */}
-                    <div className="reports-sidebar">
-
-                        {/* FINANCIAL */}
-                        <div className="summary-box">
-
-                            <h3>
-                                Resumen Financiero
-                            </h3>
-
-                            <div className="summary-item">
-
-                                <span>
-                                    Ventas
-                                </span>
-
-                                <strong>
-                                    Q44,580.00
-                                </strong>
-
-                            </div>
-
-                            <div className="summary-item">
-
-                                <span>
-                                    Impuestos
-                                </span>
-
-                                <strong>
-                                    Q5,349.60
-                                </strong>
-
-                            </div>
-
-                            <div className="summary-item">
-
-                                <span>
-                                    Propinas
-                                </span>
-
-                                <strong>
-                                    Q3,125.00
-                                </strong>
-
-                            </div>
-
-                            <div className="summary-total">
-
-                                <span>
-                                    Total Neto
-                                </span>
-
-                                <h2>
-                                    Q42,355.40
-                                </h2>
-
-                            </div>
-
-                        </div>
-
-                        {/* STATUS */}
-                        <div className="summary-box">
-
-                            <h3>
-                                Pedidos por Estado
-                            </h3>
-
-                            <div className="status-item">
-
-                                <span className="status-label">
-
-                                    <i className="ri-checkbox-circle-fill completed"></i>
-
-                                    Completados
-
-                                </span>
-
-                                <strong>
-                                    128
-                                </strong>
-
-                            </div>
-
-                            <div className="status-item">
-
-                                <span className="status-label">
-
-                                    <i className="ri-time-fill preparing"></i>
-
-                                    En Preparación
-
-                                </span>
-
-                                <strong>
-                                    32
-                                </strong>
-
-                            </div>
-
-                            <div className="status-item">
-
-                                <span className="status-label">
-
-                                    <i className="ri-truck-fill delivery"></i>
-
-                                    En Camino
-
-                                </span>
-
-                                <strong>
-                                    20
-                                </strong>
-
-                            </div>
-
-                            <div className="status-item">
-
-                                <span className="status-label">
-
-                                    <i className="ri-close-circle-fill cancelled"></i>
-
-                                    Cancelados
-
-                                </span>
-
-                                <strong>
-                                    8
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </main>
-
+  const [range, setRange] = useState(period("mes"));
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      setReport(await obtenerReportes(range));
+    } catch (requestError) {
+      setError(requestError.userMessage || requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [range]);
+
+  useEffect(() => {
+    // Reload report data whenever the selected period changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
+
+  return (
+    <AdminLayout notificationCount={0}>
+      <header className="admin-module-header">
+        <div><span className="admin-eyebrow">Inteligencia operativa</span><h1>Reportes</h1><p>Ventas, productos, reservaciones y clientes desde MongoDB.</p></div>
+        {report && <ExportButtons
+          basename={`reporte-aurea-${range.desde}-${range.hasta}`}
+          title="Reporte ejecutivo Aurea"
+          columns={[
+            { key: "_id", label: "Fecha" },
+            { key: "total", label: "Ventas" },
+            { key: "pedidos", label: "Pedidos" },
+          ]}
+          rows={report.ventas || []}
+          summary={`Ventas totales: ${money(report.totalVentas)}`}
+        />}
+      </header>
+
+      <section className="reports-live-filter card">
+        <div className="reports-presets">
+          {["dia", "semana", "mes", "anio"].map((name) => <button key={name} onClick={() => setRange(period(name))}>{name}</button>)}
         </div>
+        <input type="date" value={range.desde} onChange={(event) => setRange({ ...range, desde: event.target.value })} />
+        <input type="date" value={range.hasta} onChange={(event) => setRange({ ...range, hasta: event.target.value })} />
+      </section>
 
-    );
+      {error && <div className="admin-feedback error">{error}</div>}
+      {loading ? <div className="loading-state">Generando reporte...</div> : (
+        <>
+          <section className="reports-live-metrics">
+            <article><span>Ventas</span><strong>{money(report.totalVentas)}</strong></article>
+            <article><span>Pedidos</span><strong>{report.pedidos.reduce((sum, item) => sum + item.total, 0)}</strong></article>
+            <article><span>Reservaciones</span><strong>{report.reservaciones.reduce((sum, item) => sum + item.total, 0)}</strong></article>
+            <article><span>Clientes frecuentes</span><strong>{report.clientesFrecuentes.length}</strong></article>
+          </section>
 
+          <section className="reports-live-grid">
+            <ReportTable title="Productos mas vendidos" rows={report.productosMasVendidos} columns={[
+              ["nombre", "Producto"],
+              ["ventas", "Unidades"],
+              ["ingresos", "Ingresos", money],
+            ]} />
+            <ReportTable title="Productos menos vendidos" rows={report.productosMenosVendidos} columns={[
+              ["nombre", "Producto"],
+              ["ventas", "Unidades"],
+              ["ingresos", "Ingresos", money],
+            ]} />
+            <ReportTable title="Clientes frecuentes" rows={report.clientesFrecuentes} columns={[
+              ["nombre", "Cliente"],
+              ["visitas", "Pedidos"],
+              ["gasto", "Consumo", money],
+            ]} />
+            <div className="card report-status-panel">
+              <h2>Estados</h2>
+              {[...report.pedidos.map((item) => ({ ...item, tipo: "Pedido" })), ...report.reservaciones.map((item) => ({ ...item, tipo: "Reserva" }))].map((item) => (
+                <div key={`${item.tipo}-${item._id}`}><span>{item.tipo}: {item._id}</span><strong>{item.total}</strong></div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+    </AdminLayout>
+  );
 };
+
+const ReportTable = ({ title, rows, columns }) => (
+  <div className="card report-table-card">
+    <h2>{title}</h2>
+    <div className="report-table">
+      <div className="report-table-row header">{columns.map(([, label]) => <span key={label}>{label}</span>)}</div>
+      {rows.map((row, index) => <div className="report-table-row" key={row._id || row.id || index}>{columns.map(([key, label, format]) => <span key={label}>{format ? format(row[key]) : row[key]}</span>)}</div>)}
+      {!rows.length && <div className="empty-state">Sin datos para este periodo.</div>}
+    </div>
+  </div>
+);

@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listarProductos } from "../../../services/productos.service";
+import { obtenerTodas as listarCategorias } from "../../../services/categorias.service";
 import { useAuthStore } from "../../auth/store/authStore";
 import { CartPanel } from "../components/CartPanel";
 import { UserShell } from "../components/UserShell";
@@ -14,46 +15,51 @@ import {
 import { mapVisibleMenuProducts } from "../menu.products";
 import { useCartStore } from "../store/carStore";
 import "../styles/usermenu.css";
+import { useSmartPolling } from "../../../shared/hooks/useSmartPolling";
 
 export const UserMenuPage = () => {
   const user = useAuthStore((state) => state.user);
   const carrito = useCartStore((state) => state.carrito);
   const agregarItem = useCartStore((state) => state.agregarItem);
+  const sincronizarCatalogo = useCartStore((state) => state.sincronizarCatalogo);
   const navigate = useNavigate();
 
   const [productos, setProductos] = useState([]);
+  const [categoriasCatalogo, setCategoriasCatalogo] = useState([]);
   const [categoriaActiva, setCategoriaActiva] = useState("todos");
   const [busqueda, setBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
-      const response = await listarProductos();
+      const [response, categoryResponse] = await Promise.all([
+        listarProductos(),
+        listarCategorias(),
+      ]);
       const products = mapVisibleMenuProducts(response);
       setProductos(products);
+      setCategoriasCatalogo((categoryResponse.data || categoryResponse || []).map((category) => ({
+        id: String(category._id || category.id),
+        label: category.nombre,
+      })));
+      sincronizarCatalogo(products);
       setCategoriaActiva("todos");
     } catch (requestError) {
       setError(requestError.userMessage || requestError.message || "No se pudo cargar el menú.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [sincronizarCatalogo]);
 
-  useEffect(() => {
-    // Initial remote synchronization for this route.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadProducts();
-  }, []);
+  useSmartPolling(loadProducts, 45000);
 
   const categorias = useMemo(() => {
-    const unique = new Map();
-    productos.forEach((product) => unique.set(product.categoriaId, product.categoriaNombre));
-    return [{ id: "todos", label: "Todos" }, ...[...unique].map(([id, label]) => ({ id, label }))];
-  }, [productos]);
+    return [{ id: "todos", label: "Todos" }, ...categoriasCatalogo];
+  }, [categoriasCatalogo]);
 
   const productosFiltrados = useMemo(() => {
     const search = busqueda.trim().toLowerCase();

@@ -17,6 +17,7 @@ import { ClientsPage } from "../../features/admin/pages/ClientsPage";
 import { PuntosAureaPage } from "../../features/admin/pages/PuntosAureaPage";
 import { ReportsPage } from "../../features/admin/pages/ReportsPage";
 import { SettingsPage } from "../../features/admin/pages/SettingsPage";
+import { RewardsPage } from "../../features/admin/pages/RewardsPage";
 
 import { UserDashboardPage } from "../../features/user/pages/UserDashboardPage";
 import { UserMenuPage } from "../../features/user/pages/UserMenuPage";
@@ -131,6 +132,15 @@ export const AppRoutes = () => {
                 element={
                     <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ReportsPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/rewards"
+                element={
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
+                        <RewardsPage />
                     </ProtectedRoute>
                 }
             />

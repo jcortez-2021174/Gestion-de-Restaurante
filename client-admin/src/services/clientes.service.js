@@ -1,4 +1,5 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api'
+import { cachedGet, invalidateRequestCache } from '@/shared/apis/request-cache';
 
 /**
  * SERVICIO DE CLIENTES (alineado a cliente.routes.js / cliente.controller.js)
@@ -10,7 +11,7 @@ const CLIENTE_BASE = '/cliente';
 
 export const listarClientes = async () => {
   try {
-    const response = await restaurantApi.get(`${CLIENTE_BASE}`);
+    const response = await cachedGet(restaurantApi, CLIENTE_BASE);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -47,6 +48,7 @@ export const crearCliente = async (clienteData) => {
     }
 
     const response = await restaurantApi.post(`${CLIENTE_BASE}`, { nombre, apellido, telefono, correo, direccion });
+    invalidateRequestCache(CLIENTE_BASE);
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({
@@ -82,6 +84,7 @@ export const editarCliente = async (id, clienteData) => {
     }
 
     const response = await restaurantApi.put(`${CLIENTE_BASE}/${id}`, clienteData);
+    invalidateRequestCache(CLIENTE_BASE);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -117,6 +120,7 @@ export const eliminarCliente = async (id) => {
     }
 
     const response = await restaurantApi.delete(`${CLIENTE_BASE}/${id}`);
+    invalidateRequestCache(CLIENTE_BASE);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -141,7 +145,7 @@ export const eliminarCliente = async (id) => {
 
 export const obtenerDashboard = async () => {
   try {
-    const response = await restaurantApi.get(`${CLIENTE_BASE}/dashboard`);
+    const response = await cachedGet(restaurantApi, `${CLIENTE_BASE}/dashboard`, {}, 3000);
 
     if (response.status !== 200) {
       throw new ApiError({

@@ -23,6 +23,14 @@ const validarProducto = [
   body('idCategoria')
     .notEmpty().withMessage('El idCategoria es obligatorio')
     .isMongoId().withMessage('El idCategoria no es un ObjectId válido'),
+  body('descripcion')
+    .optional()
+    .isString()
+    .isLength({ max: 500 }).withMessage('La descripcion no puede superar 500 caracteres'),
+  body('imagen')
+    .optional()
+    .isString()
+    .isLength({ max: 7_000_000 }).withMessage('La imagen supera el limite permitido'),
 ];
 
 /**

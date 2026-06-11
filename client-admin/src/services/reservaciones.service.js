@@ -1,4 +1,5 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api';
+import { cachedGet, invalidateRequestCache } from '@/shared/apis/request-cache';
 
 /**
  * SERVICIO DE RESERVACIONES
@@ -6,7 +7,7 @@ import { restaurantApi, ApiError } from '@/shared/apis/api';
  * Responsabilidad: CRUD + Workflow de reservaciones
  * Endpoint base: http://localhost:3020/api/v1/reservaciones
  * 
- * Estados: RESERVADA → CANCELADA/EXPIRADA (terminal)
+ * Estados: PENDIENTE -> CONFIRMADA -> COMPLETADA, o CANCELADA
  */
 
 const RESERVACIONES_BASE = '/reservacion';
@@ -30,7 +31,12 @@ export const obtenerTodas = async (filtros = {}, page = 1, limit = 20) => {
     }
 
     const params = { page, limit, ...filtros };
-    const response = await restaurantApi.get(RESERVACIONES_BASE, { params });
+    const response = await cachedGet(
+      restaurantApi,
+      RESERVACIONES_BASE,
+      { params },
+      2000
+    );
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -207,6 +213,7 @@ export const crear = async (reservacionData) => {
       personas: Number(personas),
       estado: reservacionData.estado,
     });
+    invalidateRequestCache(RESERVACIONES_BASE, '/mesas', '/dashboard');
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({
@@ -248,6 +255,7 @@ export const actualizar = async (id, reservacionData) => {
     }
 
     const response = await restaurantApi.put(`${RESERVACIONES_BASE}/${id}`, reservacionData);
+    invalidateRequestCache(RESERVACIONES_BASE, '/mesas', '/dashboard');
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -288,6 +296,7 @@ export const eliminar = async (id) => {
     }
 
     const response = await restaurantApi.delete(`${RESERVACIONES_BASE}/${id}`);
+    invalidateRequestCache(RESERVACIONES_BASE, '/mesas', '/dashboard');
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -327,7 +336,7 @@ export const cambiarEstado = async (id, estado) => {
       });
     }
 
-    const estadosValidos = ['RESERVADA', 'CANCELADA', 'EXPIRADA'];
+    const estadosValidos = ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA'];
     if (!estadosValidos.includes(estado)) {
       throw new ApiError({
         code: 'VALIDATION_ERROR',
@@ -340,6 +349,7 @@ export const cambiarEstado = async (id, estado) => {
     const response = await restaurantApi.patch(`${RESERVACIONES_BASE}/${id}/estado`, {
       estado,
     });
+    invalidateRequestCache(RESERVACIONES_BASE, '/mesas', '/dashboard');
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -360,6 +370,63 @@ export const cambiarEstado = async (id, estado) => {
       statusCode: error.response?.status || 500,
     });
   }
+};
+
+export const obtenerMisReservaciones = async () => {
+  const response = await cachedGet(
+    restaurantApi,
+    `${RESERVACIONES_BASE}/mis-reservaciones`,
+    {},
+    2000
+  );
+  if (response.status !== 200) {
+    throw new ApiError({
+      code: response.data?.code || 'MY_RESERVATIONS_FAILED',
+      message: response.data?.message || 'No se pudieron cargar tus reservaciones',
+      userMessage: response.data?.message || 'No se pudieron cargar tus reservaciones.',
+      statusCode: response.status,
+    });
+  }
+  return response.data.data || [];
+};
+
+export const crearMiReservacion = async (data) => {
+  const response = await restaurantApi.post(`${RESERVACIONES_BASE}/mis-reservaciones`, {
+    mesaId: data.mesaId,
+    fecha: data.fecha,
+    horaInicio: data.horaInicio,
+    horaFin: data.horaFin,
+    personas: Number(data.personas),
+    notas: data.notas || '',
+  });
+  invalidateRequestCache(RESERVACIONES_BASE, '/mesas', '/dashboard');
+  if (response.status !== 201) {
+    throw new ApiError({
+      code: response.data?.code || 'MY_RESERVATION_CREATE_FAILED',
+      message: response.data?.message || 'No se pudo crear la reservacion',
+      userMessage: response.data?.message || 'No se pudo crear la reservacion.',
+      statusCode: response.status,
+      details: response.data?.errors,
+    });
+  }
+  return response.data.data;
+};
+
+export const cancelarMiReservacion = async (id, razon = '') => {
+  const response = await restaurantApi.patch(
+    `${RESERVACIONES_BASE}/mis-reservaciones/${id}/cancelar`,
+    { razon }
+  );
+  invalidateRequestCache(RESERVACIONES_BASE, '/mesas', '/dashboard');
+  if (response.status !== 200) {
+    throw new ApiError({
+      code: response.data?.code || 'MY_RESERVATION_CANCEL_FAILED',
+      message: response.data?.message || 'No se pudo cancelar la reservacion',
+      userMessage: response.data?.message || 'No se pudo cancelar la reservacion.',
+      statusCode: response.status,
+    });
+  }
+  return response.data.data;
 };
 
 /**

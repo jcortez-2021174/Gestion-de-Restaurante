@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { obtenerDashboard } from "../../../services/clientes.service";
 import { Link } from "react-router-dom";
 
 import "../styles/clients.css";
+import { ExportButtons } from "../../../shared/components/ExportButtons";
 
 export const ClientsPage = () => {
 
@@ -17,13 +18,7 @@ export const ClientsPage = () => {
        GET CLIENTS
     ========================================= */
 
-    useEffect(() => {
-
-        getClientsDashboard();
-
-    }, []);
-
-    const getClientsDashboard = async () => {
+    const getClientsDashboard = useCallback(async () => {
         try {
             const response = await obtenerDashboard();
             // Handle both response formats: { data: [...] } or direct array
@@ -38,7 +33,13 @@ export const ClientsPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // Initial API synchronization for this route.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        getClientsDashboard();
+    }, [getClientsDashboard]);
     /* =========================================
        SEARCH
     ========================================= */
@@ -248,6 +249,19 @@ export const ClientsPage = () => {
                     </div>
 
                     <div className="clients-header-actions">
+                        <ExportButtons
+                            basename={`clientes-aurea-${new Date().toISOString().slice(0, 10)}`}
+                            title="Reporte de clientes"
+                            columns={[
+                                { key: "_id", label: "ID" },
+                                { key: "name", label: "Cliente" },
+                                { key: "email", label: "Correo" },
+                                { key: "phone", label: "Telefono" },
+                                { key: "totalPedidos", label: "Pedidos" },
+                            ]}
+                            rows={filteredClients}
+                            summary={`${filteredClients.length} clientes`}
+                        />
 
                         <button className="btn-gold">
 
@@ -782,6 +796,25 @@ export const ClientsPage = () => {
 
                                         </button>
 
+                                    </div>
+
+                                    <div className="detail-section">
+                                        <h3>Reservaciones recientes</h3>
+                                        <div className="history-list">
+                                            {selectedClient.reservaciones?.length > 0 ? (
+                                                selectedClient.reservaciones.map((reserva) => (
+                                                    <div className="history-item" key={reserva.id}>
+                                                        <div>
+                                                            <h4>{new Date(reserva.fecha).toLocaleDateString("es-GT")}</h4>
+                                                            <span>{reserva.horaInicio} - {reserva.horaFin} · {reserva.personas} personas</span>
+                                                        </div>
+                                                        <strong>{reserva.estado}</strong>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="empty-history">No hay reservaciones registradas.</div>
+                                            )}
+                                        </div>
                                     </div>
 
                                 </>

@@ -94,5 +94,14 @@ export const editarCliente = async (id, data) => {
 };
 
 export const eliminarCliente = async (id) => {
-  return await Cliente.findByIdAndDelete(id);
+  const cliente = await Cliente.findById(id);
+  if (!cliente) return null;
+
+  if (cliente.authUserId) {
+    cliente.isActive = false;
+    await cliente.save();
+    return cliente;
+  }
+
+  return Cliente.findByIdAndDelete(id);
 };

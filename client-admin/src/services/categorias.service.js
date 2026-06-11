@@ -1,4 +1,5 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api'
+import { cachedGet, invalidateRequestCache } from '@/shared/apis/request-cache';
 
 /**
  * SERVICIO DE CATEGORÍAS (alineado a categoria.controller.js)
@@ -9,7 +10,7 @@ const CATEGORIA_BASE = '/categoria';
 
 export const obtenerTodas = async () => {
   try {
-    const response = await restaurantApi.get(`${CATEGORIA_BASE}`);
+    const response = await cachedGet(restaurantApi, CATEGORIA_BASE, {}, 3000);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -80,6 +81,7 @@ export const crear = async (categoriaData) => {
     }
 
     const response = await restaurantApi.post(`${CATEGORIA_BASE}`, categoriaData);
+    invalidateRequestCache(CATEGORIA_BASE);
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({
@@ -115,6 +117,7 @@ export const actualizar = async (id, categoriaData) => {
     }
 
     const response = await restaurantApi.put(`${CATEGORIA_BASE}/${id}`, categoriaData);
+    invalidateRequestCache(CATEGORIA_BASE);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -150,6 +153,7 @@ export const eliminar = async (id) => {
     }
 
     const response = await restaurantApi.delete(`${CATEGORIA_BASE}/${id}`);
+    invalidateRequestCache(CATEGORIA_BASE);
 
     if (response.status !== 200) {
       throw new ApiError({

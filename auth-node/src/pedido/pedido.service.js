@@ -1,6 +1,8 @@
 import Pedido from './pedido.model.js';
 import Producto from '../producto/producto.model.js';
 import Mesas from '../mesas/mesas.model.js';
+import { acreditarPedidoEntregado } from '../puntos/puntos.service.js';
+import { encolarPedido } from '../notificaciones/notificacion.service.js';
 
 const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
 
@@ -89,7 +91,7 @@ export const mapPedidoDto = (pedido) => {
 };
 
 const populatePedido = (query) => query
-  .populate('IdCliente', 'nombre apellido')
+  .populate('IdCliente', 'nombre apellido correo')
   .populate('IdMesa', 'Numero');
 
 export const crearPedidoService = async ({ clienteId, mesaId, productos }) => {
@@ -121,6 +123,11 @@ export const crearPedidoService = async ({ clienteId, mesaId, productos }) => {
   });
 
   const populated = await populatePedido(Pedido.findById(pedido._id));
+  await encolarPedido({
+    pedido: mapPedidoDto(populated),
+    cliente: populated.IdCliente,
+    estado: 'Creado',
+  });
   return mapPedidoDto(populated);
 };
 
@@ -168,8 +175,25 @@ export const cambiarEstadoPedidoService = async (id, nuevoEstado) => {
   }
 
   pedido.EstadoPedido = nuevoEstado;
+  if (nuevoEstado === 'Entregado') pedido.PuntosAcreditados = true;
   await pedido.save();
 
+  if (nuevoEstado === 'Entregado') {
+    try {
+      await acreditarPedidoEntregado(pedido);
+    } catch (error) {
+      pedido.EstadoPedido = 'Listo';
+      pedido.PuntosAcreditados = false;
+      await pedido.save();
+      throw error;
+    }
+  }
+
   const populated = await populatePedido(Pedido.findById(pedido._id));
+  await encolarPedido({
+    pedido: mapPedidoDto(populated),
+    cliente: populated.IdCliente,
+    estado: nuevoEstado,
+  });
   return mapPedidoDto(populated);
 };

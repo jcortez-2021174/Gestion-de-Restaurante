@@ -12,6 +12,17 @@ const productoSchema = new Schema(
       required: [true, 'El precio es obligatorio'],
       min: [0, 'El precio no puede ser negativo'],
     },
+    descripcion: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [500, 'La descripcion no puede superar 500 caracteres'],
+    },
+    imagen: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     disponibilidad: {
       type: String,
       enum: {

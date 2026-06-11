@@ -8,6 +8,7 @@ import {
   listarReservacionesPorMesa,
   cambiarEstadoReservacion,
   cancelarReservacion,
+  cancelarReservacionCliente,
 } from './reservacion.service.js';
 
 const sendError = (res, error, fallbackMessage) => res
@@ -26,6 +27,7 @@ const reservationPayload = (body) => ({
   horaFin: body.horaFin,
   personas: body.personas,
   estado: body.estado,
+  notas: body.notas,
 });
 
 export const agregarReservacion = async (req, res) => {
@@ -38,6 +40,40 @@ export const agregarReservacion = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, error, 'No se pudo crear la reservacion');
+  }
+};
+
+export const agregarMiReservacion = async (req, res) => {
+  try {
+    const reservacion = await crearReservacion({
+      ...reservationPayload(req.body),
+      clienteId: req.cliente._id,
+    });
+    return res.status(201).json({ success: true, data: reservacion });
+  } catch (error) {
+    return sendError(res, error, 'No se pudo crear la reservacion');
+  }
+};
+
+export const listarMisReservaciones = async (req, res) => {
+  try {
+    const reservaciones = await listarReservacionesPorCliente(req.cliente._id);
+    return res.status(200).json({ success: true, total: reservaciones.length, data: reservaciones });
+  } catch (error) {
+    return sendError(res, error, 'No se pudieron listar tus reservaciones');
+  }
+};
+
+export const cancelarMiReservacion = async (req, res) => {
+  try {
+    const reservacion = await cancelarReservacionCliente(
+      req.params.id,
+      req.cliente._id,
+      req.body.razon
+    );
+    return res.status(200).json({ success: true, data: reservacion });
+  } catch (error) {
+    return sendError(res, error, 'No se pudo cancelar la reservacion');
   }
 };
 

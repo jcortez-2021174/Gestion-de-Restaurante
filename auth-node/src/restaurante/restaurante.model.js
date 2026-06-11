@@ -23,9 +23,28 @@ const restauranteSchema = new Schema(
     minLength: [8, 'El teléfono debe tener al menos 8 caracteres'],
     maxLength: [20, 'El teléfono no puede exceder los 20 caracteres'],
   },
+    correo: {
+      type: String,
+      default: '',
+      trim: true,
+      lowercase: true,
+    },
+    logo: {
+      type: String,
+      default: '',
+    },
+    banner: {
+      type: String,
+      default: '',
+    },
+    redesSociales: {
+      facebook: { type: String, default: '' },
+      instagram: { type: String, default: '' },
+      whatsapp: { type: String, default: '' },
+    },
     capacidadTotal: {
       type: Number,
-      required: [true, 'La capacidad total del restaurante es obligatoria'],
+      default: 1,
       min: [1, 'La capacidad total debe ser un número positivo mayor a 0'],
       validate: {
         validator: Number.isInteger,

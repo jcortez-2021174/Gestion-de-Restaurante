@@ -1,7 +1,9 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api';
+import { cachedGet, invalidateRequestCache } from '@/shared/apis/request-cache';
 
 const MESAS_BASE = '/mesas';
-const ESTADOS_MESA = ['DISPONIBLE', 'RESERVADA', 'OCUPADA'];
+const ESTADOS_MESA = ['DISPONIBLE', 'RESERVADA', 'OCUPADA', 'FUERA_SERVICIO'];
+const ZONAS_MESA = ['TERRAZA', 'INTERIOR', 'VIP', 'EVENTOS'];
 
 const responseData = (response, fallbackMessage) => {
   if (response.status >= 200 && response.status < 300 && response.data?.success) {
@@ -62,17 +64,34 @@ const validateMesa = ({ numero, capacidad, estado = 'DISPONIBLE' }) => {
 
 const mesaPayload = (mesaData) => {
   validateMesa(mesaData);
+  const zona = mesaData.zona || 'INTERIOR';
+
+  if (!ZONAS_MESA.includes(zona)) {
+    throw new ApiError({
+      code: 'INVALID_TABLE_ZONE',
+      userMessage: 'La zona seleccionada no es valida.',
+      statusCode: 400,
+    });
+  }
 
   return {
     numero: Number(mesaData.numero),
     capacidad: Number(mesaData.capacidad),
     estado: mesaData.estado || 'DISPONIBLE',
+    zona,
+    forma: mesaData.forma || 'RECTANGULO',
+    posicion: mesaData.posicion || { x: 50, y: 50 },
   };
 };
 
 export const obtenerTodas = async (filtros = {}) => wrapRequest(
-  () => restaurantApi.get(MESAS_BASE, { params: filtros }),
+  () => cachedGet(restaurantApi, MESAS_BASE, { params: filtros }),
   'No se pudieron cargar las mesas.'
+);
+
+export const obtenerDisponibles = async () => wrapRequest(
+  () => cachedGet(restaurantApi, `${MESAS_BASE}/disponibles`),
+  'No se pudieron cargar las mesas disponibles.'
 );
 
 export const obtenerPorId = async (id) => wrapRequest(
@@ -81,22 +100,35 @@ export const obtenerPorId = async (id) => wrapRequest(
 );
 
 export const crear = async (mesaData) => wrapRequest(
-  () => restaurantApi.post(MESAS_BASE, mesaPayload(mesaData)),
+  async () => {
+    const response = await restaurantApi.post(MESAS_BASE, mesaPayload(mesaData));
+    invalidateRequestCache(MESAS_BASE);
+    return response;
+  },
   'No se pudo crear la mesa.'
 );
 
 export const actualizar = async (id, mesaData) => wrapRequest(
-  () => restaurantApi.put(`${MESAS_BASE}/${id}`, mesaPayload(mesaData)),
+  async () => {
+    const response = await restaurantApi.put(`${MESAS_BASE}/${id}`, mesaPayload(mesaData));
+    invalidateRequestCache(MESAS_BASE);
+    return response;
+  },
   'No se pudo actualizar la mesa.'
 );
 
 export const eliminar = async (id) => wrapRequest(
-  () => restaurantApi.delete(`${MESAS_BASE}/${id}`),
+  async () => {
+    const response = await restaurantApi.delete(`${MESAS_BASE}/${id}`);
+    invalidateRequestCache(MESAS_BASE);
+    return response;
+  },
   'No se pudo eliminar la mesa.'
 );
 
 export default {
   obtenerTodas,
+  obtenerDisponibles,
   obtenerPorId,
   crear,
   actualizar,

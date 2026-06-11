@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import { crearProducto, listarProductos, obtenerProductoPorId, actualizarProducto, eliminarProducto } from './producto.service.js';
+import { crearProducto, buscarProductos, obtenerProductoPorId, actualizarProducto, eliminarProducto } from './producto.service.js';
 
 export const agregarProducto = async (req, res) => {
   const errors = validationResult(req);
@@ -8,9 +8,16 @@ export const agregarProducto = async (req, res) => {
   }
 
   try {
-    const { nombre, precio, disponibilidad, idCategoria } = req.body;
+    const { nombre, precio, disponibilidad, idCategoria, descripcion, imagen } = req.body;
 
-    const nuevoProducto = await crearProducto({ nombre, precio, disponibilidad, idCategoria });
+    const nuevoProducto = await crearProducto({
+      nombre,
+      precio,
+      disponibilidad,
+      idCategoria,
+      descripcion,
+      imagen,
+    });
 
     return res.status(201).json({
       success: true,
@@ -31,7 +38,7 @@ export const agregarProducto = async (req, res) => {
 
 export const listarProductosCtrl = async (req, res) => {
   try {
-    const productos = await listarProductos();
+    const productos = await buscarProductos(req.query);
     return res.status(200).json({
       success: true,
       total: productos.length,

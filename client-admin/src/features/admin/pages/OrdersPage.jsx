@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   cambiarEstado,
   obtenerTodos,
 } from '../../../services/pedidos.service';
 import '../styles/orders.css';
+import { useSmartPolling } from '../../../shared/hooks/useSmartPolling';
+import { ExportButtons } from '../../../shared/components/ExportButtons';
+import { printAureaDocument } from '../../../shared/utils/exports';
 
 const STATUS_FILTERS = [
   { value: 'Todos', label: 'Todos' },
@@ -64,9 +67,7 @@ export const OrdersPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadOrders();
-  }, [loadOrders]);
+  useSmartPolling(loadOrders, 20000);
 
   const visibleOrders = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -168,6 +169,19 @@ export const OrdersPage = () => {
                 ))}
               </div>
               <div className="top-actions">
+                <ExportButtons
+                  basename={`pedidos-aurea-${new Date().toISOString().slice(0, 10)}`}
+                  title="Reporte de pedidos"
+                  columns={[
+                    { key: 'id', label: 'ID' },
+                    { key: 'clienteNombre', label: 'Cliente' },
+                    { key: 'estado', label: 'Estado' },
+                    { key: 'total', label: 'Total' },
+                    { key: 'fechaCreacion', label: 'Fecha' },
+                  ]}
+                  rows={visibleOrders}
+                  summary={`${visibleOrders.length} pedidos`}
+                />
                 <button className="btn-outline-small" onClick={loadOrders}>
                   <i className="ri-refresh-line" /> Actualizar
                 </button>
@@ -251,6 +265,11 @@ export const OrdersPage = () => {
                 </div>
 
                 <div className="actions">
+                  <button className="btn-outline-action" onClick={() => printAureaDocument({
+                    title: `Ticket pedido #${selectedOrder.id.slice(-8)}`,
+                    subtitle: `${selectedOrder.clienteNombre} · ${formatDate(selectedOrder.fechaCreacion)}`,
+                    content: `<table><thead><tr><th>Producto</th><th>Cantidad</th><th>Total</th></tr></thead><tbody>${selectedOrder.productos.map((product) => `<tr><td>${product.nombre}</td><td>${product.cantidad}</td><td>${formatMoney(product.totalLinea)}</td></tr>`).join("")}</tbody></table><p class="total">Total: ${formatMoney(selectedOrder.total)}</p>`,
+                  })}>Imprimir ticket</button>
                   {(NEXT_ACTIONS[selectedOrder.estado] || []).map((action) => (
                     <button
                       key={action.estado}

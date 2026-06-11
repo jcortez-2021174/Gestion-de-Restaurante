@@ -473,6 +473,9 @@ function setupResponseInterceptor(instance) {
  * Configura interceptores en ambas instancias
  */
 export function setupInterceptors() {
+  if (setupInterceptors.configured) return;
+  setupInterceptors.configured = true;
+
   setupRequestInterceptor(authApi);
   setupResponseInterceptor(authApi);
 

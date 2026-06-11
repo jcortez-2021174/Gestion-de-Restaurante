@@ -11,6 +11,7 @@ const navigation = [
   { to: "/user/menu", label: "Menú", icon: "ri-restaurant-line" },
   { to: "/user/reservations", label: "Reservas", icon: "ri-calendar-line" },
   { to: "/user/orders", label: "Pedidos", icon: "ri-motorbike-line", cart: true },
+  { to: "/user/puntos", label: "Puntos Aurea", icon: "ri-vip-crown-line" },
   { to: "/user/nosotros", label: "Sobre Nosotros", icon: "ri-group-line" },
 ];
 
