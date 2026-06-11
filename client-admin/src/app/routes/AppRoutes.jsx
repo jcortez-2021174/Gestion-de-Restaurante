@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import { useAuthStore } from "../../features/auth/store/authStore";
 import { getAuthenticatedHome } from "../../features/auth/auth.navigation";
+import { getJwtRole } from "../../features/auth/jwt.claims";
 
 import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { RegisterPage } from "../../features/auth/pages/RegisterPage";
@@ -23,11 +24,15 @@ import { UserNosotrosPage } from "../../features/user/pages/UserNosotrosPage";
 import { UserReservasPage } from "../../features/user/pages/UserReservasPage";
 import { ClientOrderPage } from "../../features/user/pages/ClientOrderPage";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
     const token = useAuthStore((state) => state.token);
 
     if (!token) {
         return <Navigate to="/login" replace />;
+    }
+
+    if (requiredRole && getJwtRole(token) !== requiredRole) {
+        return <Navigate to="/home" replace />;
     }
 
     return children;
@@ -35,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
 
 const PublicOnlyRoute = ({ children }) => {
     const token = useAuthStore((state) => state.token);
-    const role = useAuthStore((state) => state.user?.role);
+    const role = getJwtRole(token);
 
     if (token) {
         return <Navigate to={getAuthenticatedHome(role)} replace />;
@@ -70,7 +75,7 @@ export const AppRoutes = () => {
             <Route
                 path="/dashboard"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <DashboardPage />
                     </ProtectedRoute>
                 }
@@ -79,7 +84,7 @@ export const AppRoutes = () => {
             <Route
                 path="/menu"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <MenuPage />
                     </ProtectedRoute>
                 }
@@ -88,7 +93,7 @@ export const AppRoutes = () => {
             <Route
                 path="/orders"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <OrdersPage />
                     </ProtectedRoute>
                 }
@@ -97,7 +102,7 @@ export const AppRoutes = () => {
             <Route
                 path="/reservations"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ReservationsPage />
                     </ProtectedRoute>
                 }
@@ -106,7 +111,7 @@ export const AppRoutes = () => {
             <Route
                 path="/tables"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <MesasPage />
                     </ProtectedRoute>
                 }
@@ -115,7 +120,7 @@ export const AppRoutes = () => {
             <Route
                 path="/clients"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ClientsPage />
                     </ProtectedRoute>
                 }
@@ -124,7 +129,7 @@ export const AppRoutes = () => {
             <Route
                 path="/reports"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ReportsPage />
                     </ProtectedRoute>
                 }
@@ -133,7 +138,7 @@ export const AppRoutes = () => {
             <Route
                 path="/settings"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <SettingsPage />
                     </ProtectedRoute>
                 }

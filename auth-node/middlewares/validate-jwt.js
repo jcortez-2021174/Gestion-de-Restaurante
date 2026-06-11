@@ -5,6 +5,17 @@ const bearerToken = (authorization = '') => {
   return scheme?.toLowerCase() === 'bearer' && token ? token : null;
 };
 
+const firstRole = (value) => {
+  const role = Array.isArray(value) ? value[0] : value;
+  return typeof role === 'string' ? role.trim().toUpperCase() : null;
+};
+
+const extractRole = (decoded) => firstRole(
+  decoded.role ||
+  decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+  decoded.roles
+);
+
 export const createValidateJWT = ({
   secret = process.env.JWT_SECRET,
   issuer = process.env.JWT_ISSUER,
@@ -45,11 +56,7 @@ export const createValidateJWT = ({
 
       req.auth = {
         userId: decoded.sub,
-        role:
-          decoded.role ||
-          decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
-          decoded.roles?.[0] ||
-          null,
+        role: extractRole(decoded),
         claims: decoded,
       };
       req.usuario = decoded;

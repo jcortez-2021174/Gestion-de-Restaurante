@@ -29,6 +29,14 @@ test('allows administrators to manage orders', () => {
   assert.equal(runMiddleware('ADMIN_ROLE').nextCalled, true);
 });
 
+test('normalizes the AuthService administrator role before comparison', () => {
+  assert.equal(runMiddleware(' admin_role ').nextCalled, true);
+});
+
+test('accepts an administrator role emitted as an array', () => {
+  assert.equal(runMiddleware(['ADMIN_ROLE']).nextCalled, true);
+});
+
 test('rejects customer access to admin order actions', () => {
   const result = runMiddleware('USER_ROLE');
   assert.equal(result.responseStatus, 403);

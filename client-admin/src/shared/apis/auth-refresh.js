@@ -1,3 +1,5 @@
+import { getJwtRole } from '../../features/auth/jwt.claims.js';
+
 const PUBLIC_AUTH_PATHS = [
   '/auth/login',
   '/auth/register',
@@ -26,12 +28,21 @@ export const rotatePersistedTokens = (
     return persistedAuth;
   }
 
+  const nextState = {
+    ...persistedAuth.state,
+    token: accessToken,
+    refreshToken: refreshToken || persistedAuth.state.refreshToken,
+  };
+
+  if (persistedAuth.state.user) {
+    nextState.user = {
+      ...persistedAuth.state.user,
+      role: getJwtRole(accessToken) || persistedAuth.state.user.role,
+    };
+  }
+
   return {
     ...persistedAuth,
-    state: {
-      ...persistedAuth.state,
-      token: accessToken,
-      refreshToken: refreshToken || persistedAuth.state.refreshToken,
-    },
+    state: nextState,
   };
 };

@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { agregarProducto, listarProductosCtrl, obtenerProductoPorIdCtrl, actualizarProductoCtrl, eliminarProductoCtrl } from './producto.controller.js';
+import { validateJWT } from '../../middlewares/validate-jwt.js';
+import { authorizeRole } from '../../middlewares/authorize-role.js';
 
 const router = Router();
+
+const requireAdmin = authorizeRole('ADMIN_ROLE');
+
+router.use(validateJWT);
 
 const validarProducto = [
   body('nombre')
@@ -79,7 +85,7 @@ const validarProducto = [
  *       500:
  *         description: Error del servidor
  */
-router.post('/', validarProducto, agregarProducto);
+router.post('/', requireAdmin, validarProducto, agregarProducto);
 
 /**
  * @swagger
@@ -161,7 +167,7 @@ router.get('/:id', obtenerProductoPorIdCtrl);
  *       500:
  *         description: Error del servidor
  */
-router.put('/:id', validarProducto, actualizarProductoCtrl);
+router.put('/:id', requireAdmin, validarProducto, actualizarProductoCtrl);
 
 /**
  * @swagger
@@ -184,6 +190,6 @@ router.put('/:id', validarProducto, actualizarProductoCtrl);
  *       500:
  *         description: Error del servidor
  */
-router.delete('/:id', eliminarProductoCtrl);
+router.delete('/:id', requireAdmin, eliminarProductoCtrl);
 
 export default router;

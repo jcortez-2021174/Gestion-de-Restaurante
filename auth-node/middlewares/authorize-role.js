@@ -1,8 +1,15 @@
 export const authorizeRole = (...allowedRoles) => {
-  return (req, res, next) => {
-    const role = req.auth?.role;
+  const normalizedAllowedRoles = allowedRoles.map((role) =>
+    String(role).trim().toUpperCase()
+  );
 
-    if (!role) {
+  return (req, res, next) => {
+    const rawRole = req.auth?.role;
+    const roles = (Array.isArray(rawRole) ? rawRole : [rawRole])
+      .filter(Boolean)
+      .map((role) => String(role).trim().toUpperCase());
+
+    if (roles.length === 0) {
       return res.status(403).json({
         success: false,
         code: 'AUTH_ROLE_MISSING',
@@ -10,7 +17,7 @@ export const authorizeRole = (...allowedRoles) => {
       });
     }
 
-    if (!allowedRoles.includes(role)) {
+    if (!roles.some((role) => normalizedAllowedRoles.includes(role))) {
       return res.status(403).json({
         success: false,
         code: 'AUTH_ROLE_FORBIDDEN',

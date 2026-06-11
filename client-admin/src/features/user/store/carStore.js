@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { isMongoObjectId } from '../order.contract';
+
+const validCartItems = (items = []) => items.filter((item) => isMongoObjectId(item?.id));
 
 export const useCartStore = create(
     persist(
@@ -7,6 +10,8 @@ export const useCartStore = create(
             carrito: [],
 
             agregarItem: (plato) => {
+                if (!isMongoObjectId(plato?.id)) return;
+
                 const { carrito } = get();
                 const existe = carrito.find((i) => i.id === plato.id);
                 if (existe) {
@@ -28,6 +33,13 @@ export const useCartStore = create(
 
             vaciarCarrito: () => set({ carrito: [] }),
         }),
-        { name: "carrito-aurea" }
+        {
+            name: "carrito-aurea",
+            version: 1,
+            migrate: (persistedState) => ({
+                ...persistedState,
+                carrito: validCartItems(persistedState?.carrito),
+            }),
+        }
     )
 );

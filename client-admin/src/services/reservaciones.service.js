@@ -189,7 +189,7 @@ export const crear = async (reservacionData) => {
   try {
     const { clienteId, mesaId, fecha, horaInicio, horaFin, personas } = reservacionData;
 
-    if (!clienteId || !mesaId || !fecha || !horaInicio || !horaFin) {
+    if (!clienteId || !mesaId || !fecha || !horaInicio || !horaFin || !personas) {
       throw new ApiError({
         code: 'VALIDATION_ERROR',
         message: 'Campos requeridos faltantes',
@@ -198,7 +198,15 @@ export const crear = async (reservacionData) => {
       });
     }
 
-    const response = await restaurantApi.post(RESERVACIONES_BASE, reservacionData);
+    const response = await restaurantApi.post(RESERVACIONES_BASE, {
+      clienteId,
+      mesaId,
+      fecha,
+      horaInicio,
+      horaFin,
+      personas: Number(personas),
+      estado: reservacionData.estado,
+    });
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({

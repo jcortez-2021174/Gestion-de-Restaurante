@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { authApi } from '../../../shared/apis/api';
 import { register as registerUser } from '../../../services/auth.service';
 import { AUTH_STORAGE_KEY } from '../auth.storage';
+import { getJwtRole } from '../jwt.claims';
 
 export const useAuthStore = create(
   persist(
@@ -57,8 +58,13 @@ export const useAuthStore = create(
             return { success: false, error: message };
           }
 
+          const tokenRole = getJwtRole(data.accessToken);
+
           set({
-            user: data.userDetails,
+            user: {
+              ...data.userDetails,
+              role: tokenRole || data.userDetails?.role,
+            },
             token: data.accessToken,
             refreshToken: data.refreshToken,
             isAuthenticated: true,

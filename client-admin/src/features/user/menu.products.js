@@ -1,4 +1,4 @@
-import { mapMenuProduct } from "./order.contract.js";
+import { isMongoObjectId, mapMenuProduct } from "./order.contract.js";
 
 export const extractProductCollection = (payload) => {
   if (Array.isArray(payload)) return payload;
@@ -20,5 +20,9 @@ export const mapVisibleMenuProducts = (payload) => (
   extractProductCollection(payload)
     .filter(isProductAvailable)
     .map(mapMenuProduct)
-    .filter((product) => product.id && product.nombre && Number.isFinite(product.precio))
+    .filter((product) => (
+      isMongoObjectId(product.id)
+      && product.nombre
+      && Number.isFinite(product.precio)
+    ))
 );

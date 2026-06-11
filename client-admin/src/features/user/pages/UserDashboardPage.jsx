@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { listarProductos } from "../../../services/productos.service";
 import { useAuthStore } from "../../auth/store/authStore";
 import { UserShell } from "../components/UserShell";
 import { CartPanel } from "../components/CartPanel";
@@ -8,42 +10,8 @@ import {
   UserProfileCard,
 } from "../components/UserUi";
 import { useCartStore } from "../store/carStore";
+import { mapVisibleMenuProducts } from "../menu.products";
 import "../styles/user-dashboard.css";
-
-const featuredProducts = [
-  {
-    id: "featured-1",
-    nombre: "Costillas de Cordero a la Parrilla",
-    descripcion: "Jugosas, doradas al fuego y acompañadas de hierbas frescas.",
-    precio: 165,
-    imagen: "/plato1.jpeg",
-    categoriaNombre: "Especialidad",
-  },
-  {
-    id: "featured-2",
-    nombre: "Cordero al Horno con Hierbas",
-    descripcion: "Cocción lenta con aromas provenzales y una textura delicada.",
-    precio: 185,
-    imagen: "/plato2.jpeg",
-    categoriaNombre: "Chef",
-  },
-  {
-    id: "featured-3",
-    nombre: "Brochetas de Cordero a la Menta",
-    descripcion: "Un contraste fresco de menta, limón y cordero a la parrilla.",
-    precio: 140,
-    imagen: "/plato3.jpeg",
-    categoriaNombre: "Parrilla",
-  },
-  {
-    id: "featured-4",
-    nombre: "Tarta de Cordero y Queso de Cabra",
-    descripcion: "Sabores intensos sobre una base crujiente recién horneada.",
-    precio: 120,
-    imagen: "/plato4.jpeg",
-    categoriaNombre: "Autor",
-  },
-];
 
 const services = [
   {
@@ -79,6 +47,23 @@ const services = [
 export const UserDashboardPage = () => {
   const user = useAuthStore((state) => state.user);
   const agregarItem = useCartStore((state) => state.agregarItem);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    listarProductos()
+      .then((response) => {
+        if (active) setFeaturedProducts(mapVisibleMenuProducts(response).slice(0, 4));
+      })
+      .catch(() => {
+        if (active) setFeaturedProducts([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <UserShell contentClassName="user-dashboard">

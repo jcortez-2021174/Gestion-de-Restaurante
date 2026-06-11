@@ -1,7 +1,11 @@
+export const isMongoObjectId = (value) => (
+  typeof value === 'string' && /^[a-f\d]{24}$/i.test(value)
+);
+
 export const createOrderPayload = (cartItems, mesaId = null) => ({
   mesaId,
   productos: cartItems.map((item) => ({
-    productoId: item.id,
+    productoId: String(item.id),
     cantidad: item.cantidad,
   })),
 });
@@ -11,7 +15,7 @@ export const mapMenuProduct = (product, index = 0) => {
   const categoryIsPopulated = category && typeof category === 'object';
 
   return {
-    id: product._id || product.id,
+    id: String(product._id || product.id),
     nombre: product.nombre,
     descripcion: product.descripcion
       || (categoryIsPopulated ? category.descripcion : null)

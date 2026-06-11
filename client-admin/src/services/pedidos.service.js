@@ -1,5 +1,5 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api';
-import { createOrderPayload } from '@/features/user/order.contract';
+import { createOrderPayload, isMongoObjectId } from '@/features/user/order.contract';
 
 const PEDIDOS_BASE = '/pedido';
 export const ESTADOS_PEDIDO = [
@@ -54,6 +54,15 @@ export const crear = async (cartItems, mesaId = null) => {
       code: 'EMPTY_CART',
       message: 'El carrito esta vacio',
       userMessage: 'Agrega al menos un producto antes de confirmar.',
+      statusCode: 400,
+    });
+  }
+
+  if (cartItems.some((item) => !isMongoObjectId(item?.id))) {
+    throw new ApiError({
+      code: 'INVALID_CART_PRODUCT',
+      message: 'El carrito contiene productos que ya no pertenecen al catalogo',
+      userMessage: 'Actualiza el carrito y agrega nuevamente los productos desde el menu.',
       statusCode: 400,
     });
   }

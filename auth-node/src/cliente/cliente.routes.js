@@ -3,6 +3,8 @@ import { Router } from 'express';
 import { body } from 'express-validator';
 
 import { validarId } from '../../middlewares/validar-id.js';
+import { validateJWT } from '../../middlewares/validate-jwt.js';
+import { authorizeRole } from '../../middlewares/authorize-role.js';
 
 import {
 
@@ -15,6 +17,8 @@ import {
 } from './cliente.controller.js';
 
 const router = Router();
+
+router.use(validateJWT, authorizeRole('ADMIN_ROLE'));
 
 /* =========================================
    VALIDACIONES

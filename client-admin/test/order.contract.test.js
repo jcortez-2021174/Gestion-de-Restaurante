@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   createOrderPayload,
+  isMongoObjectId,
   mapMenuProduct,
 } from '../src/features/user/order.contract.js';
 import {
@@ -48,8 +49,14 @@ test('maps Mongo products to cart-compatible menu products', () => {
   assert.equal(product.categoriaNombre, 'Almuerzos');
 });
 
+test('rejects mock and numeric product ids', () => {
+  assert.equal(isMongoObjectId('507f1f77bcf86cd799439011'), true);
+  assert.equal(isMongoObjectId('featured-1'), false);
+  assert.equal(isMongoObjectId(1), false);
+});
+
 test('extracts products from the backend response envelope', () => {
-  const products = [{ _id: 'product-1' }];
+  const products = [{ _id: '507f1f77bcf86cd799439011' }];
 
   assert.deepEqual(extractProductCollection({ success: true, total: 1, data: products }), products);
   assert.deepEqual(extractProductCollection(products), products);
@@ -59,23 +66,23 @@ test('keeps available products and supports unpopulated category ids', () => {
   const products = mapVisibleMenuProducts({
     data: [
       {
-        _id: 'product-1',
+        _id: '507f1f77bcf86cd799439011',
         nombre: 'Cordero',
         precio: 165,
         disponibilidad: 'Disponible',
-        idCategoria: 'category-1',
+        idCategoria: '507f191e810c19729de860ea',
       },
       {
-        _id: 'product-2',
+        _id: '507f1f77bcf86cd799439012',
         nombre: 'Agotado',
         precio: 80,
         disponibilidad: 'NoDisponible',
-        idCategoria: 'category-2',
+        idCategoria: '507f191e810c19729de860eb',
       },
     ],
   });
 
   assert.equal(products.length, 1);
-  assert.equal(products[0].id, 'product-1');
-  assert.equal(products[0].categoriaId, 'category-1');
+  assert.equal(products[0].id, '507f1f77bcf86cd799439011');
+  assert.equal(products[0].categoriaId, '507f191e810c19729de860ea');
 });

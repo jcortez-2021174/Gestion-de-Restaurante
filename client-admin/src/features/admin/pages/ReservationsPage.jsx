@@ -71,16 +71,16 @@ export const ReservationsPage = () => {
             
             // Transform backend data to frontend format
             const transformedReservations = Array.isArray(reservationsData) ? reservationsData.map(res => ({
-                id: res._id || res.id,
-                client: res.idCliente?.nombre || res.cliente || 'Cliente',
-                phone: res.idCliente?.correo || res.telefono || '',
-                date: res.fechaReservacion ? new Date(res.fechaReservacion).toLocaleDateString() : res.fecha || '',
-                hour: res.horaInicio || res.hora || '',
-                people: res.cantidadPersonas || res.personas || 0,
-                table: res.idMesa?.numero || res.mesa || 'Masa ' + (res.idMesa?.numero || ''),
-                status: res.estadoReservacion || res.estado || 'Pendiente',
+                id: res.id,
+                client: res.clienteNombre || 'Cliente',
+                phone: res.telefono || '',
+                date: res.fecha || '',
+                hour: res.horaInicio || '',
+                people: res.personas || 0,
+                table: res.mesaNumero ? `Mesa ${res.mesaNumero}` : 'Mesa',
+                status: res.estado || 'RESERVADA',
                 notes: res.notas || res.observaciones || '',
-                createdAt: res.createdAt ? new Date(res.createdAt).toLocaleDateString() : ''
+                createdAt: res.fechaCreacion ? new Date(res.fechaCreacion).toLocaleDateString() : ''
             })) : [];
             
             setReservations(transformedReservations);
@@ -132,7 +132,7 @@ export const ReservationsPage = () => {
                 filtered.filter(
                     (r) =>
                         r.status ===
-                        "Confirmada"
+                        "RESERVADA"
                 );
         }
 
@@ -142,7 +142,7 @@ export const ReservationsPage = () => {
                 filtered.filter(
                     (r) =>
                         r.status ===
-                        "Cancelada"
+                        "CANCELADA"
                 );
         }
 
@@ -187,21 +187,21 @@ export const ReservationsPage = () => {
        ADD RESERVATION
     =================================== */
 
-    const addReservation = () => {
+    const addReservation = async () => {
 
         if(
 
-            !newReservation.client ||
+            !newReservation.clienteId ||
 
-            !newReservation.phone ||
+            !newReservation.mesaId ||
 
-            !newReservation.date ||
+            !newReservation.fecha ||
 
-            !newReservation.hour ||
+            !newReservation.horaInicio ||
 
-            !newReservation.people ||
+            !newReservation.horaFin ||
 
-            !newReservation.table
+            !newReservation.personas
 
         ){
 
@@ -212,72 +212,21 @@ export const ReservationsPage = () => {
             return;
         }
 
-        const reservation = {
-
-            id:
-                "#RES" +
-                Math.floor(
-                    1000 +
-                    Math.random() * 9000
-                ),
-
-            client:
-                newReservation.client,
-
-            phone:
-                newReservation.phone,
-
-            date:
-                newReservation.date,
-
-            hour:
-                newReservation.hour,
-
-            people:
-                newReservation.people,
-
-            table:
-                newReservation.table,
-
-            notes:
-                newReservation.notes,
-
-            status:
-                "Pendiente",
-
-            createdAt:
-                new Date()
-                .toLocaleDateString()
-
-        };
-
-        setReservations((prev) => [
-
-            reservation,
-
-            ...prev
-
-        ]);
-
-        setShowModal(false);
-
-        setNewReservation({
-
-            client:"",
-
-            phone:"",
-
-            date:"",
-
-            hour:"",
-
-            people:"",
-
-            table:"",
-
-            notes:""
-
-        });
+        try {
+            await crear(newReservation);
+            await loadReservations();
+            setShowModal(false);
+            setNewReservation({
+                clienteId:"",
+                mesaId:"",
+                fecha:"",
+                horaInicio:"",
+                horaFin:"",
+                personas:"",
+            });
+        } catch (err) {
+            alert('Error al crear reservacion: ' + (err.userMessage || err.message));
+        }
 
     };
 
@@ -663,12 +612,12 @@ export const ReservationsPage = () => {
                             <span
                                 className={`status ${
                                     reservation.status ===
-                                    "Confirmada"
+                                    "RESERVADA"
 
                                     ? "confirmed"
 
                                     : reservation.status ===
-                                    "Cancelada"
+                                    "CANCELADA"
 
                                     ? "cancelled"
 
@@ -854,7 +803,7 @@ export const ReservationsPage = () => {
 
     {
         selectedReservation.status ===
-        "Pendiente" && (
+        "RESERVADA" && (
 
             <>
 
@@ -864,14 +813,14 @@ export const ReservationsPage = () => {
 
                         updateReservationStatus(
                             selectedReservation.id,
-                            "Confirmada"
+                            "EXPIRADA"
                         );
 
                         setSelectedReservation({
 
                             ...selectedReservation,
 
-                            status:"Confirmada"
+                            status:"EXPIRADA"
                         });
 
                     }}
@@ -887,14 +836,14 @@ export const ReservationsPage = () => {
 
                         updateReservationStatus(
                             selectedReservation.id,
-                            "Cancelada"
+                            "CANCELADA"
                         );
 
                         setSelectedReservation({
 
                             ...selectedReservation,
 
-                            status:"Cancelada"
+                            status:"CANCELADA"
                         });
 
                     }}
@@ -911,7 +860,7 @@ export const ReservationsPage = () => {
 
     {
         selectedReservation.status ===
-        "Confirmada" && (
+        "EXPIRADA" && (
 
             <>
 
@@ -921,14 +870,14 @@ export const ReservationsPage = () => {
 
                         updateReservationStatus(
                             selectedReservation.id,
-                            "Finalizada"
+                            "CANCELADA"
                         );
 
                         setSelectedReservation({
 
                             ...selectedReservation,
 
-                            status:"Finalizada"
+                            status:"CANCELADA"
                         });
 
                     }}
@@ -944,14 +893,14 @@ export const ReservationsPage = () => {
 
                         updateReservationStatus(
                             selectedReservation.id,
-                            "Cancelada"
+                            "CANCELADA"
                         );
 
                         setSelectedReservation({
 
                             ...selectedReservation,
 
-                            status:"Cancelada"
+                            status:"CANCELADA"
                         });
 
                     }}
@@ -968,7 +917,7 @@ export const ReservationsPage = () => {
 
     {
         selectedReservation.status ===
-        "Cancelada" && (
+        "CANCELADA" && (
 
             <button
                 className="delete-btn"
@@ -992,7 +941,7 @@ export const ReservationsPage = () => {
 
     {
         selectedReservation.status ===
-        "Finalizada" && (
+        "EXPIRADA" && (
 
             <button
                 className="delete-btn"
@@ -1035,6 +984,88 @@ export const ReservationsPage = () => {
 
 </div>
 </main>
+{
+    showModal && (
+        <div className="modal-overlay">
+            <div className="modal-box">
+                <h2>Nueva Reserva</h2>
+                <p>Ingresa los IDs reales de cliente y mesa.</p>
+
+                <form className="modal-form">
+                    <input
+                        type="text"
+                        placeholder="Cliente ID"
+                        value={newReservation.clienteId}
+                        onChange={(e) => setNewReservation({
+                            ...newReservation,
+                            clienteId: e.target.value
+                        })}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Mesa ID"
+                        value={newReservation.mesaId}
+                        onChange={(e) => setNewReservation({
+                            ...newReservation,
+                            mesaId: e.target.value
+                        })}
+                    />
+                    <input
+                        type="date"
+                        value={newReservation.fecha}
+                        onChange={(e) => setNewReservation({
+                            ...newReservation,
+                            fecha: e.target.value
+                        })}
+                    />
+                    <input
+                        type="time"
+                        value={newReservation.horaInicio}
+                        onChange={(e) => setNewReservation({
+                            ...newReservation,
+                            horaInicio: e.target.value
+                        })}
+                    />
+                    <input
+                        type="time"
+                        value={newReservation.horaFin}
+                        onChange={(e) => setNewReservation({
+                            ...newReservation,
+                            horaFin: e.target.value
+                        })}
+                    />
+                    <input
+                        type="number"
+                        min="1"
+                        placeholder="Personas"
+                        value={newReservation.personas}
+                        onChange={(e) => setNewReservation({
+                            ...newReservation,
+                            personas: e.target.value
+                        })}
+                    />
+
+                    <div className="modal-actions">
+                        <button
+                            type="button"
+                            className="modal-cancel"
+                            onClick={() => setShowModal(false)}
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            className="modal-save"
+                            onClick={addReservation}
+                        >
+                            Guardar Reserva
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    )
+}
        </div>     
     );
 };
