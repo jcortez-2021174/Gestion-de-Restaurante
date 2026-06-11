@@ -6,13 +6,26 @@ export const createOrderPayload = (cartItems, mesaId = null) => ({
   })),
 });
 
-export const mapMenuProduct = (product, index = 0) => ({
-  id: product._id,
-  nombre: product.nombre,
-  descripcion: product.idCategoria?.descripcion || 'Preparado con ingredientes seleccionados.',
-  precio: Number(product.precio),
-  disponibilidad: product.disponibilidad,
-  categoriaId: product.idCategoria?._id || 'sin-categoria',
-  categoriaNombre: product.idCategoria?.nombre || 'Menu',
-  imagen: `/plato${(index % 3) + 1}.jpeg`,
-});
+export const mapMenuProduct = (product, index = 0) => {
+  const category = product.idCategoria;
+  const categoryIsPopulated = category && typeof category === 'object';
+
+  return {
+    id: product._id || product.id,
+    nombre: product.nombre,
+    descripcion: product.descripcion
+      || (categoryIsPopulated ? category.descripcion : null)
+      || 'Preparado con ingredientes seleccionados.',
+    precio: Number(product.precio),
+    disponibilidad: product.disponibilidad,
+    categoriaId: String(
+      (categoryIsPopulated ? category._id || category.id : category)
+      || product.categoriaId
+      || 'sin-categoria',
+    ),
+    categoriaNombre: (categoryIsPopulated ? category.nombre : null)
+      || product.categoriaNombre
+      || 'Menu',
+    imagen: product.imagen || product.image || `/plato${(index % 3) + 1}.jpeg`,
+  };
+};
