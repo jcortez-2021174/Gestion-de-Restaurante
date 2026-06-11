@@ -1,4 +1,10 @@
 import axios from 'axios';
+import { AUTH_STORAGE_KEY, readPersistedAuth } from '@/features/auth/auth.storage';
+import {
+  isPublicAuthRequest,
+  rotatePersistedTokens,
+  shouldAttemptTokenRefresh,
+} from './auth-refresh';
 
 /**
  * CAPA DE CONFIGURACIÓN - API HTTP
@@ -9,9 +15,12 @@ import axios from 'axios';
 
 // Variables de entorno
 const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5022/api/v1';
-const RESTAURANT_API_URL = import.meta.env.VITE_RESTAURANT_API_URL || 'http://localhost:3020/api/v1';
+const RESTAURANT_API_URL =
+  import.meta.env.VITE_RESTAURANT_API_URL ||
+  'http://localhost:3020/AureaRestaurant/Admin/v1';
 const REQUEST_TIMEOUT = parseInt(import.meta.env.VITE_REQUEST_TIMEOUT) || 10000;
 const LOG_REQUESTS = import.meta.env.VITE_LOG_REQUESTS === 'true';
+const rejectUnauthorized = (status) => status !== 401 && status < 500;
 
 /*
  * Cliente Axios para el servicio de autenticación (.NET)
@@ -24,7 +33,7 @@ export const authApi = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  validateStatus: (status) => status < 500, // Aceptar 4xx (manejar en interceptor)
+  validateStatus: rejectUnauthorized,
 });
 
 /**
@@ -38,7 +47,16 @@ export const restaurantApi = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  validateStatus: (status) => status < 500,
+  validateStatus: rejectUnauthorized,
+});
+
+const refreshApi = axios.create({
+  baseURL: AUTH_API_URL,
+  timeout: REQUEST_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
 });
 
 /**
@@ -243,11 +261,7 @@ const processQueue = (error, token = null) => {
  */
 function getToken() {
   try {
-    const auth = localStorage.getItem('auth-restaurante-aurea');
-    if (!auth) return null;
-    
-    const parsed = JSON.parse(auth);
-    return parsed.state?.token || null;
+    return readPersistedAuth()?.state?.token || null;
   } catch (error) {
     console.error('[TOKEN] Error reading from localStorage:', error);
     return null;
@@ -259,11 +273,7 @@ function getToken() {
  */
 function getRefreshToken() {
   try {
-    const auth = localStorage.getItem('auth-restaurante-aurea');
-    if (!auth) return null;
-    
-    const parsed = JSON.parse(auth);
-    return parsed.state?.refreshToken || null;
+    return readPersistedAuth()?.state?.refreshToken || null;
   } catch (error) {
     console.error('[REFRESH_TOKEN] Error reading from localStorage:', error);
     return null;
@@ -273,14 +283,12 @@ function getRefreshToken() {
 /**
  * Actualiza el token en localStorage
  */
-function setToken(token) {
+function setTokens(accessToken, refreshToken) {
   try {
-    const auth = localStorage.getItem('auth-restaurante-aurea');
-    if (!auth) return;
-    
-    const parsed = JSON.parse(auth);
-    parsed.state.token = token;
-    localStorage.setItem('auth-restaurante-aurea', JSON.stringify(parsed));
+    const parsed = readPersistedAuth();
+    if (!parsed) return;
+    const rotated = rotatePersistedTokens(parsed, accessToken, refreshToken);
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(rotated));
   } catch (error) {
     console.error('[TOKEN] Error writing to localStorage:', error);
   }
@@ -290,26 +298,17 @@ function setToken(token) {
  * Intenta refrescar el token
  */
 async function refreshAccessToken(refreshToken) {
-  try {
-    const response = await authApi.post('/auth/refresh', {
-      refreshToken,
-    });
+  const response = await refreshApi.post('/auth/refresh', {
+    refreshToken,
+  });
 
-    if (response.status === 200 && response.data.accessToken) {
-      const newToken = response.data.accessToken;
-      setToken(newToken);
-      return newToken;
-    }
-
-    throw new Error('Invalid refresh response');
-  } catch (error) {
-    logError(error, '[REFRESH_TOKEN]');
-    // Limpiar tokens del localStorage
-    localStorage.removeItem('auth-restaurante-aurea');
-    // Redirigir a login (lo hace el app global)
-    window.location.href = '/login';
-    throw error;
+  if (response.status === 200 && response.data.accessToken) {
+    const newToken = response.data.accessToken;
+    setTokens(newToken, response.data.refreshToken);
+    return newToken;
   }
+
+  throw new Error('Invalid refresh response');
 }
 
 // ============================================================================
@@ -358,13 +357,14 @@ function setupResponseInterceptor(instance) {
       return response;
     },
     async (error) => {
-      const { config, response } = error;
+      const config = error.config || {};
+      const { response } = error;
 
       // No aplicar lógica especial si ya es un retry
       if (config.__isRetry) {
         if (response?.status === 401) {
           // Redirigir a login
-          localStorage.removeItem('auth-restaurante-aurea');
+          localStorage.removeItem(AUTH_STORAGE_KEY);
           window.location.href = '/login';
         }
         return Promise.reject(mapHttpError(response?.status || 500, response?.data));
@@ -377,8 +377,17 @@ function setupResponseInterceptor(instance) {
         return Promise.reject(networkError);
       }
 
-      // Manejar 401: Intentar refrescar token
-      if (response.status === 401) {
+      // Los servicios de login/registro conservan el manejo de sus propios 401.
+      if (response.status === 401 && isPublicAuthRequest(config.url)) {
+        return response;
+      }
+
+      // Manejar 401 de endpoints protegidos: intentar refrescar token.
+      if (shouldAttemptTokenRefresh({
+        status: response.status,
+        url: config.url,
+        isRetry: config.__isRetry,
+      })) {
         if (!isRefreshing) {
           isRefreshing = true;
 
@@ -387,7 +396,7 @@ function setupResponseInterceptor(instance) {
 
             if (!refreshToken) {
               // No hay refresh token, forzar login
-              localStorage.removeItem('auth-restaurante-aurea');
+              localStorage.removeItem(AUTH_STORAGE_KEY);
               window.location.href = '/login';
               isRefreshing = false;
               return Promise.reject(
@@ -418,7 +427,7 @@ function setupResponseInterceptor(instance) {
             isRefreshing = false;
 
             // Redirigir a login
-            localStorage.removeItem('auth-restaurante-aurea');
+            localStorage.removeItem(AUTH_STORAGE_KEY);
             window.location.href = '/login';
 
             return Promise.reject(
@@ -464,6 +473,9 @@ function setupResponseInterceptor(instance) {
  * Configura interceptores en ambas instancias
  */
 export function setupInterceptors() {
+  if (setupInterceptors.configured) return;
+  setupInterceptors.configured = true;
+
   setupRequestInterceptor(authApi);
   setupResponseInterceptor(authApi);
 

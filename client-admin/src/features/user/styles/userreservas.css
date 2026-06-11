@@ -86,7 +86,7 @@
 .ur-stats {
   display: flex;
   gap: 16px;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
 }
 
 .ur-stat-card {
@@ -147,7 +147,7 @@
 .ur-layout {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 20px;
+  gap: 24px;
   align-items: start;
 }
 

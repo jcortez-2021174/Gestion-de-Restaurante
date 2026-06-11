@@ -1396,3 +1396,29 @@
 
     font-weight:700;
 }
+
+.tables-section.restaurant-map{
+    padding:24px;
+}
+
+.tables-section .zone:first-child{
+    margin-top:0;
+}
+
+.table-position-inputs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.table-position-inputs label{
+    display:grid;
+    gap:8px;
+    color:#aaa;
+    font-size:12px;
+}
+
+.table-card.disabled{
+    border-color:rgba(150,150,150,0.25);
+    background:linear-gradient(180deg,rgba(130,130,130,0.08),rgba(80,80,80,0.03));
+}

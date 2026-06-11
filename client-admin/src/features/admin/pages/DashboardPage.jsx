@@ -1,833 +1,129 @@
-import "../styles/dashboard.css";
-import { AdminLayout } from "../../../shared/layouts/AdminLayout";
-
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { useMenu } from "../../../context/MenuContext";
-import { useEffect, useState } from "react";
-
+import { AdminLayout } from "../../../shared/layouts/AdminLayout";
 import { obtenerEstadisticas } from "../../../services/dashboard.service";
+import { useSmartPolling } from "../../../shared/hooks/useSmartPolling";
+import "../styles/dashboard.css";
+
+const money = (value) => `Q${Number(value || 0).toFixed(2)}`;
+const date = (value) => new Intl.DateTimeFormat("es-GT", {
+  dateStyle: "medium",
+  timeStyle: "short",
+}).format(new Date(value));
 
 export const DashboardPage = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const {
-    dishes,
-    addDish,
-    editDish,
-    deleteDish
-  } = useMenu();
-
-  const [stats, setStats] = useState({
-    pedidosTotales: 0,
-    reservasTotales: 0,
-    mesasOcupadas: 0,
-    clientesTotales: 0
-  });
-
- const [newPlate, setNewPlate] = useState({
-  name: "",
-  price: "",
-  description: "",
-  image: ""
-});
-
-  const [showAddModal, setShowAddModal] = useState(false);
-
-  const [showEditModal, setShowEditModal] = useState(false);
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  const [selectedPlate, setSelectedPlate] = useState(null);
-
-  useEffect(() => {
-
-    loadDashboardStats();
-
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      setStats(await obtenerEstadisticas());
+    } catch (requestError) {
+      setError(requestError.userMessage || requestError.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-   const loadDashboardStats = async () => {
+  useSmartPolling(load, 30000);
 
-    try {
-
-        const data = await obtenerEstadisticas();
-
-        console.log("Dashboard Data:", data);
-
-        setStats(data.stats || data);
-
-    } catch (error) {
-
-        console.error("Error Dashboard:", error);
-
-    }
-
-};
+  const metrics = stats ? [
+    ["Ventas del dia", money(stats.ventasDia), "ri-money-dollar-circle-line"],
+    ["Ventas del mes", money(stats.ventasMes), "ri-line-chart-line"],
+    ["Pedidos del dia", stats.pedidosDia, "ri-shopping-basket-line"],
+    ["Pedidos activos", stats.pedidosActivos, "ri-shopping-bag-3-line"],
+    ["Reservas activas", stats.reservasActivas, "ri-calendar-check-line"],
+    ["Mesas ocupadas", stats.mesasOcupadas, "ri-layout-grid-line"],
+    ["Clientes", stats.clientesTotales, "ri-user-heart-line"],
+    ["Puntos otorgados hoy", stats.puntosOtorgados, "ri-vip-crown-line"],
+    ["Productos disponibles", stats.productosDisponibles, "ri-restaurant-line"],
+    ["Productos agotados", stats.productosAgotados, "ri-alert-line"],
+  ] : [];
 
   return (
+    <AdminLayout notificationCount={stats?.pedidosActivos || 0}>
+      <header className="admin-module-header">
+        <div><span className="admin-eyebrow">Centro de operaciones</span><h1>Dashboard</h1><p>Actividad real del restaurante, actualizada de forma inteligente.</p></div>
+        <button className="btn-outline" onClick={load}>Actualizar</button>
+      </header>
+      {error && <div className="admin-feedback error">{error}</div>}
+      {loading && !stats ? <div className="loading-state">Cargando indicadores...</div> : (
+        <>
+          <section className="dashboard-live-metrics">
+            {metrics.map(([label, value, icon]) => (
+              <article key={label}><i className={icon} /><div><span>{label}</span><strong>{value}</strong></div></article>
+            ))}
+          </section>
 
-    <AdminLayout
-    notificationCount={stats.pedidosTotales}
->
-
-        {/* STATS */}
-        <div className="stats-grid">
-
-          <div className="stats-card">
-
-            <h4>Pedidos Totales</h4>
-
-            <h2>{stats.pedidosTotales}</h2>
-
-          </div>
-
-          <div className="stats-card">
-
-            <h4>Reservas Totales</h4>
-
-            <h2>{stats.reservasTotales}</h2>
-
-          </div>
-
-          <div className="stats-card">
-
-            <h4>Mesas Ocupadas</h4>
-
-            <h2>{stats.mesasOcupadas}</h2>
-
-          </div>
-
-          <div className="stats-card">
-
-            <h4>Clientes Totales</h4>
-
-            <h2>{stats.clientesTotales}</h2>
-
-          </div>
-
-        </div>
-
-        {/* GRID */}
-        <div className="grid">
-
-          {/* MENU */}
-          <div className="card menu-card-container">
-
-            <div className="card-header">
-
-              <h3>MENÚ DESTACADO</h3>
-
-              <Link
-                to="/menu"
-                className="btn-mini"
-              >
-
-                <i className="ri-arrow-right-line"></i>
-
-                Ver menú completo
-
-              </Link>
-
-            </div>
-
-            <div className="menu-grid">
-
-              {
-                dishes.map((plate) => (
-
-                  <div
-                    key={plate.id}
-                    className="menu-card"
-                  >
-
-                    <img
-                      src={plate.image || `/plato${plate.id}.jpeg`}         
-                                   alt=""
-                    />
-
-                    <div className="menu-card-content">
-
-                      <h4>{plate.name}</h4>
-
-                      <p>
-                        Especialidad gourmet de la casa
-                      </p>
-
-                      <span>
-                        Q{plate.price}
-                      </span>
-
+          <section className="dashboard-live-grid">
+            <div className="card dashboard-live-panel dashboard-chart-panel">
+              <div className="section-header"><h2>Ingresos ultimos 7 dias</h2><span>Pedidos entregados</span></div>
+              <div className="dashboard-bars">
+                {(stats?.ventasSemana || []).map((item) => {
+                  const max = Math.max(...stats.ventasSemana.map((day) => day.total), 1);
+                  return (
+                    <div className="dashboard-bar-column" key={item._id}>
+                      <strong>{money(item.total)}</strong>
+                      <span style={{ height: `${Math.max(8, (item.total / max) * 100)}%` }} />
+                      <small>{item._id.slice(5)}</small>
                     </div>
-
-                  </div>
-                ))
-              }
-
-            </div>
-
-            <div className="actions">
-
-              <button
-                className="btn-gold"
-                onClick={() => setShowAddModal(true)}
-              >
-
-                <i className="ri-add-line"></i>
-
-                Agregar Plato
-
-              </button>
-
-              <button
-                className="btn-outline"
-                onClick={() => {
-                  setSelectedPlate(null);
-                  setShowEditModal(true);
-                }}
-              >
-
-                <i className="ri-edit-line"></i>
-
-                Editar Plato
-
-              </button>
-
-              <button
-                className="btn-danger"
-                onClick={() => {
-                  setSelectedPlate(null);
-                  setShowDeleteModal(true);
-                }}
-              >
-
-                <i className="ri-delete-bin-line"></i>
-
-                Eliminar Plato
-
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* RESERVA */}
-          <div className="card reserva">
-
-            <div className="reserva-header">
-
-              <i className="ri-calendar-check-line"></i>
-
-              <span>Reservar mesa</span>
-
-            </div>
-
-            <div className="inputs">
-
-              <div className="input-box">
-
-                <i className="ri-calendar-line left-icon"></i>
-
-                <input type="date" />
-
+                  );
+                })}
+                {!stats?.ventasSemana?.length && <div className="empty-state">Aun no hay ventas entregadas esta semana.</div>}
               </div>
-
-              <div className="input-box">
-
-                <i className="ri-time-line left-icon"></i>
-
-                <input type="time" />
-
-              </div>
-
             </div>
 
-            <Link
-              to="/reservations"
-              className="btn-reserva"
-            >
-
-              <i className="ri-calendar-check-line"></i>
-
-              Reservar Mesa
-
-            </Link>
-
-          </div>
-
-          {/* PEDIDOS */}
-          <div className="card pedidos">
-
-            <h3>PEDIDOS</h3>
-
-            <Link
-              to="/orders"
-              className="pedido-btn"
-            >
-
-              <i className="ri-motorbike-line"></i>
-
-              Pedir a Domicilio
-
-            </Link>
-
-            <Link
-              to="/orders"
-              className="pedido-btn"
-            >
-
-              <i className="ri-shopping-bag-line"></i>
-
-              Ordenar para Llevar
-
-            </Link>
-
-          </div>
-
-          {/* ACCESO */}
-          <div className="card acceso">
-
-            <div className="card-header">
-
-              <h3>Acceso rápido</h3>
-
-            </div>
-
-            <div className="quick-grid">
-
-              <Link
-                to="/orders"
-                className="quick-link"
-              >
-
-                <div>
-
-                  <i className="ri-file-list-3-line"></i>
-
-                  <p>Gestión de pedidos</p>
-
+            <div className="card dashboard-live-panel">
+              <div className="section-header"><h2>Pedidos por estado</h2></div>
+              {(stats?.pedidosPorEstado || []).map((item) => (
+                <div className="dashboard-live-row" key={item._id}>
+                  <span className={`live-status ${item._id}`}>{item._id}</span>
+                  <strong>{item.total}</strong>
                 </div>
-
-              </Link>
-
-              <Link
-                to="/tables"
-                className="quick-link"
-              >
-
-                <div>
-
-                  <i className="ri-restaurant-line"></i>
-
-                  <p>Control de mesas</p>
-
-                </div>
-
-              </Link>
-
-              <Link
-                to="/reports"
-                className="quick-link"
-              >
-
-                <div>
-
-                  <i className="ri-bar-chart-grouped-line"></i>
-
-                  <p>Historial de ventas</p>
-
-                </div>
-
-              </Link>
-
-              <Link
-                to="/clients"
-                className="quick-link"
-              >
-
-                <div>
-
-                  <i className="ri-user-line"></i>
-
-                  <p>Usuarios</p>
-
-                </div>
-
-              </Link>
-
+              ))}
             </div>
 
-          </div>
-
-        </div>
-
-
-  {/* MODAL AGREGAR */}
-{
-  showAddModal && (
-
-    <div className="modal-overlay">
-
-      <div className="modal-box">
-
-        <h2>Agregar Plato</h2>
-
-        <p>
-          Completa la información del nuevo plato.
-        </p>
-
-        <form className="modal-form">
-
-          <input
-            type="text"
-            placeholder="Nombre del plato"
-            value={newPlate.name}
-            onChange={(e) =>
-              setNewPlate({
-                ...newPlate,
-                name: e.target.value
-              })
-            }
-          />
-
-          <input
-            type="number"
-            placeholder="Precio"
-            value={newPlate.price}
-            onChange={(e) =>
-              setNewPlate({
-                ...newPlate,
-                price: e.target.value
-              })
-            }
-          />
-
-          <textarea
-            placeholder="Descripción"
-            value={newPlate.description}
-            onChange={(e) =>
-              setNewPlate({
-                ...newPlate,
-                description: e.target.value
-              })
-            }
-          ></textarea>
-
-          <input
-  type="file"
-  accept="image/*"
-  onChange={(e) => {
-
-    const file =
-      e.target.files[0];
-
-    if(file){
-
-      const imageUrl =
-        URL.createObjectURL(file);
-
-      setNewPlate({
-        ...newPlate,
-        image: imageUrl
-      });
-    }
-  }}
-/>
-
-{
-  newPlate.image && (
-
-    <img
-      src={newPlate.image}
-      alt="preview"
-      className="preview-image"
-    />
-
-  )
-}
-
-
-          <div className="modal-actions">
-
-            <button
-              type="button"
-              className="modal-cancel"
-              onClick={() => {
-
-                setNewPlate({
-                  nombre: "",
-                  precio: "",
-                  descripcion: "",
-                  imagen: ""
-                });
-
-                setShowAddModal(false);
-
-              }}
-            >
-              Cancelar
-            </button>
-
-            <button
-              type="button"
-              className="modal-save"
-              onClick={() => {
-
-             if(
-  !newPlate.name ||
-  !newPlate.price
-){
-  alert(
-    "Completa todos los campos"
-  );
-
-  return;
-}
-
-addDish({
-
-  id: Date.now(),
-
-  name: newPlate.name,
-
-  category: "Dashboard",
-
-  price: Number(newPlate.price).toFixed(2),
-
-  status: "Disponible",
-
-  image:
-    newPlate.image ||
-    "/plato1.jpeg",
-
-  description:
-    newPlate.description
-
-});
-
-                alert(
-                  "Plato agregado correctamente"
-                );
-
-     setNewPlate({
-  name: "",
-  price: "",
-  description: "",
-  image: ""
-});
-
-                setShowAddModal(false);
-
-              }}
-            >
-              Guardar Plato
-            </button>
-
-          </div>
-
-        </form>
-
-      </div>
-
-    </div>
-  )
-}
-{
-  showEditModal && (
-
-    <div className="modal-overlay">
-
-      <div className="modal-box">
-
-        <h2>Editar Plato</h2>
-
-        <p>
-          Selecciona el plato que deseas editar.
-        </p>
-
-        {
-          !selectedPlate ? (
-
-            <div className="plate-list">
-
-              {
-                dishes.map((plate) => (
-
-                  <button
-                    key={plate.id}
-                    className="plate-option"
-                    onClick={() =>
-                      setSelectedPlate({
-                        ...plate
-                      })
-                    }
-                  >
-
-                    <div>
-
-                      <h4>{plate.name}</h4>
-
-                      <span>
-                        Q{plate.price}
-                      </span>
-
-                    </div>
-
-                    <i className="ri-edit-line"></i>
-
-                  </button>
-                ))
-              }
-
+            <div className="card dashboard-live-panel">
+              <div className="section-header"><h2>Top productos</h2><Link to="/reports">Ver reportes</Link></div>
+              {(stats?.topProductos || []).map((product, index) => (
+                <div className="dashboard-live-row" key={product._id || product.nombre}>
+                  <span className="dashboard-rank">{index + 1}</span>
+                  <div><strong>{product.nombre}</strong><span>{product.cantidad} unidades</span></div>
+                  <strong>{money(product.ingresos)}</strong>
+                </div>
+              ))}
+              {!stats?.topProductos?.length && <div className="empty-state">Aun no hay ventas registradas.</div>}
             </div>
 
-          ) : (
-
-            <form className="modal-form">
-
-              <input
-                type="text"
-                value={selectedPlate.name}
-                onChange={(e) =>
-                  setSelectedPlate({
-                    ...selectedPlate,
-                    name: e.target.value
-                  })
-                }
-              />
-
-              <input
-                type="number"
-                value={selectedPlate.price}
-                onChange={(e) =>
-                  setSelectedPlate({
-                    ...selectedPlate,
-                    price: e.target.value
-                  })
-                }
-              />
-
-              <textarea
-                value={selectedPlate.description}
-                onChange={(e) =>
-                  setSelectedPlate({
-                    ...selectedPlate,
-                    description: e.target.value
-                  })
-                }
-              ></textarea>
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-
-                  const file =
-                    e.target.files[0];
-
-                  if(file){
-
-                    const imageUrl =
-                      URL.createObjectURL(file);
-
-                    setSelectedPlate({
-                      ...selectedPlate,
-                      image: imageUrl
-                    });
-                  }
-                }}
-              />
-
-              {
-                selectedPlate.image && (
-
-                  <img
-                    src={selectedPlate.image}
-                    alt="preview"
-                    className="preview-image"
-                  />
-
-                )
-              }
-
-              <div className="modal-actions">
-
-                <button
-                  type="button"
-                  className="modal-cancel"
-                  onClick={() => {
-
-                    setSelectedPlate(null);
-
-                    setShowEditModal(false);
-
-                  }}
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  className="modal-save"
-                  onClick={() => {
-
-                    editDish({
-                      ...selectedPlate,
-
-                      price:
-                        Number(
-                          selectedPlate.price
-                        ).toFixed(2)
-                    });
-
-                    alert(
-                      "Plato actualizado correctamente"
-                    );
-
-                    setSelectedPlate(null);
-
-                    setShowEditModal(false);
-
-                  }}
-                >
-                  Guardar Cambios
-                </button>
-
-              </div>
-
-            </form>
-          )
-        }
-
-      </div>
-
-    </div>
-  )
-}
-
-
-{
-  showDeleteModal && (
-
-    <div className="modal-overlay">
-
-      <div className="modal-box">
-
-        {
-          !selectedPlate ? (
-
-            <>
-
-              <h2>
-                Eliminar Plato
-              </h2>
-
-              <p>
-                Selecciona el plato
-                que deseas eliminar.
-              </p>
-
-              <div className="plate-list">
-
-                {
-                  dishes.map((plate) => (
-
-                    <button
-                      key={plate.id}
-                      className="plate-option delete-option"
-                      onClick={() =>
-                        setSelectedPlate({
-                          ...plate
-                        })
-                      }
-                    >
-
-                      <div>
-
-                        <h4>
-                          {plate.name}
-                        </h4>
-
-                        <span>
-                          Q{plate.price}
-                        </span>
-
-                      </div>
-
-                      <i className="ri-delete-bin-line"></i>
-
-                    </button>
-
-                  ))
-                }
-
-              </div>
-
-            </>
-
-          ) : (
-
-            <>
-
-              <h2>
-                Confirmar Eliminación
-              </h2>
-
-              <p>
-                ¿Seguro que deseas eliminar
-                {" "}
-                <strong>
-                  {selectedPlate.name}
-                </strong>
-                ?
-              </p>
-
-              <div className="modal-actions">
-
-                <button
-                  type="button"
-                  className="modal-cancel"
-                  onClick={() => {
-
-                    setSelectedPlate(null);
-
-                  }}
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  className="modal-delete"
-                  onClick={() => {
-
-                    deleteDish(
-                      selectedPlate.id
-                    );
-
-                    alert(
-                      "Plato eliminado"
-                    );
-
-                    setSelectedPlate(null);
-
-                    setShowDeleteModal(false);
-
-                  }}
-                >
-                  Eliminar
-                </button>
-
-              </div>
-
-            </>
-
-          )
-        }
-
-      </div>
-
-    </div>
-
-  )
-}
-      </AdminLayout>
+            <div className="card dashboard-live-panel">
+              <div className="section-header"><h2>Ultimos pedidos</h2><Link to="/orders">Abrir pedidos</Link></div>
+              {(stats?.ultimosPedidos || []).map((order) => (
+                <div className="dashboard-live-row" key={order.id}>
+                  <div><strong>{order.cliente}</strong><span>{date(order.fecha)}</span></div>
+                  <span className={`live-status ${order.estado}`}>{order.estado}</span>
+                  <strong>{money(order.total)}</strong>
+                </div>
+              ))}
+              {!stats?.ultimosPedidos?.length && <div className="empty-state">No hay pedidos recientes.</div>}
+            </div>
+
+            <div className="card dashboard-live-panel">
+              <div className="section-header"><h2>Ultimas reservaciones</h2><Link to="/reservations">Abrir reservas</Link></div>
+              {(stats?.ultimasReservaciones || []).map((reservation) => (
+                <div className="dashboard-live-row" key={reservation.id}>
+                  <div><strong>{reservation.cliente}</strong><span>{String(reservation.fecha).slice(0, 10)}</span></div>
+                  <span>Mesa {reservation.mesa || "-"}</span>
+                  <span className={`live-status ${reservation.estado}`}>{reservation.estado}</span>
+                </div>
+              ))}
+              {!stats?.ultimasReservaciones?.length && <div className="empty-state">No hay reservaciones recientes.</div>}
+            </div>
+          </section>
+        </>
+      )}
+    </AdminLayout>
   );
 };

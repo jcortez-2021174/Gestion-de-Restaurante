@@ -2,6 +2,12 @@ import { Schema, model } from 'mongoose';
 
 const clienteSchema = new Schema(
   {
+    authUserId: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
+    },
     nombre: {
       type: String,
       required: [true, 'El nombre del cliente es obligatorio'],
@@ -29,12 +35,22 @@ const clienteSchema = new Schema(
     },
     direccion: {
       type: String,
-      required: [true, 'La dirección es obligatoria'],
+      default: '',
       trim: true,
     },
     isActive: {
       type: Boolean,
       default: true,
+    },
+    puntosAurea: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    puntosReferencias: {
+      type: [String],
+      default: [],
+      select: false,
     },
   },
   {

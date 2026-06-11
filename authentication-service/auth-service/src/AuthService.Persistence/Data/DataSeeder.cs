@@ -35,6 +35,13 @@ public static class DataSeeder
             var adminRole = await (context.Roles ?? throw new InvalidOperationException("Roles DbSet is null.")).FirstOrDefaultAsync(r => r.Name == RoleConstants.ADMIN_ROLE);
             if (adminRole != null)
             {
+                var initialAdminPassword = Environment.GetEnvironmentVariable("AUREA_INITIAL_ADMIN_PASSWORD");
+                if (string.IsNullOrWhiteSpace(initialAdminPassword))
+                {
+                    throw new InvalidOperationException(
+                        "AUREA_INITIAL_ADMIN_PASSWORD must be configured before seeding the initial administrator.");
+                }
+
                 var passwordHasher = new PasswordHashService();
 
                 var userId = UuidGenerator.GenerateUserId();
@@ -49,7 +56,7 @@ public static class DataSeeder
                     Surname = "User",
                     Username = "admin",
                     Email = "admin@ksports.local",
-                    Password = passwordHasher.HashPassword("Admin1234!"),
+                    Password = passwordHasher.HashPassword(initialAdminPassword),
                     Status = true,
                     UserProfile = new UserProfile
                     {

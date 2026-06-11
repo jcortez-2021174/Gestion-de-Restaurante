@@ -4,14 +4,6 @@ import ReactDOM from "react-dom/client";
 
 import App from "./App.jsx";
 import "../features/auth/styles/layout.css";
-import { MenuProvider }
-from "../context/MenuContext";
-
-import { OrdersProvider }
-from "../context/OrdersContext";
-
-import { ReservationsProvider }
-from "../context/ReservationsContext";
 
 ReactDOM.createRoot(
     document.getElementById("root")
@@ -19,19 +11,7 @@ ReactDOM.createRoot(
 
     <React.StrictMode>
 
-        <MenuProvider>
-
-            <OrdersProvider>
-
-                <ReservationsProvider>
-
-                    <App />
-
-                </ReservationsProvider>
-
-            </OrdersProvider>
-
-        </MenuProvider>
+        <App />
 
     </React.StrictMode>
 

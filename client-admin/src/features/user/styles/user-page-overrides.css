@@ -1,0 +1,269 @@
+.user-menu-page,
+.client-orders-main,
+.user-about-page {
+  min-width: 0;
+}
+
+.menu-topbar > .user-section-header,
+.client-orders-header > .user-section-header {
+  margin-bottom: 0;
+}
+
+.menu-platos-grid > .user-state {
+  grid-column: 1 / -1;
+}
+
+.client-orders-main {
+  padding: 0;
+}
+
+.client-orders-card {
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+}
+
+.client-orders-card > .user-state {
+  border: 0;
+  background: transparent;
+}
+
+.ur-main {
+  padding: 0;
+  overflow: visible;
+}
+
+.ur-main > .user-section-header {
+  margin-bottom: 24px;
+}
+
+.ur-stat-card,
+.ur-reserva-card {
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+
+.ur-reserva-card {
+  width: 100%;
+}
+
+.ur-lista .user-state,
+.ur-detalle-panel > .user-state {
+  flex: 1;
+  border: 0;
+  background: transparent;
+}
+
+.ur-lista-header .user-button {
+  min-height: 40px;
+}
+
+.ur-form-group > span {
+  color: #bbb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ur-detalle-acciones > .user-button {
+  width: 100%;
+}
+
+.ur-toast button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-left: 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.user-about-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.user-about-page .nos-hero,
+.user-about-page .nos-two-col,
+.user-about-page .nos-valores-section,
+.user-about-page .nos-galeria-section {
+  margin-bottom: 0;
+}
+
+.user-about-page .nos-hero {
+  min-height: 320px;
+  height: auto;
+  border: 1px solid rgba(212, 175, 55, 0.13);
+  background-position: center 48%;
+}
+
+.user-about-page .nos-valor-item h3 {
+  color: #fff;
+  font-size: 14px;
+}
+
+.user-about-page .nos-section-label {
+  display: none;
+}
+
+.user-about-page .nos-galeria-section > .user-button {
+  margin: 0 auto;
+}
+
+.user-about-page .nos-chef-quote {
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .menu-topbar-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .menu-search-box {
+    min-width: min(280px, 100%);
+    flex: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  .client-orders-card {
+    padding: 18px;
+  }
+
+  .client-section-title {
+    align-items: flex-start;
+  }
+
+  .ur-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ur-stat-cta {
+    grid-column: 1 / -1;
+  }
+
+  .ur-lista-panel,
+  .ur-detalle-panel {
+    min-height: auto;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .ur-card-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .user-about-page .nos-hero {
+    min-height: 290px;
+    padding: 30px;
+  }
+
+  .nos-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .menu-topbar-right {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .menu-search-box {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .menu-topbar-right .user-profile-card {
+    min-width: 0;
+  }
+
+  .menu-cats {
+    flex-wrap: nowrap;
+    margin-inline: -16px;
+    padding: 0 16px 5px;
+    overflow-x: auto;
+  }
+
+  .menu-cat-btn {
+    flex: 0 0 auto;
+  }
+
+  .menu-platos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plato-card-img-wrap {
+    height: 230px;
+  }
+
+  .ur-main > .user-section-header .user-section-action,
+  .ur-main > .user-section-header .user-button {
+    width: 100%;
+  }
+
+  .ur-filtros {
+    margin-inline: -18px;
+    padding-inline: 18px;
+  }
+
+  .ur-card-top {
+    gap: 10px;
+  }
+
+  .ur-card-info {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .ur-detalle-top {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .user-about-page .nos-hero {
+    min-height: 330px;
+    align-items: flex-end;
+    padding: 24px;
+  }
+
+  .user-about-page .nos-hero-overlay {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0.2));
+  }
+
+  .user-about-page .nos-galeria-section {
+    padding: 16px;
+  }
+
+  .user-about-page .nos-galeria-item {
+    height: 130px;
+  }
+
+  .nos-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .client-cart-item {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .client-cart-item img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .client-quantity {
+    grid-column: 2;
+  }
+}

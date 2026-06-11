@@ -1,710 +1,256 @@
-import {
-    useEffect,
-    useState
-} from "react";
-
-import {
-    Link
-} from "react-router-dom";
-
-import {
-    useOrders
-} from "../../../context/OrdersContext";
-
+import { useCallback, useMemo, useState } from "react";
+import { AdminLayout } from "../../../shared/layouts/AdminLayout";
+import { cambiarEstado, obtenerTodos } from "../../../services/pedidos.service";
+import { listarProductos } from "../../../services/productos.service";
+import { useSmartPolling } from "../../../shared/hooks/useSmartPolling";
+import { ExportButtons } from "../../../shared/components/ExportButtons";
+import { printOrderTicket } from "../../../shared/utils/exports";
 import "../styles/orders.css";
 
+const STATUS_FILTERS = [
+  { value: "Todos", label: "Todos" },
+  { value: "Pendiente", label: "Pendientes" },
+  { value: "EnPreparacion", label: "En preparacion" },
+  { value: "Listo", label: "Listos" },
+  { value: "Entregado", label: "Entregados" },
+  { value: "Cancelado", label: "Cancelados" },
+];
+
+const NEXT_ACTIONS = {
+  Pendiente: [
+    { estado: "EnPreparacion", label: "Aceptar pedido", className: "btn-success" },
+    { estado: "Cancelado", label: "Cancelar", className: "btn-danger" },
+  ],
+  EnPreparacion: [
+    { estado: "Listo", label: "Marcar listo", className: "btn-gold" },
+    { estado: "Cancelado", label: "Cancelar", className: "btn-danger" },
+  ],
+  Listo: [
+    { estado: "Entregado", label: "Marcar entregado", className: "btn-outline-action" },
+    { estado: "Cancelado", label: "Cancelar", className: "btn-danger" },
+  ],
+  Entregado: [],
+  Cancelado: [],
+};
+
+const formatMoney = (value) => `Q${Number(value || 0).toFixed(2)}`;
+const formatDate = (value) => new Intl.DateTimeFormat("es-GT", {
+  dateStyle: "short",
+  timeStyle: "short",
+}).format(new Date(value));
+
 export const OrdersPage = () => {
+  const [orders, setOrders] = useState([]);
+  const [productImages, setProductImages] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [filter, setFilter] = useState("Todos");
+  const [search, setSearch] = useState("");
+  const [updating, setUpdating] = useState(false);
 
-    const {
+  const loadOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const [orderData, productResponse] = await Promise.all([
+        obtenerTodos(),
+        listarProductos(),
+      ]);
+      const products = productResponse?.data || [];
+      setOrders(orderData);
+      setProductImages(Object.fromEntries(products.map((product) => [
+        String(product._id || product.id),
+        product.imagen || "/plato1.jpeg",
+      ])));
+      setSelectedOrder((current) => {
+        if (!current) return orderData[0] || null;
+        return orderData.find((order) => order.id === current.id) || orderData[0] || null;
+      });
+    } catch (requestError) {
+      setError(requestError.userMessage || requestError.message || "No se pudieron cargar los pedidos.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-        orders,
+  useSmartPolling(loadOrders, 20000);
 
-        updateOrderStatus,
+  const visibleOrders = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+    return orders.filter((order) => {
+      const matchesFilter = filter === "Todos" || order.estado === filter;
+      const matchesSearch = !normalizedSearch
+        || order.id.toLowerCase().includes(normalizedSearch)
+        || order.clienteNombre.toLowerCase().includes(normalizedSearch);
+      return matchesFilter && matchesSearch;
+    });
+  }, [orders, filter, search]);
 
-        deleteOrder,
+  const activeCount = orders.filter((order) => !["Entregado", "Cancelado"].includes(order.estado)).length;
 
-        rejectOrder
+  const updateOrderStatus = async (estado) => {
+    if (!selectedOrder) return;
+    try {
+      setUpdating(true);
+      setError("");
+      const updated = await cambiarEstado(selectedOrder.id, estado);
+      setOrders((current) => current.map((order) => order.id === updated.id ? updated : order));
+      setSelectedOrder(updated);
+    } catch (requestError) {
+      setError(requestError.userMessage || requestError.message || "No se pudo actualizar el estado.");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
-    } = useOrders();
+  return (
+    <AdminLayout notificationCount={activeCount}>
+      <header className="admin-module-header">
+        <div>
+          <span className="admin-eyebrow">Operacion de cocina</span>
+          <h1>Pedidos Aurea</h1>
+          <p>Control POS de pedidos, productos y estados en tiempo real.</p>
+        </div>
+        <div className="admin-header-actions">
+          <ExportButtons
+            basename={`pedidos-aurea-${new Date().toISOString().slice(0, 10)}`}
+            title="Reporte de pedidos"
+            columns={[
+              { key: "id", label: "ID" },
+              { key: "clienteNombre", label: "Cliente" },
+              { key: "estado", label: "Estado" },
+              { key: "total", label: "Total" },
+              { key: "fechaCreacion", label: "Fecha" },
+            ]}
+            rows={visibleOrders}
+            summary={`${visibleOrders.length} pedidos`}
+          />
+          <button className="btn-outline-small" type="button" onClick={loadOrders}>
+            <i className="ri-refresh-line" /> Actualizar
+          </button>
+        </div>
+      </header>
 
-    const [selectedOrder, setSelectedOrder] =
-        useState(null);
+      {error && <div className="admin-feedback error">{error}</div>}
 
-    useEffect(() => {
+      <section className="orders-layout">
+        <div className="orders-content card">
+          <div className="orders-top">
+            <div className="tabs">
+              {STATUS_FILTERS.map((status) => (
+                <button
+                  type="button"
+                  key={status.value}
+                  className={filter === status.value ? "active" : ""}
+                  onClick={() => setFilter(status.value)}
+                >
+                  {status.label}
+                </button>
+              ))}
+            </div>
+            <div className="top-actions">
+              <label className="orders-search">
+                <i className="ri-search-line" />
+                <input
+                  type="search"
+                  placeholder="Buscar pedido o cliente..."
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                />
+              </label>
+            </div>
+          </div>
 
-        if(
-            orders.length > 0 &&
-            !selectedOrder
-        ){
-
-            setSelectedOrder(
-                orders[0]
-            );
-        }
-
-    }, [orders]);
-
-    return (
-
-        <div className="container">
-
-            {/* SIDEBAR */}
-            <aside className="sidebar">
-
-                <div className="logo-box">
-                    <img src="/logo.png" alt="" />
+          <div className="orders-table">
+            {loading ? (
+              <div className="loading-state">Cargando pedidos...</div>
+            ) : visibleOrders.length === 0 ? (
+              <div className="empty-orders">No hay pedidos para este filtro.</div>
+            ) : visibleOrders.map((order) => (
+              <button
+                type="button"
+                className={`order-row${selectedOrder?.id === order.id ? " is-selected" : ""}`}
+                key={order.id}
+                onClick={() => setSelectedOrder(order)}
+              >
+                <div className="order-id">
+                  <h4>#{order.id.slice(-8)}</h4>
+                  <span>{formatDate(order.fechaCreacion)}</span>
                 </div>
-
-                <ul className="menu">
-
-                    <Link to="/dashboard" className="menu-link">
-                        <li>
-                            <i className="ri-home-5-line"></i>
-                            Inicio
-                        </li>
-                    </Link>
-
-                    <Link to="/menu" className="menu-link">
-                        <li>
-                            <i className="ri-restaurant-line"></i>
-                            Menú
-                        </li>
-                    </Link>
-
-                    <Link to="/orders" className="menu-link">
-
-                        <li>
-
-                            <i className="ri-shopping-cart-line"></i>
-
-                            Pedidos
-
-                            <span className="badge">
-
-                                {
-                                    orders.filter(
-                                        (o) =>
-                                            o.status !==
-                                            "Entregado"
-                                    ).length
-                                }
-
-                            </span>
-
-                        </li>
-
-                    </Link>
-
-                    <Link to="/reservations" className="menu-link">
-                        <li>
-                            <i className="ri-calendar-line"></i>
-                            Reservas
-                        </li>
-                    </Link>
-
-                    <Link to="/tables" className="menu-link">
-                        <li>
-                            <i className="ri-table-line"></i>
-                            Mesas
-                        </li>
-                    </Link>
-
-                    <Link to="/clients" className="menu-link">
-                        <li>
-                            <i className="ri-user-line"></i>
-                            Clientes
-                        </li>
-                    </Link>
-
-                    <Link to="/reports" className="menu-link">
-                        <li>
-                            <i className="ri-bar-chart-line"></i>
-                            Reportes
-                        </li>
-                    </Link>
-
-                    <Link to="/settings" className="menu-link">
-                        <li>
-                            <i className="ri-settings-3-line"></i>
-                            Configuración
-                        </li>
-                    </Link>
-
-                </ul>
-
-                <div className="sidebar-image">
-
-                    <img
-                        src="/vino.jpg"
-                        alt=""
-                    />
-
-                    <div className="overlay"></div>
-
-                    <div className="sidebar-decor">
-
-                        <i className="ri-restaurant-2-line"></i>
-
-                    </div>
-
-                    <p>
-
-                        Cada pedido refleja
-                        <br />
-                        excelencia y detalle.
-
-                    </p>
-
+                <div className="order-client">
+                  <h4>{order.clienteNombre}</h4>
+                  <span>{order.productos.length} productos</span>
                 </div>
-
-            </aside>
-
-            {/* MAIN */}
-            <main className="main">
-
-                <div className="header">
-
-                    <div>
-
-                        <h1>
-                            Bienvenido a Aurea
-                        </h1>
-
-                        <p>
-                            Gestión de pedidos en tiempo real.
-                        </p>
-
-                    </div>
-
-                    <div className="user-box">
-
-                        <div className="notification">
-
-                            <i className="ri-notification-3-line"></i>
-
-                            <span className="badge">
-
-                                {
-                                    orders.filter(
-                                        (o) =>
-                                            o.status !==
-                                            "Entregado"
-                                    ).length
-                                }
-
-                            </span>
-
-                        </div>
-
-                        <div className="divider"></div>
-
-                        <div className="user">
-
-                            <i className="ri-user-line"></i>
-
-                            <div className="user-info">
-
-                                <span>
-                                    Administrador
-                                </span>
-
-                                <small>
-                                    admin@aurea.com
-                                </small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
+                <div className="order-type">
+                  <h4>{order.mesaId ? "Restaurante" : "Sin mesa"}</h4>
+                  <span>{order.mesaId || "Pedido cliente"}</span>
                 </div>
-
-                {/* CONTENT */}
-                <section className="orders-layout">
-
-                    {/* LEFT */}
-                    <div className="orders-content card">
-
-                        <div className="orders-top">
-
-                            <div className="tabs">
-
-                                <button className="active">
-                                    Todos
-                                </button>
-
-                                <button>
-                                    Pendientes
-                                </button>
-
-                                <button>
-                                    En Preparación
-                                </button>
-
-                                <button>
-                                    En Camino
-                                </button>
-
-                                <button>
-                                    Entregados
-                                </button>
-
-                            </div>
-
-                            <div className="top-actions">
-
-                                <button className="btn-outline-small">
-
-                                    <i className="ri-refresh-line"></i>
-
-                                    Actualizar
-
-                                </button>
-
-                                <input
-                                    type="text"
-                                    placeholder="Buscar pedido..."
-                                />
-
-                            </div>
-
-                        </div>
-
-                        {/* TABLE */}
-                        <div className="orders-table">
-
-                            {
-                                orders.length === 0 ? (
-
-                                    <div
-                                        className="empty-orders"
-                                    >
-
-                                        No hay pedidos.
-
-                                    </div>
-
-                                ) : (
-
-                                    orders.map((order, index) => (
-
-                                        <div
-                                            className="order-row"
-                                            key={index}
-                                            onClick={() =>
-                                                setSelectedOrder(order)
-                                            }
-                                        >
-
-                                            <div className="order-id">
-
-                                                <h4>
-                                                    {order.id}
-                                                </h4>
-
-                                                <span>
-                                                    {
-                                                        order.createdAt
-                                                    }
-                                                </span>
-
-                                            </div>
-
-                                            <div className="order-client">
-
-                                                <h4>
-                                                    {order.client}
-                                                </h4>
-
-                                                <span>
-                                                    {order.phone}
-                                                </span>
-
-                                            </div>
-
-                                            <div className="order-type">
-
-                                                <h4>
-                                                    {order.type}
-                                                </h4>
-
-                                                <span>
-                                                    {order.address}
-                                                </span>
-
-                                            </div>
-
-                                            <div className={`status ${order.status}`}>
-
-                                                {order.status}
-
-                                            </div>
-
-                                            <div className="order-hour">
-
-                                                {order.hour}
-
-                                            </div>
-
-                                            <div className="order-total">
-
-                                                {order.total}
-
-                                            </div>
-
-                                            <button className="btn-view">
-
-                                                Ver
-
-                                            </button>
-
-                                        </div>
-
-                                    ))
-                                )
-                            }
-
-                        </div>
-
-                    </div>
-
-                    {/* RIGHT */}
-                    <aside className="order-details card">
-
-                        {
-                            selectedOrder ? (
-
-                                <>
-
-                                    <h2>
-                                        DETALLE DEL PEDIDO
-                                    </h2>
-
-                                    <div className="detail-top">
-
-                                        <span className="badge-new">
-
-                                            {
-                                                selectedOrder.status
-                                            }
-
-                                        </span>
-
-                                        <h3>
-                                            {
-                                                selectedOrder.id
-                                            }
-                                        </h3>
-
-                                    </div>
-
-                                    <div className="detail-box">
-
-                                        <p>
-
-                                            <strong>
-                                                Cliente:
-                                            </strong>
-
-                                            <br />
-
-                                            {
-                                                selectedOrder.client
-                                            }
-
-                                        </p>
-
-                                        <p>
-
-                                            <strong>
-                                                Teléfono:
-                                            </strong>
-
-                                            <br />
-
-                                            {
-                                                selectedOrder.phone
-                                            }
-
-                                        </p>
-
-                                        <p>
-
-                                            <strong>
-                                                Tipo:
-                                            </strong>
-
-                                            <br />
-
-                                            {
-                                                selectedOrder.type
-                                            }
-
-                                        </p>
-
-                                        <p>
-
-                                            <strong>
-                                                Dirección:
-                                            </strong>
-
-                                            <br />
-
-                                            {
-                                                selectedOrder.address
-                                            }
-
-                                        </p>
-
-                                    </div>
-
-                                    <div className="products-list">
-
-                                        {
-                                            selectedOrder.products?.map(
-
-                                                (
-                                                    product,
-                                                    index
-                                                ) => (
-
-                                                    <div
-                                                        className="product-item"
-                                                        key={index}
-                                                    >
-
-                                                        <img
-                                                            src={product.imagen}
-                                                            alt=""
-                                                        />
-
-                                                        <div>
-
-                                                            <h4>
-                                                                {
-                                                                    product.nombre
-                                                                }
-                                                            </h4>
-
-                                                            <span>
-
-                                                                x{
-                                                                    product.cantidad
-                                                                }
-
-                                                            </span>
-
-                                                        </div>
-
-                                                        <strong>
-
-                                                            Q{
-                                                                (
-                                                                    product.precio *
-                                                                    product.cantidad
-                                                                ).toFixed(2)
-                                                            }
-
-                                                        </strong>
-
-                                                    </div>
-                                                )
-                                            )
-                                        }
-
-                                    </div>
-
-                                    <div className="totals">
-
-                                        <div className="total-final">
-
-                                            <span>
-                                                Total
-                                            </span>
-
-                                            <strong>
-                                                {
-                                                    selectedOrder.total
-                                                }
-                                            </strong>
-
-                                        </div>
-
-                                    </div>
-
-                                    {/* ACTIONS */}
-                                    <div className="actions">
-
-                                        {
-                                            selectedOrder.status ===
-                                            "Nuevo" && (
-
-                                                <>
-
-                                                    <button
-                                                        className="btn-success"
-                                                        onClick={() => {
-
-                                                            updateOrderStatus(
-                                                                selectedOrder.id,
-                                                                "En Preparación"
-                                                            );
-
-                                                            setSelectedOrder({
-
-                                                                ...selectedOrder,
-
-                                                                status:
-                                                                    "En Preparación"
-
-                                                            });
-
-                                                        }}
-                                                    >
-
-                                                        Aceptar Pedido
-
-                                                    </button>
-
-                                                    <button
-                                                        className="btn-danger"
-                                                        onClick={() => {
-
-                                                            rejectOrder(
-                                                                selectedOrder.id
-                                                            );
-
-                                                            setSelectedOrder(
-                                                                null
-                                                            );
-
-                                                        }}
-                                                    >
-
-                                                        Rechazar Pedido
-
-                                                    </button>
-
-                                                </>
-
-                                            )
-                                        }
-
-                                        {
-                                            selectedOrder.status ===
-                                            "En Preparación" && (
-
-                                                <button
-                                                    className="btn-gold"
-                                                    onClick={() => {
-
-                                                        updateOrderStatus(
-                                                            selectedOrder.id,
-                                                            "En Camino"
-                                                        );
-
-                                                        setSelectedOrder({
-
-                                                            ...selectedOrder,
-
-                                                            status:
-                                                                "En Camino"
-
-                                                        });
-
-                                                    }}
-                                                >
-
-                                                    Enviar Pedido
-
-                                                </button>
-
-                                            )
-                                        }
-
-                                        {
-                                            selectedOrder.status ===
-                                            "En Camino" && (
-
-                                                <button
-                                                    className="btn-outline-action"
-                                                    onClick={() => {
-
-                                                        updateOrderStatus(
-                                                            selectedOrder.id,
-                                                            "Entregado"
-                                                        );
-
-                                                        setSelectedOrder({
-
-                                                            ...selectedOrder,
-
-                                                            status:
-                                                                "Entregado"
-
-                                                        });
-
-                                                    }}
-                                                >
-
-                                                    Marcar Entregado
-
-                                                </button>
-
-                                            )
-                                        }
-
-                                        {
-                                            selectedOrder.status ===
-                                            "Entregado" && (
-
-                                                <button
-                                                    className="btn-danger"
-                                                    onClick={() => {
-
-                                                        deleteOrder(
-                                                            selectedOrder.id
-                                                        );
-
-                                                        setSelectedOrder(
-                                                            null
-                                                        );
-
-                                                    }}
-                                                >
-
-                                                    Eliminar Pedido
-
-                                                </button>
-
-                                            )
-                                        }
-
-                                    </div>
-
-                                </>
-
-                            ) : (
-
-                                <div
-                                    className="empty-orders"
-                                >
-
-                                    Selecciona un pedido.
-
-                                </div>
-
-                            )
-                        }
-
-                    </aside>
-
-                </section>
-
-            </main>
-
+                <div className={`status ${order.estado}`}>{order.estado}</div>
+                <div className="order-total">{formatMoney(order.total)}</div>
+                <span className="btn-view">Ver</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-    );
+        <aside className="order-details card">
+          {selectedOrder ? (
+            <>
+              <div className="order-detail-heading">
+                <div><span className="admin-eyebrow">Detalle POS</span><h2>Pedido #{selectedOrder.id.slice(-8)}</h2></div>
+                <span className={`status ${selectedOrder.estado}`}>{selectedOrder.estado}</span>
+              </div>
+
+              <div className="detail-box">
+                <p><strong>Cliente</strong><span>{selectedOrder.clienteNombre}</span></p>
+                <p><strong>Fecha</strong><span>{formatDate(selectedOrder.fechaCreacion)}</span></p>
+                <p><strong>Mesa</strong><span>{selectedOrder.mesaId || "Sin mesa asignada"}</span></p>
+              </div>
+
+              <div className="products-list">
+                {selectedOrder.productos.map((product) => (
+                  <div className="product-item" key={product.productoId}>
+                    <img src={productImages[product.productoId] || "/plato1.jpeg"} alt={product.nombre} />
+                    <div>
+                      <h4>{product.nombre}</h4>
+                      <span>{product.cantidad} x {formatMoney(product.precioUnitario)}</span>
+                    </div>
+                    <strong>{formatMoney(product.totalLinea)}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div className="totals">
+                <div><span>Subtotal</span><strong>{formatMoney(selectedOrder.subtotal)}</strong></div>
+                <div className="total-final"><span>Total</span><strong>{formatMoney(selectedOrder.total)}</strong></div>
+              </div>
+
+              <div className="actions order-detail-actions">
+                <button className="btn-outline-action" type="button" onClick={() => printOrderTicket(selectedOrder, { productImages })}>
+                  <i className="ri-printer-line" /> Imprimir ticket
+                </button>
+                {(NEXT_ACTIONS[selectedOrder.estado] || []).map((action) => (
+                  <button
+                    type="button"
+                    key={action.estado}
+                    className={action.className}
+                    disabled={updating}
+                    onClick={() => updateOrderStatus(action.estado)}
+                  >
+                    {updating ? "Actualizando..." : action.label}
+                  </button>
+                ))}
+                {NEXT_ACTIONS[selectedOrder.estado]?.length === 0 && (
+                  <p className="order-terminal-message">Este pedido no tiene mas transiciones.</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="empty-orders">Selecciona un pedido.</div>
+          )}
+        </aside>
+      </section>
+    </AdminLayout>
+  );
 };

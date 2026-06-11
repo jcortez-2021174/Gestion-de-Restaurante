@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { agregarProducto, listarProductosCtrl } from './producto.controller.js';
+import { agregarProducto, listarProductosCtrl, obtenerProductoPorIdCtrl, actualizarProductoCtrl, eliminarProductoCtrl } from './producto.controller.js';
+import { validateJWT } from '../../middlewares/validate-jwt.js';
+import { authorizeRole } from '../../middlewares/authorize-role.js';
 
 const router = Router();
+
+const requireAdmin = authorizeRole('ADMIN_ROLE');
+
+router.use(validateJWT);
 
 const validarProducto = [
   body('nombre')
@@ -17,6 +23,14 @@ const validarProducto = [
   body('idCategoria')
     .notEmpty().withMessage('El idCategoria es obligatorio')
     .isMongoId().withMessage('El idCategoria no es un ObjectId válido'),
+  body('descripcion')
+    .optional()
+    .isString()
+    .isLength({ max: 500 }).withMessage('La descripcion no puede superar 500 caracteres'),
+  body('imagen')
+    .optional()
+    .isString()
+    .isLength({ max: 7_000_000 }).withMessage('La imagen supera el limite permitido'),
 ];
 
 /**
@@ -79,7 +93,7 @@ const validarProducto = [
  *       500:
  *         description: Error del servidor
  */
-router.post('/', validarProducto, agregarProducto);
+router.post('/', requireAdmin, validarProducto, agregarProducto);
 
 /**
  * @swagger
@@ -100,5 +114,90 @@ router.post('/', validarProducto, agregarProducto);
  *         description: Error del servidor
  */
 router.get('/', listarProductosCtrl);
+
+/**
+ * @swagger
+ * /producto/{id}:
+ *   get:
+ *     summary: Obtener un producto por ID
+ *     tags: [Producto]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     responses:
+ *       200:
+ *         description: Producto encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Producto'
+ *       404:
+ *         description: Producto no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/:id', obtenerProductoPorIdCtrl);
+
+/**
+ * @swagger
+ * /producto/{id}:
+ *   put:
+ *     summary: Actualizar un producto
+ *     tags: [Producto]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Producto'
+ *     responses:
+ *       200:
+ *         description: Producto actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Producto'
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Producto no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.put('/:id', requireAdmin, validarProducto, actualizarProductoCtrl);
+
+/**
+ * @swagger
+ * /producto/{id}:
+ *   delete:
+ *     summary: Eliminar un producto
+ *     tags: [Producto]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     responses:
+ *       200:
+ *         description: Producto eliminado correctamente
+ *       404:
+ *         description: Producto no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.delete('/:id', requireAdmin, eliminarProductoCtrl);
 
 export default router;

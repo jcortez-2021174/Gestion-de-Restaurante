@@ -1,6 +1,12 @@
 import express from 'express';
 const router = express.Router();
 import categoriaController from './categoria.controller.js';
+import { validateJWT } from '../../middlewares/validate-jwt.js';
+import { authorizeRole } from '../../middlewares/authorize-role.js';
+
+const requireAdmin = authorizeRole('ADMIN_ROLE');
+
+router.use(validateJWT);
 
 /**
  * @swagger
@@ -56,7 +62,7 @@ import categoriaController from './categoria.controller.js';
  *       500:
  *         description: Error del servidor
  */
-router.post('/', categoriaController.crear);
+router.post('/', requireAdmin, categoriaController.crear);
 
 /**
  * @swagger
@@ -136,7 +142,7 @@ router.get('/:id', categoriaController.obtener);
  *       500:
  *         description: Error del servidor
  */
-router.put('/:id', categoriaController.actualizar);
+router.put('/:id', requireAdmin, categoriaController.actualizar);
 
 /**
  * @swagger
@@ -159,6 +165,6 @@ router.put('/:id', categoriaController.actualizar);
  *       500:
  *         description: Error del servidor
  */
-router.delete('/:id', categoriaController.eliminar);
+router.delete('/:id', requireAdmin, categoriaController.eliminar);
 
 export default router;

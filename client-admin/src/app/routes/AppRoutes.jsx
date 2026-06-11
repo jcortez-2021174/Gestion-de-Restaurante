@@ -1,9 +1,14 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import { useAuthStore } from "../../features/auth/store/authStore";
+import { getAuthenticatedHome } from "../../features/auth/auth.navigation";
+import { getJwtRole } from "../../features/auth/jwt.claims";
 
 import { LoginPage } from "../../features/auth/pages/LoginPage";
+import { RegisterPage } from "../../features/auth/pages/RegisterPage";
 import { VerifyEmailPage } from "../../features/auth/pages/Verifyemailpage";
+import { ForgotPasswordPage } from "../../features/auth/pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "../../features/auth/pages/ResetPasswordPage";
 
 import { DashboardPage } from "../../features/admin/pages/DashboardPage";
 import { MenuPage } from "../../features/admin/pages/MenuPage";
@@ -14,43 +19,85 @@ import { ClientsPage } from "../../features/admin/pages/ClientsPage";
 import { PuntosAureaPage } from "../../features/admin/pages/PuntosAureaPage";
 import { ReportsPage } from "../../features/admin/pages/ReportsPage";
 import { SettingsPage } from "../../features/admin/pages/SettingsPage";
+import { RewardsPage } from "../../features/admin/pages/RewardsPage";
 
 import { UserDashboardPage } from "../../features/user/pages/UserDashboardPage";
 import { UserMenuPage } from "../../features/user/pages/UserMenuPage";
 import { UserNosotrosPage } from "../../features/user/pages/UserNosotrosPage";
 import { UserReservasPage } from "../../features/user/pages/UserReservasPage";
 import { ClientOrderPage } from "../../features/user/pages/ClientOrderPage";
+import { UserNotificationsPage } from "../../features/user/pages/UserNotificationsPage";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
     const token = useAuthStore((state) => state.token);
 
     if (!token) {
         return <Navigate to="/login" replace />;
     }
 
+    if (requiredRole && getJwtRole(token) !== requiredRole) {
+        return <Navigate to="/home" replace />;
+    }
+
+    return children;
+};
+
+const PublicOnlyRoute = ({ children }) => {
+    const token = useAuthStore((state) => state.token);
+    const role = getJwtRole(token);
+
+    if (token) {
+        return <Navigate to={getAuthenticatedHome(role)} replace />;
+    }
+
     return children;
 };
 
 export const AppRoutes = () => {
-    const token = useAuthStore((state) => state.token);
-
     return (
         <Routes>
             <Route
                 path="/login"
                 element={
-                    !token
-                        ? <LoginPage />
-                        : <Navigate to="/dashboard" replace />
+                    <PublicOnlyRoute>
+                        <LoginPage />
+                    </PublicOnlyRoute>
+                }
+            />
+
+            <Route
+                path="/register"
+                element={
+                    <PublicOnlyRoute>
+                        <RegisterPage />
+                    </PublicOnlyRoute>
                 }
             />
 
             <Route path="/verify-email" element={<VerifyEmailPage />} />
 
             <Route
+                path="/forgot-password"
+                element={
+                    <PublicOnlyRoute>
+                        <ForgotPasswordPage />
+                    </PublicOnlyRoute>
+                }
+            />
+
+            <Route
+                path="/reset-password"
+                element={
+                    <PublicOnlyRoute>
+                        <ResetPasswordPage />
+                    </PublicOnlyRoute>
+                }
+            />
+
+            <Route
                 path="/dashboard"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <DashboardPage />
                     </ProtectedRoute>
                 }
@@ -59,7 +106,7 @@ export const AppRoutes = () => {
             <Route
                 path="/menu"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <MenuPage />
                     </ProtectedRoute>
                 }
@@ -68,7 +115,7 @@ export const AppRoutes = () => {
             <Route
                 path="/orders"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <OrdersPage />
                     </ProtectedRoute>
                 }
@@ -77,7 +124,7 @@ export const AppRoutes = () => {
             <Route
                 path="/reservations"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ReservationsPage />
                     </ProtectedRoute>
                 }
@@ -86,7 +133,7 @@ export const AppRoutes = () => {
             <Route
                 path="/tables"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <MesasPage />
                     </ProtectedRoute>
                 }
@@ -95,7 +142,7 @@ export const AppRoutes = () => {
             <Route
                 path="/clients"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ClientsPage />
                     </ProtectedRoute>
                 }
@@ -104,8 +151,17 @@ export const AppRoutes = () => {
             <Route
                 path="/reports"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <ReportsPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/rewards"
+                element={
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
+                        <RewardsPage />
                     </ProtectedRoute>
                 }
             />
@@ -113,7 +169,7 @@ export const AppRoutes = () => {
             <Route
                 path="/settings"
                 element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="ADMIN_ROLE">
                         <SettingsPage />
                     </ProtectedRoute>
                 }
@@ -151,6 +207,15 @@ export const AppRoutes = () => {
                 element={
                     <ProtectedRoute>
                         <ClientOrderPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/user/notifications"
+                element={
+                    <ProtectedRoute>
+                        <UserNotificationsPage />
                     </ProtectedRoute>
                 }
             />

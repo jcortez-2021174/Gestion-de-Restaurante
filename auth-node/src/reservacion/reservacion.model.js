@@ -4,20 +4,30 @@ const reservacionSchema = new Schema(
   {
     fechaReservacion: {
       type: Date,
-      required: [true, 'La fecha de la reservación es obligatoria'],
+      required: [true, 'La fecha de la reservacion es obligatoria'],
+    },
+    horaInicio: {
+      type: String,
+      required: [true, 'La hora de inicio es obligatoria'],
+      match: [/^([01]\d|2[0-3]):[0-5]\d$/, 'La hora de inicio debe tener formato HH:mm'],
+    },
+    horaFin: {
+      type: String,
+      required: [true, 'La hora de fin es obligatoria'],
+      match: [/^([01]\d|2[0-3]):[0-5]\d$/, 'La hora de fin debe tener formato HH:mm'],
     },
     cantidadPersonas: {
       type: Number,
       required: [true, 'La cantidad de personas es obligatoria'],
-      min: [1, 'La reservación debe ser al menos para 1 persona'],
+      min: [1, 'La reservacion debe ser al menos para 1 persona'],
     },
     estadoReservacion: {
       type: String,
       enum: {
-        values: ['RESERVADA', 'CANCELADA', 'EXPIRADA'],
-        message: 'El estado debe ser RESERVADA, CANCELADA o EXPIRADA',
+        values: ['PENDIENTE', 'CONFIRMADA', 'CANCELADA', 'COMPLETADA'],
+        message: 'Estado de reservacion invalido',
       },
-      default: 'RESERVADA',
+      default: 'PENDIENTE',
       uppercase: true,
     },
     idCliente: {
@@ -27,8 +37,19 @@ const reservacionSchema = new Schema(
     },
     idMesa: {
       type: Schema.Types.ObjectId,
-      ref: 'Mesa',
+      ref: 'Mesas',
       required: [true, 'El ID de la mesa es obligatorio'],
+    },
+    razonCancelacion: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    notas: {
+      type: String,
+      default: '',
+      trim: true,
+      maxlength: [500, 'Las notas no pueden superar 500 caracteres'],
     },
     isActive: {
       type: Boolean,
@@ -36,16 +57,14 @@ const reservacionSchema = new Schema(
     },
   },
   {
- 
     timestamps: true,
     versionKey: false,
   }
 );
 
-
 reservacionSchema.index({ idCliente: 1 });
 reservacionSchema.index({ idMesa: 1 });
 
-const Reservacion = model("Reservacion", reservacionSchema);
+const Reservacion = model('Reservacion', reservacionSchema);
 
 export default Reservacion;

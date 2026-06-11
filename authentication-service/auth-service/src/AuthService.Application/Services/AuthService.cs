@@ -10,6 +10,7 @@ using AuthService.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using AuthService.Application.DTOs.Email;
+using AuthService.Application.DTOs.Identity;
 using System.Security.Cryptography.X509Certificates;
 
 namespace AuthService.Application.Services;
@@ -22,6 +23,7 @@ public class AuthService(
     IJwtTokenService jwtTokenService,
     ICloudinaryService cloudinaryService,
     IEmailService emailService,
+    IClienteProvisioningClient clienteProvisioningClient,
     // IConfiguration configuration, // Removed unused parameter
     ILogger<AuthService> logger) : IAuthService
 {
@@ -95,7 +97,7 @@ public class AuthService(
     Password = passwordHashService.HashPassword(registerDto.Password),
 
     // 🔥 CAMBIO IMPORTANTE (DEV MODE)
-    Status = true,
+    Status = false,
 
     UserProfile = new UserProfile
     {
@@ -111,7 +113,7 @@ public class AuthService(
         UserId = userId,
 
         // 🔥 CAMBIO IMPORTANTE
-        EmailVerified = true,
+        EmailVerified = false,
 
         EmailVerificationToken = emailVerificationToken,
         EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
@@ -140,6 +142,58 @@ public class AuthService(
         var createdUser = await userRepository.CreateAsync(user);
 
         logger.LogUserRegistered(createdUser.Username);
+
+        var provisioningRequest = new ClienteProvisioningRequestDto
+        {
+            AuthUserId = createdUser.Id,
+            Nombre = createdUser.Name,
+            Apellido = createdUser.Surname,
+            Correo = createdUser.Email,
+            Telefono = createdUser.UserProfile.Phone
+        };
+
+        ClienteProvisioningResult provisioningResult;
+
+        try
+        {
+            provisioningResult = await clienteProvisioningClient.ProvisionAsync(provisioningRequest);
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(
+                exception,
+                "Unexpected Cliente provisioning exception after registration committed for " +
+                "AuthUserId {AuthUserId}",
+                createdUser.Id);
+
+            provisioningResult = ClienteProvisioningResult.Failure(
+                null,
+                0,
+                "IDENTITY_PROVISIONING_UNEXPECTED_ERROR",
+                exception.Message);
+        }
+
+        if (provisioningResult.Succeeded)
+        {
+            logger.LogInformation(
+                "Cliente provisioned for AuthUserId {AuthUserId} with ClienteId {ClienteId}. " +
+                "StatusCode {StatusCode}, Attempts {Attempts}",
+                createdUser.Id,
+                provisioningResult.Cliente?.Id,
+                provisioningResult.StatusCode,
+                provisioningResult.Attempts);
+        }
+        else
+        {
+            logger.LogError(
+                "Registration completed but Cliente provisioning failed for AuthUserId {AuthUserId}. " +
+                "StatusCode {StatusCode}, ErrorCode {ErrorCode}, ErrorMessage {ErrorMessage}, Attempts {Attempts}",
+                createdUser.Id,
+                provisioningResult.StatusCode,
+                provisioningResult.ErrorCode,
+                provisioningResult.ErrorMessage,
+                provisioningResult.Attempts);
+        }
 
         // Enviar email de verificación en background
         _ = Task.Run(async () =>
@@ -420,6 +474,15 @@ public class AuthService(
         await userRepository.UpdateAsync(user);
 
         logger.LogInformation("Password reset successfully for user {Username}", user.Username);
+
+        try
+        {
+            await emailService.SendPasswordChangedAsync(user.Email, user.Username);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send password changed confirmation to {Email}", user.Email);
+        }
 
         return new EmailResponseDto
         {

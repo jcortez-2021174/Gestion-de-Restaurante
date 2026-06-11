@@ -1,0 +1,127 @@
+.user-notifications-page {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.user-notification-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.user-notification-group {
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    #090909;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26);
+}
+
+.user-notification-group > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.user-notification-group > header > span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 14px;
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold);
+  font-size: 20px;
+}
+
+.user-notification-group h3 {
+  color: #f4ead6;
+  font-size: 17px;
+}
+
+.user-notification-group p {
+  margin-top: 3px;
+  color: #7d7d7d;
+  font-size: 12px;
+}
+
+.user-notification-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-notification-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.user-notification-card:last-child {
+  border-bottom: 0;
+}
+
+.user-notification-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.45);
+}
+
+.user-notification-card strong {
+  display: block;
+  overflow: hidden;
+  color: #f4f4f4;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-notification-card p {
+  margin: 5px 0;
+  color: #9a9a9a;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.user-notification-card small {
+  color: #686868;
+  font-size: 11px;
+}
+
+.user-notification-card em {
+  padding: 5px 8px;
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  border-radius: 999px;
+  background: rgba(212, 175, 55, 0.06);
+  color: var(--gold-soft);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .user-notification-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .user-notification-card {
+    grid-template-columns: 10px minmax(0, 1fr);
+  }
+
+  .user-notification-card em {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

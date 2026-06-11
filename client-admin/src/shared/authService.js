@@ -28,7 +28,7 @@ export const login = async (email, password) => {
       token: data.token,
     };
 
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: "No se pudo conectar al servidor",

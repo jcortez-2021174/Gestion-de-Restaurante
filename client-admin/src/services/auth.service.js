@@ -1,12 +1,15 @@
-import { authApi } from '@/shared/apis/api';
-import { ApiError } from '@/shared/apis/api';
+import { authApi, ApiError } from '@/shared/apis/api';
+import { getRegistrationErrorMessage } from '@/features/auth/registration.validation';
+import { createRegistrationFormData } from '@/features/auth/registration.contract';
+import { AUTH_STORAGE_KEY } from '@/features/auth/auth.storage';
+import { cachedGet } from '@/shared/apis/request-cache';
 
 /**
  * SERVICIO DE AUTENTICACIÓN (alineado a AuthController.cs)
- * Base: /v1/auth
+ * Base: /auth (the Axios instance already includes /api/v1)
  */
 
-const AUTH_BASE = '/v1/auth';
+const AUTH_BASE = '/auth';
 
 export const login = async (emailOrUsername, password) => {
   try {
@@ -47,11 +50,17 @@ export const login = async (emailOrUsername, password) => {
 
 export const register = async (userData) => {
   try {
-    // Backend espera [FromForm] RegisterDto -> usamos FormData
-    const fd = new FormData();
-    const { name, surname, email, password, avatar } = userData || {};
+    const {
+      name,
+      surname,
+      username,
+      email,
+      password,
+      phone,
+      profilePicture,
+    } = userData || {};
 
-    if (!name || !email || !password) {
+    if (!name || !surname || !username || !email || !password || !phone) {
       throw new ApiError({
         code: 'VALIDATION_ERROR',
         message: 'Campos requeridos faltantes',
@@ -60,11 +69,15 @@ export const register = async (userData) => {
       });
     }
 
-    fd.append('name', name);
-    if (surname) fd.append('surname', surname);
-    fd.append('email', email);
-    fd.append('password', password);
-    if (avatar) fd.append('avatar', avatar);
+    const fd = createRegistrationFormData({
+      name,
+      surname,
+      username,
+      email,
+      password,
+      phone,
+      profilePicture,
+    });
 
     const response = await authApi.post(`${AUTH_BASE}/register`, fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -72,11 +85,11 @@ export const register = async (userData) => {
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({
-        code: 'REGISTER_FAILED',
-        message: response.data.message || 'Registro fallido',
-        userMessage: response.data.message || 'Error al registrar. Intenta de nuevo.',
+        code: response.data?.errorCode || 'REGISTER_FAILED',
+        message: response.data?.message || 'Registro fallido',
+        userMessage: getRegistrationErrorMessage(response.data),
         statusCode: response.status,
-        details: response.data.errors,
+        details: response.data?.errors,
       });
     }
 
@@ -129,19 +142,19 @@ export const refreshToken = async (refreshToken) => {
 export const logout = async () => {
   try {
     // Enviar refreshToken en body como requiere el backend
-    const stored = localStorage.getItem('auth-restaurante-aurea');
+    const stored = localStorage.getItem(AUTH_STORAGE_KEY);
     let refreshToken = null;
     try {
       const parsed = JSON.parse(stored || '{}');
       refreshToken = parsed.state?.refreshToken || null;
-    } catch (e) {
+    } catch {
       refreshToken = null;
     }
 
     const payload = refreshToken ? { refreshToken } : {};
     const response = await authApi.post(`${AUTH_BASE}/logout`, payload);
     return response.data || { message: 'Sesión cerrada' };
-  } catch (error) {
+  } catch {
     console.warn('Logout request failed, but clearing local session anyway');
     return { message: 'Logged out' };
   }
@@ -149,7 +162,7 @@ export const logout = async () => {
 
 export const getProfile = async () => {
   try {
-    const response = await authApi.get(`${AUTH_BASE}/profile`);
+    const response = await cachedGet(authApi, `${AUTH_BASE}/profile`, {}, 30000);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -275,11 +288,11 @@ export const resetPassword = async (token, newPassword, confirmPassword) => {
       confirmPassword,
     });
 
-    if (response.status !== 200) {
+    if (response.status !== 200 || response.data?.success === false) {
       throw new ApiError({
         code: 'PASSWORD_RESET_FAILED',
         message: response.data.message || 'Error al cambiar contraseña',
-        userMessage: 'Error al cambiar tu contraseña.',
+        userMessage: response.data?.message || 'Error al cambiar tu contraseña.',
         statusCode: response.status,
       });
     }
@@ -309,11 +322,11 @@ export const verifyEmail = async (token) => {
 
     const response = await authApi.post(`${AUTH_BASE}/verify-email`, { token });
 
-    if (response.status !== 200) {
+    if (response.status !== 200 || response.data?.success === false) {
       throw new ApiError({
         code: 'EMAIL_VERIFY_FAILED',
         message: response.data.message || 'Error al verificar email',
-        userMessage: 'Error al verificar tu email.',
+        userMessage: response.data?.message || 'El enlace de verificación es inválido o ha expirado.',
         statusCode: response.status,
       });
     }

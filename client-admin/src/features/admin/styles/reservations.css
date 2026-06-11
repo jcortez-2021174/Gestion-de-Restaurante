@@ -984,3 +984,12 @@
     0 10px 20px rgba(212,175,55,0.2);
 }
 
+.reservation-live-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.reservation-live-stats article{background:#171717;border:1px solid #302c20;border-radius:14px;padding:18px;display:grid}
+.reservation-live-stats strong{font-size:28px;color:#d6b657}.reservation-live-stats span{font-size:11px;color:#888}
+.reservation-live-card{padding:20px;background:#141414}.reservation-live-list{display:grid;gap:10px}
+.reservation-live-row{display:grid;grid-template-columns:1.3fr 1fr .8fr 110px minmax(160px,auto);gap:14px;align-items:center;padding:14px;border:1px solid #2b2921;border-radius:12px}
+.reservation-live-row>div{display:grid}.reservation-live-row span{color:#888;font-size:12px}.reservation-status{padding:7px;border-radius:999px;text-align:center;border:1px solid #544725;color:#d6b657!important}
+.reservation-status.CANCELADA{border-color:#633;color:#e48b8b!important}.reservation-status.COMPLETADA{border-color:#28583a;color:#8bd8a7!important}
+.reservation-actions{display:flex!important;gap:6px}.reservation-actions button{background:#242219;border:0;color:#d6b657;border-radius:8px;padding:8px}
+@media(max-width:900px){.reservation-live-stats{grid-template-columns:repeat(2,1fr)}.reservation-live-row{grid-template-columns:1fr 1fr}.reservation-actions{grid-column:1/-1}}

@@ -392,6 +392,7 @@ export const ReservationsProvider = ({
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useReservations =
     () => useContext(
         ReservationsContext

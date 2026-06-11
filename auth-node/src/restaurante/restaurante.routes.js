@@ -1,8 +1,14 @@
 import { Router } from 'express';
-import { createRestaurante, getRestaurantes } from './restaurante.controller.js';
+import { createRestaurante, getRestaurantes, getConfiguracion, updateConfiguracion } from './restaurante.controller.js';
 import { validateCreateRestaurante } from '../../middlewares/restaurante-validator.js';
+import { validateJWT } from '../../middlewares/validate-jwt.js';
+import { authorizeRole } from '../../middlewares/authorize-role.js';
 
 const router = Router();
+
+router.use(validateJWT, authorizeRole('ADMIN_ROLE'));
+router.get('/configuracion', getConfiguracion);
+router.put('/configuracion', updateConfiguracion);
 
 /**
  * @swagger

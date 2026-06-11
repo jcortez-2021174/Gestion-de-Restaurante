@@ -660,3 +660,5 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.puntos-user-page{padding:28px}.puntos-progress-copy{font-size:13px;color:#aaa;margin-top:8px}.puntos-canjear-btn:disabled{opacity:.45;cursor:not-allowed}.reward-admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.reward-admin-card{padding:16px;display:grid;gap:14px;background:#141414}.reward-admin-card>img{width:100%;height:180px;object-fit:cover;border-radius:14px}.reward-admin-card>div{display:grid;gap:7px}.reward-admin-card strong{color:var(--gold)}.reward-active-field{display:flex;align-items:center;gap:9px;color:#ddd}@media(max-width:900px){.reward-admin-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.reward-admin-grid{grid-template-columns:1fr}.puntos-user-page{padding:18px}}

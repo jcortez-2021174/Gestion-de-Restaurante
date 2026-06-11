@@ -1,4 +1,5 @@
 import { restaurantApi, ApiError } from '@/shared/apis/api';
+import { cachedGet, invalidateRequestCache } from '@/shared/apis/request-cache';
 
 /**
  * SERVICIO DE PRODUCTOS (alineado a producto.routes.js / producto.controller.js)
@@ -6,12 +7,16 @@ import { restaurantApi, ApiError } from '@/shared/apis/api';
  * Solo expone: POST /producto  y  GET /producto
  */
 
-const PRODUCTO_FULL_BASE = (import.meta.env.VITE_RESTAURANT_FULL_BASE || 'http://localhost:3020') + '/AureaRestaurant/Admin/v1/producto';
+const PRODUCTO_BASE = '/producto';
 
-export const listarProductos = async () => {
+export const listarProductos = async (filters = {}) => {
   try {
-    // Llamada absoluta para evitar mismatch con restaurantApi.baseURL
-    const response = await restaurantApi.get(`${PRODUCTO_FULL_BASE}`);
+    const response = await cachedGet(
+      restaurantApi,
+      PRODUCTO_BASE,
+      { params: filters },
+      3000
+    );
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -36,7 +41,7 @@ export const listarProductos = async () => {
 
 export const crearProducto = async (productoData) => {
   try {
-    const { nombre, precio, disponibilidad, idCategoria } = productoData || {};
+    const { nombre, precio, disponibilidad, idCategoria, descripcion, imagen } = productoData || {};
 
     if (!nombre || precio === undefined || !idCategoria) {
       throw new ApiError({
@@ -47,7 +52,15 @@ export const crearProducto = async (productoData) => {
       });
     }
 
-    const response = await restaurantApi.post(`${PRODUCTO_FULL_BASE}`, { nombre, precio, disponibilidad, idCategoria });
+    const response = await restaurantApi.post(`${PRODUCTO_BASE}`, {
+      nombre,
+      precio,
+      disponibilidad,
+      idCategoria,
+      descripcion,
+      imagen,
+    });
+    invalidateRequestCache(PRODUCTO_BASE);
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({
@@ -71,7 +84,38 @@ export const crearProducto = async (productoData) => {
   }
 };
 
+export const actualizarProducto = async (id, productoData) => {
+  const response = await restaurantApi.put(`${PRODUCTO_BASE}/${id}`, productoData);
+  invalidateRequestCache(PRODUCTO_BASE);
+  if (response.status !== 200) {
+    throw new ApiError({
+      code: response.data?.code || 'PRODUCTO_UPDATE_FAILED',
+      message: response.data?.message || 'Error al actualizar producto',
+      userMessage: response.data?.message || 'Error al actualizar el producto.',
+      statusCode: response.status,
+      details: response.data?.errors,
+    });
+  }
+  return response.data;
+};
+
+export const eliminarProducto = async (id) => {
+  const response = await restaurantApi.delete(`${PRODUCTO_BASE}/${id}`);
+  invalidateRequestCache(PRODUCTO_BASE);
+  if (response.status !== 200) {
+    throw new ApiError({
+      code: response.data?.code || 'PRODUCTO_DELETE_FAILED',
+      message: response.data?.message || 'Error al eliminar producto',
+      userMessage: response.data?.message || 'Error al eliminar el producto.',
+      statusCode: response.status,
+    });
+  }
+  return response.data;
+};
+
 export default {
   listarProductos,
   crearProducto,
+  actualizarProducto,
+  eliminarProducto,
 };

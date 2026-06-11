@@ -6,7 +6,7 @@ services:
     container_name: gestion_restaurante
     environment:
       POSTGRES_USER: IN6AM
-      POSTGRES_PASSWORD: GestionRestaurante2026
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in pg/.env}
       POSTGRES_DB: GestionRestaurante
     ports:
       - "5435:5432"

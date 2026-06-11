@@ -1083,3 +1083,14 @@
   margin-top:12px;
 
 }
+.dashboard-live-metrics{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.dashboard-live-metrics article{display:flex;align-items:center;gap:14px;background:#171717;border:1px solid #2e2b21;border-radius:14px;padding:18px}
+.dashboard-live-metrics i{font-size:25px;color:#d6b657}.dashboard-live-metrics div{display:grid}.dashboard-live-metrics span{font-size:12px;color:#888}.dashboard-live-metrics strong{font-size:24px}
+.dashboard-live-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.dashboard-live-panel{padding:20px;background:#141414}.dashboard-live-panel:last-child{grid-column:1/-1}
+.dashboard-live-panel .section-header{justify-content:space-between;margin-bottom:14px}.dashboard-live-panel .section-header a{color:#d6b657}
+.dashboard-live-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #29271f}.dashboard-live-row>div{display:grid;flex:1}.dashboard-live-row span{font-size:12px;color:#888}
+.dashboard-rank{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#282319;color:#d6b657!important}.live-status{border:1px solid #4a4127;border-radius:999px;padding:6px 9px}
+.dashboard-chart-panel{min-height:300px}.dashboard-bars{height:220px;display:flex;align-items:flex-end;gap:14px;padding:20px 8px 0}.dashboard-bar-column{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;min-width:42px}.dashboard-bar-column>span{width:min(48px,80%);min-height:8px;border-radius:10px 10px 3px 3px;background:linear-gradient(180deg,#f2d675,#a98524);box-shadow:0 0 22px rgba(214,182,87,.15)}.dashboard-bar-column strong{font-size:11px;color:#d6b657}.dashboard-bar-column small{color:#888}
+@media(max-width:1000px){.dashboard-live-metrics{grid-template-columns:repeat(2,1fr)}.dashboard-live-grid{grid-template-columns:1fr}.dashboard-live-panel:last-child{grid-column:auto}}
+@media(max-width:560px){.dashboard-live-metrics{grid-template-columns:1fr}}
+.admin-export-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.admin-export-actions .btn-outline{min-width:auto;padding:9px 12px}
