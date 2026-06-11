@@ -5,11 +5,11 @@ import { restaurantApi, ApiError } from '@/shared/apis/api'
  * Backend ruta: /AureaRestaurant/Admin/v1/categoria
  */
 
-const CATEGORIA_FULL_BASE = (import.meta.env.VITE_RESTAURANT_FULL_BASE || 'http://localhost:3020') + '/AureaRestaurant/Admin/v1/categoria';
+const CATEGORIA_BASE = '/categoria';
 
 export const obtenerTodas = async () => {
   try {
-    const response = await restaurantApi.get(`${CATEGORIA_FULL_BASE}`);
+    const response = await restaurantApi.get(`${CATEGORIA_BASE}`);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -43,7 +43,7 @@ export const obtenerPorId = async (id) => {
       });
     }
 
-    const response = await restaurantApi.get(`${CATEGORIA_FULL_BASE}/${id}`);
+    const response = await restaurantApi.get(`${CATEGORIA_BASE}/${id}`);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -79,7 +79,7 @@ export const crear = async (categoriaData) => {
       });
     }
 
-    const response = await restaurantApi.post(`${CATEGORIA_FULL_BASE}`, categoriaData);
+    const response = await restaurantApi.post(`${CATEGORIA_BASE}`, categoriaData);
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({
@@ -114,7 +114,7 @@ export const actualizar = async (id, categoriaData) => {
       });
     }
 
-    const response = await restaurantApi.put(`${CATEGORIA_FULL_BASE}/${id}`, categoriaData);
+    const response = await restaurantApi.put(`${CATEGORIA_BASE}/${id}`, categoriaData);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -149,7 +149,7 @@ export const eliminar = async (id) => {
       });
     }
 
-    const response = await restaurantApi.delete(`${CATEGORIA_FULL_BASE}/${id}`);
+    const response = await restaurantApi.delete(`${CATEGORIA_BASE}/${id}`);
 
     if (response.status !== 200) {
       throw new ApiError({

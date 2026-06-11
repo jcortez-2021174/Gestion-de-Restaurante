@@ -9,7 +9,7 @@ import { restaurantApi, ApiError } from '@/shared/apis/api';
  * Estados: RESERVADA → CANCELADA/EXPIRADA (terminal)
  */
 
-const RESERVACIONES_BASE = '/reservaciones';
+const RESERVACIONES_BASE = '/reservacion';
 
 /**
  * Obtener todas las reservaciones con paginación y filtros

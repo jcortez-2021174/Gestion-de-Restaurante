@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { agregarProducto, listarProductosCtrl } from './producto.controller.js';
+import { agregarProducto, listarProductosCtrl, obtenerProductoPorIdCtrl, actualizarProductoCtrl, eliminarProductoCtrl } from './producto.controller.js';
 
 const router = Router();
 
@@ -100,5 +100,90 @@ router.post('/', validarProducto, agregarProducto);
  *         description: Error del servidor
  */
 router.get('/', listarProductosCtrl);
+
+/**
+ * @swagger
+ * /producto/{id}:
+ *   get:
+ *     summary: Obtener un producto por ID
+ *     tags: [Producto]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     responses:
+ *       200:
+ *         description: Producto encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Producto'
+ *       404:
+ *         description: Producto no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/:id', obtenerProductoPorIdCtrl);
+
+/**
+ * @swagger
+ * /producto/{id}:
+ *   put:
+ *     summary: Actualizar un producto
+ *     tags: [Producto]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Producto'
+ *     responses:
+ *       200:
+ *         description: Producto actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Producto'
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Producto no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.put('/:id', validarProducto, actualizarProductoCtrl);
+
+/**
+ * @swagger
+ * /producto/{id}:
+ *   delete:
+ *     summary: Eliminar un producto
+ *     tags: [Producto]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     responses:
+ *       200:
+ *         description: Producto eliminado correctamente
+ *       404:
+ *         description: Producto no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.delete('/:id', eliminarProductoCtrl);
 
 export default router;

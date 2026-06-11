@@ -2,19 +2,17 @@ import "../styles/dashboard.css";
 import { AdminLayout } from "../../../shared/layouts/AdminLayout";
 
 import { Link } from "react-router-dom";
-import { useMenu } from "../../../context/MenuContext";
 import { useEffect, useState } from "react";
 
 import { obtenerEstadisticas } from "../../../services/dashboard.service";
+import { listarProductos, crearProducto } from "../../../services/productos.service";
+import { obtenerTodas as obtenerCategorias } from "../../../services/categorias.service";
 
 export const DashboardPage = () => {
 
-  const {
-    dishes,
-    addDish,
-    editDish,
-    deleteDish
-  } = useMenu();
+  const [dishes, setDishes] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [stats, setStats] = useState({
     pedidosTotales: 0,
@@ -24,8 +22,9 @@ export const DashboardPage = () => {
   });
 
  const [newPlate, setNewPlate] = useState({
-  name: "",
-  price: "",
+  nombre: "",
+  idCategoria: "",
+  precio: "",
   description: "",
   image: ""
 });
@@ -41,6 +40,7 @@ export const DashboardPage = () => {
   useEffect(() => {
 
     loadDashboardStats();
+    loadProducts();
 
   }, []);
 
@@ -48,19 +48,90 @@ export const DashboardPage = () => {
 
     try {
 
-        const data = await obtenerEstadisticas();
+        const response = await obtenerEstadisticas();
 
-        console.log("Dashboard Data:", data);
+        console.log("Dashboard Data:", response);
 
-        setStats(data.stats || data);
+        const stats = response.data || response || { pedidosTotales: 0, reservasTotales: 0, mesasOcupadas: 0, clientesTotales: 0 };
+
+        setStats(stats);
 
     } catch (error) {
 
         console.error("Error Dashboard:", error);
 
+        setStats({ pedidosTotales: 0, reservasTotales: 0, mesasOcupadas: 0, clientesTotales: 0 });
+
     }
 
 };
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const [productosResponse, categoriasResponse] = await Promise.all([
+        listarProductos(),
+        obtenerCategorias()
+      ]);
+
+      const productosData = productosResponse.data || productosResponse || [];
+      const categoriasData = categoriasResponse.data || categoriasResponse || [];
+
+      const transformedProducts = Array.isArray(productosData) ? productosData.slice(0, 4).map(p => ({
+        id: p._id || p.id,
+        name: p.nombre,
+        category: categoriasData.find(c => c._id === p.idCategoria)?.nombre || 'Sin categoría',
+        price: p.precio,
+        status: p.disponibilidad === 'Disponible' ? 'Disponible' : 'No disponible',
+        image: p.image || "/plato1.jpeg",
+        description: p.descripcion || ""
+      })) : [];
+
+      setDishes(transformedProducts);
+      setCategorias(categoriasData);
+    } catch (error) {
+      console.error("Error loading products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addDish = async () => {
+    try {
+      const productoData = {
+        nombre: newPlate.nombre,
+        precio: parseFloat(newPlate.precio),
+        disponibilidad: 'Disponible',
+        idCategoria: newPlate.idCategoria
+      };
+
+      await crearProducto(productoData);
+      setShowAddModal(false);
+      setNewPlate({
+        nombre: "",
+        idCategoria: "",
+        precio: "",
+        description: "",
+        image: ""
+      });
+      loadProducts();
+    } catch (error) {
+      console.error("Error adding dish:", error);
+      alert("Error al agregar plato");
+    }
+  };
+
+  const editDish = (updatedDish) => {
+    // TODO: Implement edit functionality
+    console.log('Edit dish:', updatedDish);
+    setShowEditModal(false);
+  };
+
+  const deleteDish = (id) => {
+    // TODO: Implement delete functionality
+    console.log('Delete dish:', id);
+    setShowDeleteModal(false);
+  };
 
   return (
 
@@ -378,23 +449,40 @@ export const DashboardPage = () => {
           <input
             type="text"
             placeholder="Nombre del plato"
-            value={newPlate.name}
+            value={newPlate.nombre}
             onChange={(e) =>
               setNewPlate({
                 ...newPlate,
-                name: e.target.value
+                nombre: e.target.value
               })
             }
           />
 
-          <input
-            type="number"
-            placeholder="Precio"
-            value={newPlate.price}
+          <select
+            value={newPlate.idCategoria}
             onChange={(e) =>
               setNewPlate({
                 ...newPlate,
-                price: e.target.value
+                idCategoria: e.target.value
+              })
+            }
+          >
+            <option value="">Seleccionar categoría</option>
+            {categorias.map((categoria) => (
+              <option key={categoria._id} value={categoria._id}>
+                {categoria.nombre}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            placeholder="Precio"
+            value={newPlate.precio}
+            onChange={(e) =>
+              setNewPlate({
+                ...newPlate,
+                precio: e.target.value
               })
             }
           />
@@ -453,9 +541,10 @@ export const DashboardPage = () => {
 
                 setNewPlate({
                   nombre: "",
+                  idCategoria: "",
                   precio: "",
-                  descripcion: "",
-                  imagen: ""
+                  description: "",
+                  image: ""
                 });
 
                 setShowAddModal(false);
@@ -468,11 +557,12 @@ export const DashboardPage = () => {
             <button
               type="button"
               className="modal-save"
-              onClick={() => {
+              onClick={async () => {
 
              if(
-  !newPlate.name ||
-  !newPlate.price
+  !newPlate.nombre ||
+  !newPlate.precio ||
+  !newPlate.idCategoria
 ){
   alert(
     "Completa todos los campos"
@@ -481,39 +571,12 @@ export const DashboardPage = () => {
   return;
 }
 
-addDish({
-
-  id: Date.now(),
-
-  name: newPlate.name,
-
-  category: "Dashboard",
-
-  price: Number(newPlate.price).toFixed(2),
-
-  status: "Disponible",
-
-  image:
-    newPlate.image ||
-    "/plato1.jpeg",
-
-  description:
-    newPlate.description
-
-});
-
-                alert(
-                  "Plato agregado correctamente"
-                );
-
-     setNewPlate({
-  name: "",
-  price: "",
-  description: "",
-  image: ""
-});
-
-                setShowAddModal(false);
+try {
+  await addDish();
+  alert("Plato agregado correctamente");
+} catch (err) {
+  alert("Error al agregar plato: " + err.message);
+}
 
               }}
             >

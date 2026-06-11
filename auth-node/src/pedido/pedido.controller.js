@@ -3,7 +3,9 @@ import {
   listarPedidosService,
   editarPedidoService,
   eliminarPedidoService,
-  listarPedidosPorClienteService
+  listarPedidosPorClienteService,
+  cambiarEstadoPedidoService,
+  cancelarPedidoService
 } from "./pedido.service.js";
 
 export const agregarPedidoCtrl = async (req, res) => {
@@ -28,7 +30,7 @@ export const listarPedidosCtrl = async (req, res) => {
 export const obtenerPedidosClienteCtrl = async (req, res) => {
   try {
     // Asumiendo que validateJWT inyecta el usuario o el ID en req.user o req.uid
-    const clienteId = req.params.clienteId; 
+    const clienteId = req.params.clienteId;
     const pedidos = await listarPedidosPorClienteService(clienteId);
     res.json(pedidos);
   } catch (error) {
@@ -51,5 +53,33 @@ export const eliminarPedidoCtrl = async (req, res) => {
     res.json({ msg: "Pedido eliminado" });
   } catch (error) {
     res.status(500).json({ msg: "Error al eliminar pedido" });
+  }
+};
+
+export const cambiarEstadoPedidoCtrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!estado) {
+      return res.status(400).json({ msg: "El campo 'estado' es requerido" });
+    }
+
+    const pedido = await cambiarEstadoPedidoService(id, estado);
+    res.json(pedido);
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+export const cancelarPedidoCtrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { razon } = req.body;
+
+    const pedido = await cancelarPedidoService(id, razon);
+    res.json(pedido);
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
   }
 };

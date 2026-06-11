@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../auth/store/authStore";
-import { useOrders } from "../../../context/OrdersContext";
 
 
 export const ClientOrderPage = () => {

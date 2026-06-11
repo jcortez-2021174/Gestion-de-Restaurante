@@ -24,33 +24,21 @@ export const ClientsPage = () => {
     }, []);
 
     const getClientsDashboard = async () => {
-        
+        try {
+            const response = await obtenerDashboard();
+            // Handle both response formats: { data: [...] } or direct array
+            const clients = response.data || response.clientes || response || [];
+            setClientsData(clients);
 
-    try {
-
-        const data = await obtenerDashboard();
-
-        setClientsData(data.clientes || []);
-
-        if (data.clientes?.length > 0) {
-
-            setSelectedClient(
-                data.clientes[0]
-            );
-
+            if (clients.length > 0) {
+                setSelectedClient(clients[0]);
+            }
+        } catch (error) {
+            console.error('Error loading clients:', error);
+        } finally {
+            setLoading(false);
         }
-
-    } catch (error) {
-
-        console.error(error);
-
-    } finally {
-
-        setLoading(false);
-
-    }
-
-};
+    };
     /* =========================================
        SEARCH
     ========================================= */
@@ -68,24 +56,6 @@ export const ClientsPage = () => {
         );
 
     }, [search, clientsData]);
-
-    /* =========================================
-       LOADING
-    ========================================= */
-
-    if(loading){
-
-        return (
-
-            <div className="loading-screen">
-
-                <div className="loader"></div>
-
-            </div>
-
-        );
-
-    }
 
     return (
 
@@ -322,6 +292,12 @@ export const ClientsPage = () => {
 
                     <div className="clients-content card">
 
+                        {loading ? (
+                            <div className="loading-state">
+                                <p>Cargando clientes...</p>
+                            </div>
+                        ) : (
+                            <>
                         <div className="clients-table-header">
 
                             <span>
@@ -465,6 +441,9 @@ export const ClientsPage = () => {
                             }
 
                         </div>
+
+                            </>
+                        )}
 
                     </div>
 

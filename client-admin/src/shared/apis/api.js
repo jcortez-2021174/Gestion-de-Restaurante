@@ -9,8 +9,9 @@ import axios from 'axios';
 
 // Variables de entorno
 const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5022/api/v1';
-const RESTAURANT_API_URL = import.meta.env.VITE_RESTAURANT_API_URL || 'http://localhost:3020/api/v1';
-const REQUEST_TIMEOUT = parseInt(import.meta.env.VITE_REQUEST_TIMEOUT) || 10000;
+const RESTAURANT_API_URL =
+  import.meta.env.VITE_RESTAURANT_API_URL ||
+  'http://localhost:3020/AureaRestaurant/Admin/v1';const REQUEST_TIMEOUT = parseInt(import.meta.env.VITE_REQUEST_TIMEOUT) || 10000;
 const LOG_REQUESTS = import.meta.env.VITE_LOG_REQUESTS === 'true';
 
 /*

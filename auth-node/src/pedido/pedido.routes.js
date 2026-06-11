@@ -4,7 +4,9 @@ import {
   listarPedidosCtrl,
   editarPedidoCtrl,
   eliminarPedidoCtrl,
-  obtenerPedidosClienteCtrl // Agrupado aquí de manera limpia
+  obtenerPedidosClienteCtrl,
+  cambiarEstadoPedidoCtrl,
+  cancelarPedidoCtrl
 } from "./pedido.controller.js";
 
 import {
@@ -12,9 +14,7 @@ import {
   validatePedidoId
 } from "../../middlewares/pedido-validator.js";
 
-// 👇 AQUÍ ESTÁ LA CORRECCIÓN: Importamos el middleware que causaba el crash
-// Ajusta la ruta exacta si tu archivo de autenticación se llama diferente (ej. auth-validator.js)
-import { validateJWT } from "../../middlewares/validate-jwt.js"; 
+import { validateJWT } from "../../middlewares/validate-jwt.js";
 
 const router = Router();
 
@@ -190,5 +190,78 @@ router.put("/:id", validatePedidoId, validateCreatePedido, editarPedidoCtrl);
 router.delete("/:id", validatePedidoId, eliminarPedidoCtrl);
 
 router.get("/cliente/:clienteId", validateJWT, obtenerPedidosClienteCtrl);
+
+/**
+ * @swagger
+ * /pedido/{id}/estado:
+ * patch:
+ * summary: Cambiar estado de un pedido
+ * tags: [Pedido]
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID del pedido
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * required:
+ * - estado
+ * properties:
+ * estado:
+ * type: string
+ * enum: [Pendiente, EnPreparacion, Listo, Entregado, Cancelado]
+ * description: Nuevo estado del pedido
+ * responses:
+ * 200:
+ * description: Estado del pedido actualizado
+ * 400:
+ * description: Error de validación o transición inválida
+ * 404:
+ * description: Pedido no encontrado
+ * 500:
+ * description: Error del servidor
+ */
+router.patch("/:id/estado", validatePedidoId, cambiarEstadoPedidoCtrl);
+
+/**
+ * @swagger
+ * /pedido/{id}/cancelar:
+ * patch:
+ * summary: Cancelar un pedido
+ * tags: [Pedido]
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID del pedido
+ * requestBody:
+ * required: false
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * razon:
+ * type: string
+ * description: Razón de la cancelación
+ * responses:
+ * 200:
+ * description: Pedido cancelado
+ * 400:
+ * description: Error de validación
+ * 404:
+ * description: Pedido no encontrado
+ * 500:
+ * description: Error del servidor
+ */
+router.patch("/:id/cancelar", validatePedidoId, cancelarPedidoCtrl);
 
 export default router;

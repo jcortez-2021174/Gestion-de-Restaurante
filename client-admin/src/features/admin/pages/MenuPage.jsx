@@ -1,24 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  useMenu
-} from "../../../context/MenuContext";
+import { listarProductos, crearProducto } from "../../../services/productos.service";
+import { obtenerTodas as obtenerCategorias } from "../../../services/categorias.service";
 import "../styles/menu.css";
 
 export const MenuPage = () => {
 
-
-    const {
-  dishes,
-  addDish,
-  editDish,
-  deleteDish
-} = useMenu();
-
+    const [dishes, setDishes] = useState([]);
+    const [categorias, setCategorias] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [activeCategory, setActiveCategory] = useState("Todas");
 
-    const [selectedDish, setSelectedDish] = useState(dishes[0]);
+    const [selectedDish, setSelectedDish] = useState(null);
 
     const [search, setSearch] = useState("");
 
@@ -29,14 +24,94 @@ export const MenuPage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const [newDish, setNewDish] = useState({
-        name: "",
-        category: "",
-        price: "",
-        status: "Disponible",
+        nombre: "",
+        idCategoria: "",
+        precio: "",
+        disponibilidad: "Disponible",
         image: "",
         description: ""
     });
 
+    // Load products and categories on mount
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        try {
+            setLoading(true);
+            const [productosResponse, categoriasResponse] = await Promise.all([
+                listarProductos(),
+                obtenerCategorias()
+            ]);
+            
+            // Extract data from response objects
+            const productosData = productosResponse.data || productosResponse || [];
+            const categoriasData = categoriasResponse.data || categoriasResponse || [];
+            
+            // Transform backend data to frontend format
+            const transformedProducts = Array.isArray(productosData) ? productosData.map(p => ({
+                id: p._id || p.id,
+                name: p.nombre,
+                category: categoriasData.find(c => c._id === p.idCategoria)?.nombre || 'Sin categoría',
+                price: p.precio,
+                status: p.disponibilidad === 'Disponible' ? 'Disponible' : 'No disponible',
+                image: p.image || "/plato1.jpeg",
+                description: p.descripcion || "",
+                idCategoria: p.idCategoria
+            })) : [];
+
+            setDishes(transformedProducts);
+            setCategorias(categoriasData);
+            
+            if (transformedProducts.length > 0) {
+                setSelectedDish(transformedProducts[0]);
+            }
+        } catch (err) {
+            setError(err.message || 'Error al cargar productos');
+            console.error('Error loading products:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const addDish = async () => {
+        try {
+            const productoData = {
+                nombre: newDish.name,
+                precio: parseFloat(newDish.price),
+                disponibilidad: newDish.status === 'Disponible' ? 'Disponible' : 'NoDisponible',
+                idCategoria: newDish.idCategoria
+            };
+            
+            await crearProducto(productoData);
+            setShowAddModal(false);
+            setNewDish({
+                nombre: "",
+                idCategoria: "",
+                precio: "",
+                disponibilidad: "Disponible",
+                image: "",
+                description: ""
+            });
+            loadData(); // Reload products
+        } catch (err) {
+            setError(err.message || 'Error al crear producto');
+            console.error('Error creating product:', err);
+        }
+    };
+
+    const editDish = async (updatedDish) => {
+        // TODO: Implement edit functionality when backend endpoint is available
+        console.log('Edit dish:', updatedDish);
+        setShowEditModal(false);
+    };
+
+    const deleteDish = async (id) => {
+        // TODO: Implement delete functionality when backend endpoint is available
+        console.log('Delete dish:', id);
+        setShowDeleteModal(false);
+    };
 
     const filteredDishes = dishes.filter((dish) => {
 
@@ -206,6 +281,17 @@ export const MenuPage = () => {
                     {/* LEFT */}
                     <div className="menu-content card">
 
+                        {loading ? (
+                            <div className="loading-state">
+                                <p>Cargando productos...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="error-state">
+                                <p>Error: {error}</p>
+                                <button onClick={loadData}>Reintentar</button>
+                            </div>
+                        ) : (
+                            <>
                         {/* TOP */}
                         <div className="menu-top">
 
@@ -352,6 +438,9 @@ export const MenuPage = () => {
 
                         </div>
 
+                            </>
+                        )}
+
                     </div>
 
                     {/* RIGHT PANEL */}
@@ -461,22 +550,22 @@ export const MenuPage = () => {
           <input
             type="text"
             placeholder="Nombre"
-            value={newDish.name}
+            value={newDish.nombre}
             onChange={(e) =>
               setNewDish({
                 ...newDish,
-                name: e.target.value
+                nombre: e.target.value
               })
             }
           />
 
           {/* CATEGORÍAS */}
           <select
-            value={newDish.category}
+            value={newDish.idCategoria}
             onChange={(e) =>
               setNewDish({
                 ...newDish,
-                category: e.target.value
+                idCategoria: e.target.value
               })
             }
           >
@@ -486,13 +575,13 @@ export const MenuPage = () => {
             </option>
 
             {
-              categories.map((category, index) => (
+              categorias.map((categoria) => (
 
                 <option
-                  key={index}
-                  value={category}
+                  key={categoria._id}
+                  value={categoria._id}
                 >
-                  {category}
+                  {categoria.nombre}
                 </option>
 
               ))
@@ -504,11 +593,11 @@ export const MenuPage = () => {
           <input
             type="number"
             placeholder="Precio"
-            value={newDish.price}
+            value={newDish.precio}
             onChange={(e) =>
               setNewDish({
                 ...newDish,
-                price: e.target.value
+                precio: e.target.value
               })
             }
           />
@@ -572,13 +661,13 @@ export const MenuPage = () => {
 
                 setNewDish({
 
-                  name: "",
+                  nombre: "",
 
-                  category: "",
+                  idCategoria: "",
 
-                  price: "",
+                  precio: "",
 
-                  status:
+                  disponibilidad:
                     "Disponible",
 
                   image: "",
@@ -596,12 +685,12 @@ export const MenuPage = () => {
             <button
               type="button"
               className="modal-save"
-              onClick={() => {
+              onClick={async () => {
 
                 if(
-                  !newDish.name ||
-                  !newDish.category ||
-                  !newDish.price
+                  !newDish.nombre ||
+                  !newDish.idCategoria ||
+                  !newDish.precio
                 ){
 
                   alert(
@@ -611,55 +700,16 @@ export const MenuPage = () => {
                   return;
                 }
 
-                addDish({
-
-                  id: Date.now(),
-
-                  name:
-                    newDish.name,
-
-                  category:
-                    newDish.category,
-
-                  price:
-                    Number(
-                      newDish.price
-                    ).toFixed(2),
-
-                  status:
-                    "Disponible",
-
-                  image:
-                    newDish.image ||
-                    "/plato1.jpeg",
-
-                  description:
-                    newDish.description
-
-                });
-
-                alert(
-                  "Plato agregado correctamente"
-                );
-
-                setShowAddModal(false);
-
-                setNewDish({
-
-                  name: "",
-
-                  category: "",
-
-                  price: "",
-
-                  status:
-                    "Disponible",
-
-                  image: "",
-
-                  description: ""
-
-                });
+                try {
+                  await addDish();
+                  alert(
+                    "Plato agregado correctamente"
+                  );
+                } catch (err) {
+                  alert(
+                    "Error al agregar plato: " + err.message
+                  );
+                }
 
               }}
             >

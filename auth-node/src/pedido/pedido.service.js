@@ -27,3 +27,50 @@ export const editarPedidoService = async (id, data) => {
 export const eliminarPedidoService = async (id) => {
   return await Pedido.findByIdAndDelete(id);
 };
+
+// Valid state transitions for orders
+const validStateTransitions = {
+  "Pendiente": ["EnPreparacion", "Cancelado"],
+  "EnPreparacion": ["Listo", "Cancelado"],
+  "Listo": ["Entregado"],
+  "Entregado": [],
+  "Cancelado": []
+};
+
+export const cambiarEstadoPedidoService = async (id, nuevoEstado) => {
+  const pedido = await Pedido.findById(id);
+  if (!pedido) {
+    throw new Error("Pedido no encontrado");
+  }
+
+  const estadoActual = pedido.EstadoPedido;
+  const transicionesValidas = validStateTransitions[estadoActual] || [];
+
+  if (!transicionesValidas.includes(nuevoEstado)) {
+    throw new Error(`No se puede cambiar de "${estadoActual}" a "${nuevoEstado}". Transiciones válidas: ${transicionesValidas.join(", ")}`);
+  }
+
+  pedido.EstadoPedido = nuevoEstado;
+  return await pedido.save();
+};
+
+export const cancelarPedidoService = async (id, razon = "") => {
+  const pedido = await Pedido.findById(id);
+  if (!pedido) {
+    throw new Error("Pedido no encontrado");
+  }
+
+  if (pedido.EstadoPedido === "Cancelado") {
+    throw new Error("El pedido ya está cancelado");
+  }
+
+  if (pedido.EstadoPedido === "Entregado") {
+    throw new Error("No se puede cancelar un pedido ya entregado");
+  }
+
+  pedido.EstadoPedido = "Cancelado";
+  if (razon) {
+    pedido.RazonCancelacion = razon;
+  }
+  return await pedido.save();
+};

@@ -8,41 +8,92 @@ import {
 } from "react-router-dom";
 
 import {
-    useOrders
-} from "../../../context/OrdersContext";
+    obtenerTodos,
+    cambiarEstado,
+    eliminar,
+    cancelar
+} from "../../../services/pedidos.service";
 
 import "../styles/orders.css";
 
 export const OrdersPage = () => {
 
-    const {
-
-        orders,
-
-        updateOrderStatus,
-
-        deleteOrder,
-
-        rejectOrder
-
-    } = useOrders();
-
-    const [selectedOrder, setSelectedOrder] =
-        useState(null);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
+        loadOrders();
+    }, []);
 
-        if(
-            orders.length > 0 &&
-            !selectedOrder
-        ){
-
-            setSelectedOrder(
-                orders[0]
-            );
+    const loadOrders = async () => {
+        try {
+            setLoading(true);
+            const response = await obtenerTodos();
+            const ordersData = response.data || response || [];
+            
+            // Transform backend data to frontend format
+            const transformedOrders = Array.isArray(ordersData) ? ordersData.map(order => ({
+                id: order._id || order.id,
+                client: order.IdCliente?.nombre || order.cliente || 'Cliente',
+                phone: order.IdCliente?.correo || order.telefono || '',
+                type: order.tipo || 'Mesa',
+                address: order.direccion || order.IdMesa?.numero || 'Mesa ' + (order.IdMesa?.numero || ''),
+                status: order.EstadoPedido || order.estado || 'Pendiente',
+                hour: order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '',
+                total: order.total ? `Q${order.total.toFixed(2)}` : 'Q0.00',
+                createdAt: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
+                products: order.Productos?.map(p => ({
+                    imagen: p.IdProducto?.image || p.imagen || '/plato1.jpeg',
+                    nombre: p.IdProducto?.nombre || p.nombre,
+                    cantidad: p.cantidad,
+                    precio: p.precio
+                })) || []
+            })) : [];
+            
+            setOrders(transformedOrders);
+            if (transformedOrders.length > 0 && !selectedOrder) {
+                setSelectedOrder(transformedOrders[0]);
+            }
+        } catch (err) {
+            setError(err.message || 'Error al cargar pedidos');
+            console.error('Error loading orders:', err);
+        } finally {
+            setLoading(false);
         }
+    };
 
-    }, [orders]);
+    const updateOrderStatus = async (orderId, newStatus) => {
+        try {
+            await cambiarEstado(orderId, newStatus);
+            await loadOrders();
+        } catch (err) {
+            alert('Error al actualizar estado: ' + err.message);
+            console.error('Error updating order status:', err);
+        }
+    };
+
+    const deleteOrder = async (orderId) => {
+        try {
+            await eliminar(orderId);
+            await loadOrders();
+            setSelectedOrder(null);
+        } catch (err) {
+            alert('Error al eliminar pedido: ' + err.message);
+            console.error('Error deleting order:', err);
+        }
+    };
+
+    const rejectOrder = async (orderId, reason = '') => {
+        try {
+            await cancelar(orderId, reason);
+            await loadOrders();
+        } catch (err) {
+            alert('Error al rechazar pedido: ' + err.message);
+            console.error('Error rejecting order:', err);
+        }
+    };
 
     return (
 
@@ -226,6 +277,17 @@ export const OrdersPage = () => {
                     {/* LEFT */}
                     <div className="orders-content card">
 
+                        {loading ? (
+                            <div className="loading-state">
+                                <p>Cargando pedidos...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="error-state">
+                                <p>Error: {error}</p>
+                                <button onClick={loadOrders}>Reintentar</button>
+                            </div>
+                        ) : (
+                            <>
                         <div className="orders-top">
 
                             <div className="tabs">
@@ -366,6 +428,9 @@ export const OrdersPage = () => {
                             }
 
                         </div>
+
+                            </>
+                        )}
 
                     </div>
 

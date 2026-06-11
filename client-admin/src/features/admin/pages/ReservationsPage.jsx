@@ -8,24 +8,19 @@ import { Link }
 from "react-router-dom";
 
 import {
-    useReservations
-} from "../../../context/ReservationsContext";
+    obtenerTodas,
+    cambiarEstado,
+    eliminar,
+    crear
+} from "../../../services/reservaciones.service";
 
 import "../styles/reservations.css";
 
 export const ReservationsPage = () => {
 
-    const {
-
-        reservations,
-
-        setReservations,
-
-        updateReservationStatus,
-
-        deleteReservation
-
-    } = useReservations();
+    const [reservations, setReservations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     /* ===================================
        STATES
@@ -51,39 +46,75 @@ export const ReservationsPage = () => {
     setNewReservation] =
     useState({
 
-        client:"",
-
-        phone:"",
-
-        date:"",
-
-        hour:"",
-
-        people:"",
-
-        table:"",
-
-        notes:""
+        clienteId:"",
+        mesaId:"",
+        fecha:"",
+        horaInicio:"",
+        horaFin:"",
+        personas:"",
 
     });
 
     /* ===================================
-       AUTO SELECT
+       LOAD DATA
     =================================== */
 
     useEffect(() => {
+        loadReservations();
+    }, []);
 
-        if(
-            reservations.length > 0 &&
-            !selectedReservation
-        ){
-
-            setSelectedReservation(
-                reservations[0]
-            );
+    const loadReservations = async () => {
+        try {
+            setLoading(true);
+            const response = await obtenerTodas();
+            const reservationsData = response.data || response || [];
+            
+            // Transform backend data to frontend format
+            const transformedReservations = Array.isArray(reservationsData) ? reservationsData.map(res => ({
+                id: res._id || res.id,
+                client: res.idCliente?.nombre || res.cliente || 'Cliente',
+                phone: res.idCliente?.correo || res.telefono || '',
+                date: res.fechaReservacion ? new Date(res.fechaReservacion).toLocaleDateString() : res.fecha || '',
+                hour: res.horaInicio || res.hora || '',
+                people: res.cantidadPersonas || res.personas || 0,
+                table: res.idMesa?.numero || res.mesa || 'Masa ' + (res.idMesa?.numero || ''),
+                status: res.estadoReservacion || res.estado || 'Pendiente',
+                notes: res.notas || res.observaciones || '',
+                createdAt: res.createdAt ? new Date(res.createdAt).toLocaleDateString() : ''
+            })) : [];
+            
+            setReservations(transformedReservations);
+            if (transformedReservations.length > 0 && !selectedReservation) {
+                setSelectedReservation(transformedReservations[0]);
+            }
+        } catch (err) {
+            setError(err.message || 'Error al cargar reservaciones');
+            console.error('Error loading reservations:', err);
+        } finally {
+            setLoading(false);
         }
+    };
 
-    }, [reservations]);
+    const updateReservationStatus = async (reservationId, newStatus) => {
+        try {
+            await cambiarEstado(reservationId, newStatus);
+            await loadReservations();
+        } catch (err) {
+            alert('Error al actualizar estado: ' + err.message);
+            console.error('Error updating reservation status:', err);
+        }
+    };
+
+    const deleteReservation = async (reservationId) => {
+        try {
+            await eliminar(reservationId);
+            await loadReservations();
+            setSelectedReservation(null);
+        } catch (err) {
+            alert('Error al eliminar reservación: ' + err.message);
+            console.error('Error deleting reservation:', err);
+        }
+    };
 
     /* ===================================
        FILTERS
@@ -466,6 +497,17 @@ export const ReservationsPage = () => {
 
     <section className="reservations-table">
 
+        {loading ? (
+            <div className="loading-state">
+                <p>Cargando reservaciones...</p>
+            </div>
+        ) : error ? (
+            <div className="error-state">
+                <p>Error: {error}</p>
+                <button onClick={loadReservations}>Reintentar</button>
+            </div>
+        ) : (
+            <>
         <div className="section-header">
 
             <h2>
@@ -661,6 +703,9 @@ export const ReservationsPage = () => {
             }
 
         </div>
+
+            </>
+        )}
 
     </section>
 

@@ -6,12 +6,11 @@ import { restaurantApi, ApiError } from '@/shared/apis/api';
  * Solo expone: POST /producto  y  GET /producto
  */
 
-const PRODUCTO_FULL_BASE = (import.meta.env.VITE_RESTAURANT_FULL_BASE || 'http://localhost:3020') + '/AureaRestaurant/Admin/v1/producto';
+const PRODUCTO_BASE = '/producto';
 
 export const listarProductos = async () => {
   try {
-    // Llamada absoluta para evitar mismatch con restaurantApi.baseURL
-    const response = await restaurantApi.get(`${PRODUCTO_FULL_BASE}`);
+    const response = await restaurantApi.get(`${PRODUCTO_BASE}`);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -47,7 +46,7 @@ export const crearProducto = async (productoData) => {
       });
     }
 
-    const response = await restaurantApi.post(`${PRODUCTO_FULL_BASE}`, { nombre, precio, disponibilidad, idCategoria });
+    const response = await restaurantApi.post(`${PRODUCTO_BASE}`, { nombre, precio, disponibilidad, idCategoria });
 
     if (response.status !== 201 && response.status !== 200) {
       throw new ApiError({

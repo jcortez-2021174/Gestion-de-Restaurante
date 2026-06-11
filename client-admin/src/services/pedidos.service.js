@@ -9,7 +9,7 @@ import { restaurantApi, ApiError } from '@/shared/apis/api';
  * Estados: Pendiente → EnPreparacion/Cancelado → Listo/Cancelado → Entregado/Cancelado
  */
 
-const PEDIDOS_BASE = '/pedidos';
+const PEDIDOS_BASE = '/pedido';
 
 /**
  * Obtener todos los pedidos con paginación y filtros
