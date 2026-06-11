@@ -3,6 +3,7 @@ import Reservacion from "../reservacion/reservacion.model.js";
 import Mesa from "../mesas/mesas.model.js";
 import Cliente from "../cliente/cliente.model.js";
 import Producto from "../producto/producto.model.js";
+import MovimientoPuntos from "../puntos/movimiento-puntos.model.js";
 
 export const getDashboardStats = async () => {
     const now = new Date();
@@ -28,6 +29,7 @@ export const getDashboardStats = async () => {
         ultimosPedidos,
         ultimasReservaciones,
         topProductos,
+        puntosOtorgados,
     ] = await Promise.all([
         Pedido.countDocuments(),
         Pedido.countDocuments({ EstadoPedido: { $in: ['Pendiente', 'EnPreparacion', 'Listo'] } }),
@@ -64,6 +66,10 @@ export const getDashboardStats = async () => {
             { $sort: { cantidad: -1 } },
             { $limit: 5 },
         ]),
+        MovimientoPuntos.aggregate([
+            { $match: { createdAt: { $gte: startDay }, puntos: { $gt: 0 } } },
+            { $group: { _id: null, total: { $sum: '$puntos' } } },
+        ]),
     ]);
 
     return {
@@ -74,6 +80,7 @@ export const getDashboardStats = async () => {
         clientesTotales,
         productosDisponibles,
         productosAgotados,
+        puntosOtorgados: puntosOtorgados[0]?.total || 0,
         ventasDia: ventasDia[0]?.total || 0,
         ventasMes: ventasMes[0]?.total || 0,
         pedidosDia,

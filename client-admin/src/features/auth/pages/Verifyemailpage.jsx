@@ -1,146 +1,123 @@
-    import { useState, useEffect } from "react";
-    import { useNavigate } from "react-router-dom";
-    import { useAuthStore } from "../store/authStore";
-    import "../styles/auth.css";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { AuthFrame } from "../components/AuthFrame";
+import { resendVerificationEmail, verifyEmail } from "../../../services/auth.service";
+import { useAuthStore } from "../store/authStore";
 
-    export const VerifyEmailPage = () => {
-    const [status, setStatus] = useState("idle"); // idle | loading | success | error
-    const [message, setMessage] = useState("");
-    const navigate = useNavigate();
-    const logout = useAuthStore((state) => state.logout);
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+export const VerifyEmailPage = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+  const token = searchParams.get("token") || "";
+  const initialEmail = searchParams.get("email") || "";
+  const [email, setEmail] = useState(initialEmail);
+  const [status, setStatus] = useState(token ? "loading" : "missing-token");
+  const [message, setMessage] = useState("");
+  const [resendStatus, setResendStatus] = useState("idle");
 
-    useEffect(() => {
-        logout();
-        if (!token) {
+  useEffect(() => {
+    logout();
+  }, [logout]);
+
+  useEffect(() => {
+    if (!token) return;
+
+    let active = true;
+    const run = async () => {
+      setStatus("loading");
+      try {
+        const response = await verifyEmail(token);
+        if (!active) return;
+        setStatus("success");
+        setMessage(response?.message || "Correo verificado. Tu cuenta Aurea ya esta activa.");
+      } catch (error) {
+        if (!active) return;
         setStatus("error");
-        setMessage("No se encontró ningún token de verificación en el enlace.");
-        }
-    }, [token]);
-
-    const handleVerify = async () => {
-        setStatus("loading");
-        try {
-        const res = await fetch("http://localhost:5022/api/v1/auth/verify-email", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token }),
-        });
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-            setStatus("success");
-            setMessage(data.message || "Email verificado exitosamente.");
-        } else {
-            throw new Error(data.message || "No se pudo verificar el correo.");
-        }
-        } catch (err) {
-        setStatus("error");
-        setMessage(err.message || "El enlace puede haber expirado o ser inválido.");
-        }
+        setMessage(error.userMessage || "El enlace de verificacion expiro o no es valido.");
+      }
     };
 
-    return (
-        <div className="auth-page">
-        <div className="auth-bg" style={{ backgroundImage: "url('/Fondo.jpg')" }} />
-        <div className="auth-light auth-light-1" />
-        <div className="auth-light auth-light-2" />
-
-        <div className="auth-card" style={{ textAlign: "center" }}>
-
-            {/* Logo */}
-            <div className="auth-logo-wrap">
-            <img src="/logo.png" alt="Logo" className="auth-logo-img" />
-            </div>
-
-            {/* Ornamento */}
-            <div className="auth-ornament">
-            <div className="auth-orn-line" />
-            <div className="auth-orn-dot" />
-            <div className="auth-orn-diamond" />
-            <div className="auth-orn-dot" />
-            <div className="auth-orn-line" />
-            </div>
-
-            
-
-            {/* Título */}
-            <h2 className="auth-title" style={{ fontSize: 26, marginBottom: 10 }}>
-            {status === "success"
-                ? "¡Correo Verificado!"
-                : status === "error"
-                ? "Algo ha fallado"
-                : "Verificar Correo"}
-            </h2>
-
-            {/* Subtítulo */}
-            <p className="auth-subtitle">
-            {status === "success"
-                ? "Tu cuenta ha sido activada exitosamente. Ya puedes iniciar sesión."
-                : status === "error"
-                ? "No pudimos verificar tu correo electrónico."
-                : "Haz clic en el botón para confirmar tu dirección de correo y activar tu cuenta."}
-            </p>
-
-            {/* Mensaje de API */}
-            {message && status === "success" && (
-            <div className="auth-success-box" style={{ marginBottom: 20 }}>
-                <span style={{ color: "#50c878", fontSize: 14 }}>{message}</span>
-            </div>
-            )}
-
-            {message && status === "error" && (
-            <div className="auth-api-error" style={{ marginBottom: 20, justifyContent: "center" }}>
-                <span>{message}</span>
-            </div>
-            )}
-
-            {/* Botón principal */}
-            {status !== "success" && (
-            <button
-                className="btn-login"
-                onClick={handleVerify}
-                disabled={status === "loading" || !token}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}
-            >
-                {status === "loading" ? (
-                <>
-                    <div className="btn-spinner" />
-                    Verificando...
-                </>
-                ) : (
-                "Verificar sesión"
-                )}
-            </button>
-            )}
-
-            {/* Botón ir a login tras éxito */}
-            {status === "success" && (
-            <button
-                className="btn-login"
-                onClick={() => {
-                logout();
-                localStorage.removeItem("auth-restaurante-Aurea");
-                navigate("/login", { replace: true });
-                }}
-            >
-                Ir a iniciar sesión →
-            </button>
-            )}
-
-            {/* Botón reintentar tras error */}
-            {status === "error" && token && (
-            <button
-                className="btn-login"
-                onClick={handleVerify}
-                style={{ marginTop: 10, background: "rgba(255,255,255,0.08)", color: "#b5b5b5", boxShadow: "none" }}
-            >
-                Reintentar
-            </button>
-            )}
-
-        </div>
-        </div>
-    );
+    run();
+    return () => {
+      active = false;
     };
+  }, [token]);
+
+  const handleResend = async (event) => {
+    event.preventDefault();
+    setResendStatus("loading");
+    setMessage("");
+    try {
+      const response = await resendVerificationEmail(email.trim());
+      setResendStatus("success");
+      setMessage(response?.message || "Te enviamos un nuevo enlace de verificacion.");
+    } catch (error) {
+      setResendStatus("error");
+      setMessage(error.userMessage || "No pudimos reenviar el correo de verificacion.");
+    }
+  };
+
+  return (
+    <AuthFrame>
+      <div className="auth-content">
+        <span className="auth-eyebrow">Verificacion de correo</span>
+        <h1 className="auth-title">
+          {status === "success" ? "Correo verificado" : status === "loading" ? "Verificando..." : "Activa tu cuenta"}
+        </h1>
+        <p className="auth-subtitle">
+          {status === "success"
+            ? "Tu cuenta esta lista. Ya puedes iniciar sesion y disfrutar Aurea."
+            : "Confirmamos que el correo te pertenece para proteger tus reservas, pedidos y recompensas."}
+        </p>
+
+        {status === "loading" && (
+          <div className="auth-success-box auth-message-box">
+            <span className="btn-spinner" />
+            <p>Estamos validando el enlace seguro...</p>
+          </div>
+        )}
+
+        {status === "success" && (
+          <>
+            <div className="auth-success-box auth-message-box">
+              <span className="auth-success-mark">OK</span>
+              <p>{message}</p>
+            </div>
+            <button type="button" className="btn-login" onClick={() => navigate("/login", { replace: true })}>
+              Ir a iniciar sesion
+            </button>
+          </>
+        )}
+
+        {(status === "error" || status === "missing-token" || resendStatus === "error" || resendStatus === "success") && (
+          <div className={resendStatus === "success" ? "auth-success-box auth-message-box" : "auth-api-error auth-message-box"}>
+            {message || "El enlace no contiene un token valido o ya expiro."}
+          </div>
+        )}
+
+        {status !== "success" && (
+          <form className="auth-form auth-resend-form" onSubmit={handleResend}>
+            <label className="auth-field">
+              <span>Reenviar correo de verificacion</span>
+              <input
+                type="email"
+                placeholder="correo@ejemplo.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                disabled={resendStatus === "loading"}
+                autoComplete="email"
+              />
+            </label>
+            <button type="submit" className="auth-secondary-button" disabled={resendStatus === "loading" || !email}>
+              {resendStatus === "loading" ? "Enviando..." : "Reenviar correo"}
+            </button>
+          </form>
+        )}
+
+        <p className="auth-switch">
+          Ya verificaste tu cuenta? <Link to="/login">Iniciar sesion</Link>
+        </p>
+      </div>
+    </AuthFrame>
+  );
+};

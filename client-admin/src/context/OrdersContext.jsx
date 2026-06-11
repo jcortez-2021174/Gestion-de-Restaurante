@@ -501,6 +501,7 @@ export const OrdersProvider = ({
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useOrders =
     () => useContext(
         OrdersContext

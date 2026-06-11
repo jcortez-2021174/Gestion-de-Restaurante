@@ -1,9 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { authApi } from '../../../shared/apis/api';
-import { register as registerUser } from '../../../services/auth.service';
-import { AUTH_STORAGE_KEY } from '../auth.storage';
+import {
+  getProfile,
+  logout as logoutUser,
+  register as registerUser,
+} from '../../../services/auth.service';
+import { AUTH_STORAGE_KEY, clearPersistedSession } from '../auth.storage';
 import { getJwtRole } from '../jwt.claims';
+import { invalidateRequestCache } from '../../../shared/apis/request-cache';
 
 export const useAuthStore = create(
   persist(
@@ -15,7 +20,26 @@ export const useAuthStore = create(
       error: null,
       isAuthenticated: false,
 
-      logout: () => {
+      hydrateProfile: async () => {
+        try {
+          const response = await getProfile();
+          const profile = response?.data || response;
+          set((state) => ({
+            user: {
+              ...state.user,
+              ...profile,
+              role: profile?.role || state.user?.role,
+            },
+          }));
+          return profile;
+        } catch {
+          return null;
+        }
+      },
+
+      logout: async () => {
+        await logoutUser();
+        invalidateRequestCache();
         set({
           user: null,
           token: null,
@@ -23,6 +47,7 @@ export const useAuthStore = create(
           isAuthenticated: false,
           error: null,
         });
+        clearPersistedSession();
       },
 
       clearError: () => set({ error: null }),

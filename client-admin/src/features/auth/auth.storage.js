@@ -8,3 +8,8 @@ export const readPersistedAuth = () => {
     return null;
   }
 };
+
+export const clearPersistedSession = (storage = localStorage) => {
+  storage.removeItem(AUTH_STORAGE_KEY);
+  storage.removeItem('carrito-aurea');
+};

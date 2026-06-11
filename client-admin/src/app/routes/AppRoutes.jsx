@@ -7,6 +7,8 @@ import { getJwtRole } from "../../features/auth/jwt.claims";
 import { LoginPage } from "../../features/auth/pages/LoginPage";
 import { RegisterPage } from "../../features/auth/pages/RegisterPage";
 import { VerifyEmailPage } from "../../features/auth/pages/Verifyemailpage";
+import { ForgotPasswordPage } from "../../features/auth/pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "../../features/auth/pages/ResetPasswordPage";
 
 import { DashboardPage } from "../../features/admin/pages/DashboardPage";
 import { MenuPage } from "../../features/admin/pages/MenuPage";
@@ -24,6 +26,7 @@ import { UserMenuPage } from "../../features/user/pages/UserMenuPage";
 import { UserNosotrosPage } from "../../features/user/pages/UserNosotrosPage";
 import { UserReservasPage } from "../../features/user/pages/UserReservasPage";
 import { ClientOrderPage } from "../../features/user/pages/ClientOrderPage";
+import { UserNotificationsPage } from "../../features/user/pages/UserNotificationsPage";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
     const token = useAuthStore((state) => state.token);
@@ -72,6 +75,24 @@ export const AppRoutes = () => {
             />
 
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+            <Route
+                path="/forgot-password"
+                element={
+                    <PublicOnlyRoute>
+                        <ForgotPasswordPage />
+                    </PublicOnlyRoute>
+                }
+            />
+
+            <Route
+                path="/reset-password"
+                element={
+                    <PublicOnlyRoute>
+                        <ResetPasswordPage />
+                    </PublicOnlyRoute>
+                }
+            />
 
             <Route
                 path="/dashboard"
@@ -186,6 +207,15 @@ export const AppRoutes = () => {
                 element={
                     <ProtectedRoute>
                         <ClientOrderPage />
+                    </ProtectedRoute>
+                }
+            />
+
+            <Route
+                path="/user/notifications"
+                element={
+                    <ProtectedRoute>
+                        <UserNotificationsPage />
                     </ProtectedRoute>
                 }
             />

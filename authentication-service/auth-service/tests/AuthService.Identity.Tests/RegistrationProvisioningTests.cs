@@ -160,6 +160,8 @@ public sealed class RegistrationProvisioningTests
             Task.CompletedTask;
         public Task SendPasswordResetAsync(string email, string username, string token) =>
             Task.CompletedTask;
+        public Task SendPasswordChangedAsync(string email, string username) =>
+            Task.CompletedTask;
         public Task SendWelcomeEmailAsync(string email, string username) => Task.CompletedTask;
     }
 

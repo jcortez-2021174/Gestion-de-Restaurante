@@ -374,6 +374,17 @@ body {
   margin-bottom: 32px;
 }
 
+.auth-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 /* =========================================================
    FORM
 ========================================================= */
@@ -530,6 +541,74 @@ input:focus {
 
 .auth-switch a:hover {
   text-decoration: underline;
+}
+
+.auth-inline-action {
+  margin: -2px 0 4px;
+  text-align: right;
+}
+
+.auth-message-box {
+  margin-top: 18px;
+}
+
+.auth-message-box p {
+  color: #d7d7d7;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.auth-password-rules {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.auth-password-rules span {
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #888;
+  font-size: 11px;
+  text-align: center;
+}
+
+.auth-password-rules span.is-ok {
+  border-color: rgba(80, 200, 120, 0.26);
+  background: rgba(80, 200, 120, 0.1);
+  color: #8df0aa;
+}
+
+.auth-resend-form {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.auth-secondary-button {
+  min-height: 46px;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.07);
+  color: var(--gold-soft);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  transition: 0.2s ease;
+}
+
+.auth-secondary-button:not(:disabled):hover {
+  background: rgba(212, 175, 55, 0.13);
+}
+
+.auth-secondary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* =========================================================
@@ -702,6 +781,26 @@ input:focus {
 .auth-success-box .auth-title {
   margin: 4px 0 0;
   font-size: 30px;
+}
+
+.auth-reset-success {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-reset-success h2 {
+  margin-top: 2px;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 25px;
+}
+
+.auth-reset-success .auth-success-mark {
+  font-size: 24px;
+}
+
+.auth-success-detail {
+  color: #9e9e9e !important;
 }
 
 .auth-success-user {

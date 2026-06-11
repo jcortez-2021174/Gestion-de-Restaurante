@@ -1,4 +1,5 @@
 import  Cliente  from './cliente.model.js';
+import { registrarEventoAdmin } from '../notificaciones/notificacion.service.js';
 
 const normalizeEmail = (correo) => correo.trim().toLowerCase();
 
@@ -62,6 +63,16 @@ export const provisionarCliente = async (data) => {
     const cliente = await Cliente.create({
       authUserId,
       ...identityData,
+    });
+
+    registrarEventoAdmin({
+      evento: 'CLIENTE_REGISTRADO',
+      asunto: 'Nuevo cliente registrado',
+      resumen: `${cliente.nombre} ${cliente.apellido} se unio a Aurea.`,
+      categoria: 'CUENTA',
+      referencia: `cliente:${cliente._id}:registrado`,
+    }).catch((error) => {
+      console.error('No se pudo registrar la notificacion administrativa del cliente:', error.message);
     });
 
     return { cliente, created: true };

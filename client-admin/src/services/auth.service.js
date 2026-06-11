@@ -2,6 +2,7 @@ import { authApi, ApiError } from '@/shared/apis/api';
 import { getRegistrationErrorMessage } from '@/features/auth/registration.validation';
 import { createRegistrationFormData } from '@/features/auth/registration.contract';
 import { AUTH_STORAGE_KEY } from '@/features/auth/auth.storage';
+import { cachedGet } from '@/shared/apis/request-cache';
 
 /**
  * SERVICIO DE AUTENTICACIÓN (alineado a AuthController.cs)
@@ -161,7 +162,7 @@ export const logout = async () => {
 
 export const getProfile = async () => {
   try {
-    const response = await authApi.get(`${AUTH_BASE}/profile`);
+    const response = await cachedGet(authApi, `${AUTH_BASE}/profile`, {}, 30000);
 
     if (response.status !== 200) {
       throw new ApiError({
@@ -287,11 +288,11 @@ export const resetPassword = async (token, newPassword, confirmPassword) => {
       confirmPassword,
     });
 
-    if (response.status !== 200) {
+    if (response.status !== 200 || response.data?.success === false) {
       throw new ApiError({
         code: 'PASSWORD_RESET_FAILED',
         message: response.data.message || 'Error al cambiar contraseña',
-        userMessage: 'Error al cambiar tu contraseña.',
+        userMessage: response.data?.message || 'Error al cambiar tu contraseña.',
         statusCode: response.status,
       });
     }
@@ -321,11 +322,11 @@ export const verifyEmail = async (token) => {
 
     const response = await authApi.post(`${AUTH_BASE}/verify-email`, { token });
 
-    if (response.status !== 200) {
+    if (response.status !== 200 || response.data?.success === false) {
       throw new ApiError({
         code: 'EMAIL_VERIFY_FAILED',
         message: response.data.message || 'Error al verificar email',
-        userMessage: 'Error al verificar tu email.',
+        userMessage: response.data?.message || 'El enlace de verificación es inválido o ha expirado.',
         statusCode: response.status,
       });
     }

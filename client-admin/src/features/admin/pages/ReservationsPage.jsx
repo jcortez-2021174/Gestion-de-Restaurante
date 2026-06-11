@@ -11,7 +11,7 @@ import {
 import "../styles/reservations.css";
 import { useSmartPolling } from "../../../shared/hooks/useSmartPolling";
 import { ExportButtons } from "../../../shared/components/ExportButtons";
-import { printAureaDocument } from "../../../shared/utils/exports";
+import { printReservationVoucher } from "../../../shared/utils/exports";
 
 const initialForm = {
   id: null,
@@ -151,11 +151,7 @@ export const ReservationsPage = () => {
                 <div><strong>Mesa {reservation.mesaNumero}</strong><span>{reservation.personas} personas</span></div>
                 <span className={`reservation-status ${reservation.estado}`}>{reservation.estado}</span>
                 <div className="reservation-actions">
-                  <button onClick={() => printAureaDocument({
-                    title: "Comprobante de reservación",
-                    subtitle: `Reserva #${reservation.id.slice(-8)}`,
-                    content: `<p><strong>Cliente:</strong> ${reservation.clienteNombre}</p><p><strong>Mesa:</strong> ${reservation.mesaNumero}</p><p><strong>Fecha:</strong> ${reservation.fecha}</p><p><strong>Horario:</strong> ${reservation.horaInicio} - ${reservation.horaFin}</p><p><strong>Personas:</strong> ${reservation.personas}</p><p><strong>Estado:</strong> ${reservation.estado}</p>`,
-                  })}><i className="ri-printer-line" /></button>
+                  <button onClick={() => printReservationVoucher(reservation)}><i className="ri-printer-line" /></button>
                   <button onClick={() => setForm({ ...reservation })}><i className="ri-edit-line" /></button>
                   {(nextActions[reservation.estado] || []).map((action) => (
                     <button key={action.estado} onClick={() => transition(reservation, action.estado)}>{action.label}</button>

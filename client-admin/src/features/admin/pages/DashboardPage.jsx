@@ -36,7 +36,9 @@ export const DashboardPage = () => {
     ["Pedidos del dia", stats.pedidosDia, "ri-shopping-basket-line"],
     ["Pedidos activos", stats.pedidosActivos, "ri-shopping-bag-3-line"],
     ["Reservas activas", stats.reservasActivas, "ri-calendar-check-line"],
+    ["Mesas ocupadas", stats.mesasOcupadas, "ri-layout-grid-line"],
     ["Clientes", stats.clientesTotales, "ri-user-heart-line"],
+    ["Puntos otorgados hoy", stats.puntosOtorgados, "ri-vip-crown-line"],
     ["Productos disponibles", stats.productosDisponibles, "ri-restaurant-line"],
     ["Productos agotados", stats.productosAgotados, "ri-alert-line"],
   ] : [];

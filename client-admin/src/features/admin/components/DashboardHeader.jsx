@@ -18,7 +18,7 @@ const DashboardHeader = () => {
                 <div className="user">
                     <div className="user-info">
                         <span>Administrador</span>
-                        <small>admin@aurea.com</small>
+                        <small>loscodiguitos26@gmail.com</small>
                     </div>
                 </div>
 

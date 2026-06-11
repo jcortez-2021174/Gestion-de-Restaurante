@@ -12,6 +12,7 @@ const navigation = [
   { to: "/user/reservations", label: "Reservas", icon: "ri-calendar-line" },
   { to: "/user/orders", label: "Pedidos", icon: "ri-motorbike-line", cart: true },
   { to: "/user/puntos", label: "Puntos Aurea", icon: "ri-vip-crown-line" },
+  { to: "/user/notifications", label: "Notificaciones", icon: "ri-notification-3-line" },
   { to: "/user/nosotros", label: "Sobre Nosotros", icon: "ri-group-line" },
 ];
 
@@ -20,11 +21,13 @@ export const UserShell = ({ children, className = "", contentClassName = "" }) =
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const carrito = useCartStore((state) => state.carrito);
+  const clearCart = useCartStore((state) => state.vaciarCarrito);
   const navigate = useNavigate();
   const cartCount = carrito.reduce((total, item) => total + item.cantidad, 0);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    clearCart();
+    await logout();
     navigate("/login", { replace: true });
   };
 
@@ -95,9 +98,9 @@ export const UserShell = ({ children, className = "", contentClassName = "" }) =
               <i className="ri-phone-line" />
               <span>+502 1234 5678</span>
             </a>
-            <a href="mailto:hola@aurea.com">
+            <a href="mailto:loscodiguitos26@gmail.com">
               <i className="ri-mail-line" />
-              <span>hola@aurea.com</span>
+              <span>loscodiguitos26@gmail.com</span>
             </a>
             <div className="user-contact-address">
               <i className="ri-map-pin-line" />

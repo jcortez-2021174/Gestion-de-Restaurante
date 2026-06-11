@@ -8,6 +8,7 @@ import {
   bonoPorCantidadPedidos,
   progresoNivel,
 } from './puntos.constants.js';
+import { encolarRecompensa } from '../notificaciones/notificacion.service.js';
 
 export class PuntosError extends Error {
   constructor(code, message, status = 400) {
@@ -168,6 +169,12 @@ export const canjearRecompensa = async (clienteId, recompensaId) => {
     referencia,
     recompensaId,
     saldoResultante: cliente.puntosAurea,
+  });
+
+  await encolarRecompensa({
+    cliente,
+    recompensa: mapRecompensa(recompensa),
+    puntos: cliente.puntosAurea,
   });
 
   return {

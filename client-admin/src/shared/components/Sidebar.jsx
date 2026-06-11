@@ -1,98 +1,41 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-export const Sidebar = () => {
-    return (
-        <aside className="sidebar">
+const items = [
+  ["/dashboard", "ri-home-5-line", "Inicio"],
+  ["/menu", "ri-restaurant-line", "Menu"],
+  ["/orders", "ri-shopping-cart-line", "Pedidos"],
+  ["/reservations", "ri-calendar-line", "Reservas"],
+  ["/tables", "ri-table-line", "Mesas"],
+  ["/clients", "ri-user-line", "Clientes"],
+  ["/rewards", "ri-gift-line", "Recompensas"],
+  ["/reports", "ri-bar-chart-line", "Reportes"],
+  ["/settings", "ri-settings-3-line", "Configuracion"],
+];
 
-            <div className="logo-box">
-                <img src="/logo.png" alt="logo" />
-            </div>
+export const Sidebar = () => (
+  <aside className="sidebar">
+    <NavLink to="/dashboard" className="logo-box" aria-label="Aurea dashboard">
+      <img src="/logo.png" alt="Aurea Restaurant" />
+    </NavLink>
 
-            <ul className="menu">
+    <nav className="menu" aria-label="Navegacion administrativa">
+      {items.map(([to, icon, label]) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) => `menu-link${isActive ? " active" : ""}`}
+        >
+          <i className={icon} />
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </nav>
 
-                <li>
-                    <Link to="/dashboard" className="menu-link">
-                        <i className="ri-home-5-line"></i>
-                        Inicio
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/menu" className="menu-link">
-                        <i className="ri-restaurant-line"></i>
-                        Menú
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/orders" className="menu-link">
-                        <i className="ri-shopping-cart-line"></i>
-                        Pedidos
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/reservations" className="menu-link">
-                        <i className="ri-calendar-line"></i>
-                        Reservas
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/tables" className="menu-link">
-                        <i className="ri-table-line"></i>
-                        Mesas
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/clients" className="menu-link">
-                        <i className="ri-user-line"></i>
-                        Clientes
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/rewards" className="menu-link">
-                        <i className="ri-gift-line"></i>
-                        Recompensas
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/reports" className="menu-link">
-                        <i className="ri-bar-chart-line"></i>
-                        Reportes
-                    </Link>
-                </li>
-
-                <li>
-                    <Link to="/settings" className="menu-link">
-                        <i className="ri-settings-3-line"></i>
-                        Configuración
-                    </Link>
-                </li>
-
-            </ul>
-
-            <div className="sidebar-image">
-
-                <img src="/vino.jpg" alt="vino" />
-
-                <div className="overlay"></div>
-
-                <div className="sidebar-decor">
-                    <i className="ri-goblet-line"></i>
-                </div>
-
-                <p>
-                    No es solo comida,
-                    <br />
-                    es una experiencia.
-                </p>
-
-            </div>
-
-        </aside>
-    );
-};
+    <div className="sidebar-image">
+      <img src="/vino.jpg" alt="" />
+      <div className="overlay" />
+      <div className="sidebar-decor"><i className="ri-goblet-line" /></div>
+      <p>No es solo comida,<br />es una experiencia.</p>
+    </div>
+  </aside>
+);

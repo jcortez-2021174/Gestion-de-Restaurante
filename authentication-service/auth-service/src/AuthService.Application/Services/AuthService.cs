@@ -97,7 +97,7 @@ public class AuthService(
     Password = passwordHashService.HashPassword(registerDto.Password),
 
     // 🔥 CAMBIO IMPORTANTE (DEV MODE)
-    Status = true,
+    Status = false,
 
     UserProfile = new UserProfile
     {
@@ -113,7 +113,7 @@ public class AuthService(
         UserId = userId,
 
         // 🔥 CAMBIO IMPORTANTE
-        EmailVerified = true,
+        EmailVerified = false,
 
         EmailVerificationToken = emailVerificationToken,
         EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
@@ -474,6 +474,15 @@ public class AuthService(
         await userRepository.UpdateAsync(user);
 
         logger.LogInformation("Password reset successfully for user {Username}", user.Username);
+
+        try
+        {
+            await emailService.SendPasswordChangedAsync(user.Email, user.Username);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send password changed confirmation to {Email}", user.Email);
+        }
 
         return new EmailResponseDto
         {
