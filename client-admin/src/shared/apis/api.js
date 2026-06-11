@@ -1,5 +1,10 @@
 import axios from 'axios';
 import { AUTH_STORAGE_KEY, readPersistedAuth } from '@/features/auth/auth.storage';
+import {
+  isPublicAuthRequest,
+  rotatePersistedTokens,
+  shouldAttemptTokenRefresh,
+} from './auth-refresh';
 
 /**
  * CAPA DE CONFIGURACIÓN - API HTTP
@@ -12,8 +17,10 @@ import { AUTH_STORAGE_KEY, readPersistedAuth } from '@/features/auth/auth.storag
 const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:5022/api/v1';
 const RESTAURANT_API_URL =
   import.meta.env.VITE_RESTAURANT_API_URL ||
-  'http://localhost:3020/AureaRestaurant/Admin/v1';const REQUEST_TIMEOUT = parseInt(import.meta.env.VITE_REQUEST_TIMEOUT) || 10000;
+  'http://localhost:3020/AureaRestaurant/Admin/v1';
+const REQUEST_TIMEOUT = parseInt(import.meta.env.VITE_REQUEST_TIMEOUT) || 10000;
 const LOG_REQUESTS = import.meta.env.VITE_LOG_REQUESTS === 'true';
+const rejectUnauthorized = (status) => status !== 401 && status < 500;
 
 /*
  * Cliente Axios para el servicio de autenticación (.NET)
@@ -26,7 +33,7 @@ export const authApi = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  validateStatus: (status) => status < 500, // Aceptar 4xx (manejar en interceptor)
+  validateStatus: rejectUnauthorized,
 });
 
 /**
@@ -40,7 +47,16 @@ export const restaurantApi = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  validateStatus: (status) => status < 500,
+  validateStatus: rejectUnauthorized,
+});
+
+const refreshApi = axios.create({
+  baseURL: AUTH_API_URL,
+  timeout: REQUEST_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
 });
 
 /**
@@ -267,12 +283,12 @@ function getRefreshToken() {
 /**
  * Actualiza el token en localStorage
  */
-function setToken(token) {
+function setTokens(accessToken, refreshToken) {
   try {
     const parsed = readPersistedAuth();
     if (!parsed) return;
-    parsed.state.token = token;
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(parsed));
+    const rotated = rotatePersistedTokens(parsed, accessToken, refreshToken);
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(rotated));
   } catch (error) {
     console.error('[TOKEN] Error writing to localStorage:', error);
   }
@@ -282,26 +298,17 @@ function setToken(token) {
  * Intenta refrescar el token
  */
 async function refreshAccessToken(refreshToken) {
-  try {
-    const response = await authApi.post('/auth/refresh', {
-      refreshToken,
-    });
+  const response = await refreshApi.post('/auth/refresh', {
+    refreshToken,
+  });
 
-    if (response.status === 200 && response.data.accessToken) {
-      const newToken = response.data.accessToken;
-      setToken(newToken);
-      return newToken;
-    }
-
-    throw new Error('Invalid refresh response');
-  } catch (error) {
-    logError(error, '[REFRESH_TOKEN]');
-    // Limpiar tokens del localStorage
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    // Redirigir a login (lo hace el app global)
-    window.location.href = '/login';
-    throw error;
+  if (response.status === 200 && response.data.accessToken) {
+    const newToken = response.data.accessToken;
+    setTokens(newToken, response.data.refreshToken);
+    return newToken;
   }
+
+  throw new Error('Invalid refresh response');
 }
 
 // ============================================================================
@@ -350,7 +357,8 @@ function setupResponseInterceptor(instance) {
       return response;
     },
     async (error) => {
-      const { config, response } = error;
+      const config = error.config || {};
+      const { response } = error;
 
       // No aplicar lógica especial si ya es un retry
       if (config.__isRetry) {
@@ -369,8 +377,17 @@ function setupResponseInterceptor(instance) {
         return Promise.reject(networkError);
       }
 
-      // Manejar 401: Intentar refrescar token
-      if (response.status === 401) {
+      // Los servicios de login/registro conservan el manejo de sus propios 401.
+      if (response.status === 401 && isPublicAuthRequest(config.url)) {
+        return response;
+      }
+
+      // Manejar 401 de endpoints protegidos: intentar refrescar token.
+      if (shouldAttemptTokenRefresh({
+        status: response.status,
+        url: config.url,
+        isRetry: config.__isRetry,
+      })) {
         if (!isRefreshing) {
           isRefreshing = true;
 
