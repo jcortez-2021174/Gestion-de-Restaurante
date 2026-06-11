@@ -1,59 +1,65 @@
-import { body, param } from "express-validator";
-import { checkValidators } from "./check-validators.js";
-import { validateJWT } from "./validate-jwt.js";
+import { body, param } from 'express-validator';
+import { checkValidators } from './check-validators.js';
+import { ESTADOS_PEDIDO } from '../src/pedido/pedido.constants.js';
 
-const estadosPedido = ["Pendiente", "EnPreparacion", "Listo", "Entregado", "Cancelado"];
+const rejectUnexpectedFields = (allowedFields) => (req, res, next) => {
+  const unexpectedFields = Object.keys(req.body || {})
+    .filter((field) => !allowedFields.includes(field));
+
+  if (unexpectedFields.length > 0) {
+    return res.status(400).json({
+      success: false,
+      code: 'ORDER_FIELDS_NOT_ALLOWED',
+      message: `Campos no permitidos: ${unexpectedFields.join(', ')}`,
+    });
+  }
+
+  next();
+};
+
+const validateProductFields = (req, res, next) => {
+  const invalidItem = (req.body.productos || []).find((item) => {
+    const fields = Object.keys(item || {});
+    return fields.some((field) => !['productoId', 'cantidad'].includes(field));
+  });
+
+  if (invalidItem) {
+    return res.status(400).json({
+      success: false,
+      code: 'ORDER_PRODUCT_FIELDS_NOT_ALLOWED',
+      message: 'Cada producto solo puede incluir productoId y cantidad',
+    });
+  }
+
+  next();
+};
 
 export const validateCreatePedido = [
-  validateJWT,
-
-  body("Total")
-    .notEmpty().withMessage("Total requerido")
-    .isNumeric().withMessage("Total debe ser número"),
-
-  body("TipoPedido")
-    .notEmpty().withMessage("Tipo de pedido requerido")
-    .isIn(["Restaurante", "Domicilio"]).withMessage("Tipo de pedido no válido"),
-
-  body("MetodoPago")
-    .notEmpty().withMessage("Método de pago requerido")
-    .isIn(["Efectivo", "Tarjeta"]).withMessage("Método de pago no válido"),
-
-  body("Productos")
-    .isArray({ min: 1 }).withMessage("El pedido debe contener al menos un producto"),
-
-  body("Productos.*.IdProducto")
-    .notEmpty().isMongoId().withMessage("Id del producto no válido"),
-
-  body("Productos.*.Cantidad")
-    .isInt({ min: 1 }).withMessage("La cantidad debe ser un entero mayor a 0"),
-
-  body("Productos.*.PrecioUnitario")
-    .isNumeric().withMessage("Precio unitario debe ser numérico"),
-
-  body("EstadoPedido")
-    .optional()
-    .isIn(estadosPedido)
-    .withMessage("EstadoPedido no válido"),
-
-  body("IdCliente")
-    .notEmpty().withMessage("IdCliente requerido")
-    .isMongoId().withMessage("IdCliente no válido"),
-
-  body("IdMesa")
-    .optional()
-    .custom((value, { req }) => {
-      if (req.body.TipoPedido === "Restaurante" && !value) {
-        throw new Error("El IdMesa es requerido si el tipo de pedido es Restaurante");
-      }
-      return true;
-    }),
-
+  rejectUnexpectedFields(['mesaId', 'productos']),
+  validateProductFields,
+  body('mesaId')
+    .optional({ nullable: true })
+    .isMongoId().withMessage('mesaId no es un ObjectId valido'),
+  body('productos')
+    .isArray({ min: 1, max: 50 })
+    .withMessage('El pedido debe contener entre 1 y 50 productos'),
+  body('productos.*.productoId')
+    .isMongoId().withMessage('productoId no es un ObjectId valido'),
+  body('productos.*.cantidad')
+    .isInt({ min: 1, max: 100 })
+    .withMessage('cantidad debe ser un entero entre 1 y 100'),
   checkValidators,
 ];
 
 export const validatePedidoId = [
-  validateJWT,
-  param("id").isMongoId().withMessage("Id pedido no válido"),
+  param('id').isMongoId().withMessage('Id pedido no valido'),
+  checkValidators,
+];
+
+export const validateEstadoPedido = [
+  rejectUnexpectedFields(['estado']),
+  body('estado')
+    .isIn(ESTADOS_PEDIDO)
+    .withMessage('Estado de pedido no valido'),
   checkValidators,
 ];

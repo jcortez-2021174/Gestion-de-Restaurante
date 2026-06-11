@@ -18,6 +18,7 @@ import reservacionRoutes from '../src/reservacion/reservacion.routes.js';
 import pedidoRoutes from "../src/pedido/pedido.routes.js";
 import categoriaRoutes from '../src/categoria/categoria.routes.js';
 import dashboardRoutes from "../src/dashboard/dashboard.routes.js";
+import identityRoutes from "../src/identity/identity.routes.js";
 
 const BASE_PATH = '/AureaRestaurant/Admin/v1';
 
@@ -30,6 +31,7 @@ const routes = (app) => {
     app.use(`${BASE_PATH}/pedido`, pedidoRoutes);
     app.use(`${BASE_PATH}/categoria`, categoriaRoutes); 
     app.use(`${BASE_PATH}/dashboard`, dashboardRoutes);
+    app.use(`${BASE_PATH}/internal/identity`, identityRoutes);
     
     app.get(`${BASE_PATH}/health`, (req, res) => {
         res.status(200).json({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 // Validación de campos
@@ -38,7 +38,7 @@ export const LoginForm = ({ onForgot }) => {
 
     useEffect(() => {
         clearError();
-    }, []);
+    }, [clearError]);
 
     const handleBlur = (field) => {
         setTouched((prev) => ({ ...prev, [field]: true }));
@@ -171,6 +171,10 @@ export const LoginForm = ({ onForgot }) => {
                     {error}
                 </p>
             )}
+
+            <p className="auth-switch">
+                ¿No tienes cuenta? <Link to="/register">Crear cuenta</Link>
+            </p>
         </form>
     );
 };

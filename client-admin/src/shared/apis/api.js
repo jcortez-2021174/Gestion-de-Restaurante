@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { AUTH_STORAGE_KEY, readPersistedAuth } from '@/features/auth/auth.storage';
 
 /**
  * CAPA DE CONFIGURACIÓN - API HTTP
@@ -244,11 +245,7 @@ const processQueue = (error, token = null) => {
  */
 function getToken() {
   try {
-    const auth = localStorage.getItem('auth-restaurante-aurea');
-    if (!auth) return null;
-    
-    const parsed = JSON.parse(auth);
-    return parsed.state?.token || null;
+    return readPersistedAuth()?.state?.token || null;
   } catch (error) {
     console.error('[TOKEN] Error reading from localStorage:', error);
     return null;
@@ -260,11 +257,7 @@ function getToken() {
  */
 function getRefreshToken() {
   try {
-    const auth = localStorage.getItem('auth-restaurante-aurea');
-    if (!auth) return null;
-    
-    const parsed = JSON.parse(auth);
-    return parsed.state?.refreshToken || null;
+    return readPersistedAuth()?.state?.refreshToken || null;
   } catch (error) {
     console.error('[REFRESH_TOKEN] Error reading from localStorage:', error);
     return null;
@@ -276,12 +269,10 @@ function getRefreshToken() {
  */
 function setToken(token) {
   try {
-    const auth = localStorage.getItem('auth-restaurante-aurea');
-    if (!auth) return;
-    
-    const parsed = JSON.parse(auth);
+    const parsed = readPersistedAuth();
+    if (!parsed) return;
     parsed.state.token = token;
-    localStorage.setItem('auth-restaurante-aurea', JSON.stringify(parsed));
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(parsed));
   } catch (error) {
     console.error('[TOKEN] Error writing to localStorage:', error);
   }
@@ -306,7 +297,7 @@ async function refreshAccessToken(refreshToken) {
   } catch (error) {
     logError(error, '[REFRESH_TOKEN]');
     // Limpiar tokens del localStorage
-    localStorage.removeItem('auth-restaurante-aurea');
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     // Redirigir a login (lo hace el app global)
     window.location.href = '/login';
     throw error;
@@ -365,7 +356,7 @@ function setupResponseInterceptor(instance) {
       if (config.__isRetry) {
         if (response?.status === 401) {
           // Redirigir a login
-          localStorage.removeItem('auth-restaurante-aurea');
+          localStorage.removeItem(AUTH_STORAGE_KEY);
           window.location.href = '/login';
         }
         return Promise.reject(mapHttpError(response?.status || 500, response?.data));
@@ -388,7 +379,7 @@ function setupResponseInterceptor(instance) {
 
             if (!refreshToken) {
               // No hay refresh token, forzar login
-              localStorage.removeItem('auth-restaurante-aurea');
+              localStorage.removeItem(AUTH_STORAGE_KEY);
               window.location.href = '/login';
               isRefreshing = false;
               return Promise.reject(
@@ -419,7 +410,7 @@ function setupResponseInterceptor(instance) {
             isRefreshing = false;
 
             // Redirigir a login
-            localStorage.removeItem('auth-restaurante-aurea');
+            localStorage.removeItem(AUTH_STORAGE_KEY);
             window.location.href = '/login';
 
             return Promise.reject(

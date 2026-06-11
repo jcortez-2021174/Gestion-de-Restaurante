@@ -1,8 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import { useAuthStore } from "../../features/auth/store/authStore";
+import { getAuthenticatedHome } from "../../features/auth/auth.navigation";
 
 import { LoginPage } from "../../features/auth/pages/LoginPage";
+import { RegisterPage } from "../../features/auth/pages/RegisterPage";
 import { VerifyEmailPage } from "../../features/auth/pages/Verifyemailpage";
 
 import { DashboardPage } from "../../features/admin/pages/DashboardPage";
@@ -31,17 +33,35 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-export const AppRoutes = () => {
+const PublicOnlyRoute = ({ children }) => {
     const token = useAuthStore((state) => state.token);
+    const role = useAuthStore((state) => state.user?.role);
 
+    if (token) {
+        return <Navigate to={getAuthenticatedHome(role)} replace />;
+    }
+
+    return children;
+};
+
+export const AppRoutes = () => {
     return (
         <Routes>
             <Route
                 path="/login"
                 element={
-                    !token
-                        ? <LoginPage />
-                        : <Navigate to="/dashboard" replace />
+                    <PublicOnlyRoute>
+                        <LoginPage />
+                    </PublicOnlyRoute>
+                }
+            />
+
+            <Route
+                path="/register"
+                element={
+                    <PublicOnlyRoute>
+                        <RegisterPage />
+                    </PublicOnlyRoute>
                 }
             />
 

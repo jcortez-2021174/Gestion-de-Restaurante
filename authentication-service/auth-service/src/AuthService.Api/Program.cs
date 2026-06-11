@@ -3,6 +3,8 @@ using AuthService.Persistence.Data;
 using AuthService.Application.Interfaces;
 using AuthService.Application.Services;
 using AuthService.Domain.Interfaces;
+using AuthService.Api.Infrastructure.RestaurantApi;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,24 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.Configure<RestaurantApiOptions>(
+    builder.Configuration.GetSection(RestaurantApiOptions.SectionName));
+builder.Services.AddHttpClient<IClienteProvisioningClient, ClienteProvisioningClient>(
+    (serviceProvider, client) =>
+    {
+        var options = serviceProvider
+            .GetRequiredService<IOptions<RestaurantApiOptions>>()
+            .Value;
+
+        if (!Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var baseUri))
+        {
+            throw new InvalidOperationException(
+                "RestaurantApi:BaseUrl must be a valid absolute URL.");
+        }
+
+        client.BaseAddress = baseUri;
+        client.Timeout = TimeSpan.FromSeconds(Math.Max(1, options.TimeoutSeconds));
+    });
 
 //  ESTE ERA EL QUE TE FALTABA (ERROR PRINCIPAL)
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
@@ -81,6 +101,7 @@ app.MapGet("/", () => "API funcionando");
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
     await DataSeeder.SeedAsync(db);
 }
 

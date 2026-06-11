@@ -1,85 +1,75 @@
 import {
-  crearPedidoService,
-  listarPedidosService,
-  editarPedidoService,
-  eliminarPedidoService,
-  listarPedidosPorClienteService,
+  PedidoError,
   cambiarEstadoPedidoService,
-  cancelarPedidoService
-} from "./pedido.service.js";
+  crearPedidoService,
+  listarPedidosPorClienteService,
+  listarPedidosService,
+  obtenerPedidoPorIdService,
+} from './pedido.service.js';
+
+const sendError = (res, error, fallbackMessage) => {
+  if (error instanceof PedidoError) {
+    return res.status(error.status).json({
+      success: false,
+      code: error.code,
+      message: error.message,
+    });
+  }
+
+  console.error(fallbackMessage, error);
+  return res.status(500).json({
+    success: false,
+    code: 'ORDER_INTERNAL_ERROR',
+    message: fallbackMessage,
+  });
+};
 
 export const agregarPedidoCtrl = async (req, res) => {
   try {
-    const pedido = await crearPedidoService(req.body);
-    res.status(201).json(pedido);
+    const pedido = await crearPedidoService({
+      clienteId: req.cliente._id,
+      mesaId: req.body.mesaId ?? null,
+      productos: req.body.productos,
+    });
+
+    return res.status(201).json({ success: true, data: pedido });
   } catch (error) {
-    res.status(500).json({ msg: "Error al crear pedido", error: error.message });
+    return sendError(res, error, 'No se pudo crear el pedido');
   }
 };
 
 export const listarPedidosCtrl = async (req, res) => {
   try {
     const pedidos = await listarPedidosService();
-    res.json(pedidos);
+    return res.status(200).json({ success: true, data: pedidos });
   } catch (error) {
-    res.status(500).json({ msg: "Error al listar pedidos" });
+    return sendError(res, error, 'No se pudieron listar los pedidos');
   }
 };
 
-// NUEVO: Obtener tracking en tiempo real del usuario autenticado
-export const obtenerPedidosClienteCtrl = async (req, res) => {
+export const obtenerMisPedidosCtrl = async (req, res) => {
   try {
-    // Asumiendo que validateJWT inyecta el usuario o el ID en req.user o req.uid
-    const clienteId = req.params.clienteId;
-    const pedidos = await listarPedidosPorClienteService(clienteId);
-    res.json(pedidos);
+    const pedidos = await listarPedidosPorClienteService(req.cliente._id);
+    return res.status(200).json({ success: true, data: pedidos });
   } catch (error) {
-    res.status(500).json({ msg: "Error al obtener seguimiento del pedido" });
+    return sendError(res, error, 'No se pudo obtener el historial de pedidos');
   }
 };
 
-export const editarPedidoCtrl = async (req, res) => {
+export const obtenerPedidoPorIdCtrl = async (req, res) => {
   try {
-    const pedido = await editarPedidoService(req.params.id, req.body);
-    res.json(pedido);
+    const pedido = await obtenerPedidoPorIdService(req.params.id);
+    return res.status(200).json({ success: true, data: pedido });
   } catch (error) {
-    res.status(500).json({ msg: "Error al editar pedido" });
-  }
-};
-
-export const eliminarPedidoCtrl = async (req, res) => {
-  try {
-    await eliminarPedidoService(req.params.id);
-    res.json({ msg: "Pedido eliminado" });
-  } catch (error) {
-    res.status(500).json({ msg: "Error al eliminar pedido" });
+    return sendError(res, error, 'No se pudo obtener el pedido');
   }
 };
 
 export const cambiarEstadoPedidoCtrl = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { estado } = req.body;
-
-    if (!estado) {
-      return res.status(400).json({ msg: "El campo 'estado' es requerido" });
-    }
-
-    const pedido = await cambiarEstadoPedidoService(id, estado);
-    res.json(pedido);
+    const pedido = await cambiarEstadoPedidoService(req.params.id, req.body.estado);
+    return res.status(200).json({ success: true, data: pedido });
   } catch (error) {
-    res.status(400).json({ msg: error.message });
-  }
-};
-
-export const cancelarPedidoCtrl = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { razon } = req.body;
-
-    const pedido = await cancelarPedidoService(id, razon);
-    res.json(pedido);
-  } catch (error) {
-    res.status(400).json({ msg: error.message });
+    return sendError(res, error, 'No se pudo actualizar el estado del pedido');
   }
 };
