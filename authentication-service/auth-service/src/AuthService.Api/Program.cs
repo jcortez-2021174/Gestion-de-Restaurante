@@ -20,6 +20,10 @@ Env.Load();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Configuration["SmtpSettings:IgnoreCertificateErrors"] =
+    Environment.GetEnvironmentVariable("SMTP_IGNORE_CERTIFICATE_ERRORS");
+builder.Configuration["RestaurantApi:ProvisioningKey"] =
+    Environment.GetEnvironmentVariable("IDENTITY_PROVISIONING_KEY");
 
 // =========================
 // Base de datos
@@ -34,28 +38,58 @@ var connectionString =
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+builder.Configuration["SmtpSettings:Host"] =
+Environment.GetEnvironmentVariable("SMTP_HOST");
+
+builder.Configuration["SmtpSettings:Port"] =
+    Environment.GetEnvironmentVariable("SMTP_PORT");
+
+builder.Configuration["SmtpSettings:Username"] =
+    Environment.GetEnvironmentVariable("SMTP_USER");
+
+builder.Configuration["SmtpSettings:Password"] =
+    Environment.GetEnvironmentVariable("SMTP_PASS");
+
+builder.Configuration["SmtpSettings:FromEmail"] =
+    Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL");
+
+builder.Configuration["SmtpSettings:FromName"] =
+    Environment.GetEnvironmentVariable("SMTP_FROM_NAME");
+
+
 // =========================
 // JWT Authentication
 // =========================
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
-{
-options.TokenValidationParameters = new TokenValidationParameters
-{
-ValidateIssuer = true,
-ValidateAudience = true,
-ValidateLifetime = true,
-ValidateIssuerSigningKey = true,
 
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(
-                builder.Configuration["JwtSettings:SecretKey"]!
-            ))
-    };
-});
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException(
+        "JWT_SECRET no está configurado en el archivo .env");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSecret)
+            )
+        };
+    });
 
 builder.Services.AddAuthorization();
 

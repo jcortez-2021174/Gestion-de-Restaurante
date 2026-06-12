@@ -23,19 +23,42 @@ export const VerifyEmailPage = () => {
     if (!token) return;
 
     let active = true;
-    const run = async () => {
-      setStatus("loading");
-      try {
-        const response = await verifyEmail(token);
-        if (!active) return;
-        setStatus("success");
-        setMessage(response?.message || "Correo verificado. Tu cuenta Aurea ya esta activa.");
-      } catch (error) {
-        if (!active) return;
-        setStatus("error");
-        setMessage(error.userMessage || "El enlace de verificacion expiro o no es valido.");
-      }
-    };
+   const run = async () => {
+  setStatus("loading");
+
+  try {
+    const response = await verifyEmail(token);
+
+    if (!active) return;
+
+    if (!response?.success) {
+      throw new Error(
+        response?.message || "El enlace de verificacion expiro o no es valido."
+      );
+    }
+
+    setStatus("success");
+    setMessage(
+      response.message ||
+      "Correo verificado. Tu cuenta Aurea ya esta activa."
+    );
+  } catch (error) {
+    if (!active) return;
+
+    setStatus("error");
+    setMessage(
+      error.userMessage ||
+      error.message ||
+      "El enlace de verificacion expiro o no es valido."
+    );
+  }
+};
+
+run();
+
+return () => {
+  active = false;
+};
 
     run();
     return () => {
