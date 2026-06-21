@@ -13,7 +13,37 @@ using AuthService.Api.Infrastructure.RestaurantApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Env.Load();
+var configuredUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+var portValue = Environment.GetEnvironmentVariable("PORT");
+
+if (!string.IsNullOrWhiteSpace(configuredUrls))
+{
+    builder.WebHost.UseUrls(configuredUrls);
+}
+else if (!string.IsNullOrWhiteSpace(portValue) &&
+         int.TryParse(portValue, out var port) &&
+         port > 0)
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+else
+{
+    builder.WebHost.UseUrls("http://localhost:0");
+}
+
+var envFile = new[]
+{
+    ".env",
+    ".env.example"
+}
+.Select(candidate => Path.Combine(builder.Environment.ContentRootPath, candidate))
+.FirstOrDefault(File.Exists);
+
+if (envFile is not null)
+{
+    Env.Load(envFile);
+}
+
 // =========================
 // Servicios base
 // =========================
@@ -68,7 +98,7 @@ var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 if (string.IsNullOrWhiteSpace(jwtSecret))
 {
     throw new InvalidOperationException(
-        "JWT_SECRET no está configurado en el archivo .env");
+        "JWT_SECRET no está configurado. Crea un archivo .env a partir de .env.example y ajusta el valor.");
 }
 
 builder.Services

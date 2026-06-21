@@ -4,13 +4,13 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestorRestaurante.API", "src\GestorRestaurante.API\GestorRestaurante.API.csproj", "{B744185F-AD59-0BEF-89CC-466E9841D3FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Api", "src\AuthService.Api\AuthService.Api.csproj", "{B744185F-AD59-0BEF-89CC-466E9841D3FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestorRestaurante.Application", "src\GestorRestaurante.Application\GestorRestaurante.Application.csproj", "{0FCABFFA-64A6-52CC-64C2-D181DF216EFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Application", "src\AuthService.Application\AuthService.Application.csproj", "{0FCABFFA-64A6-52CC-64C2-D181DF216EFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestorRestaurante.Domain", "src\GestorRestaurante.Domain\GestorRestaurante.Domain.csproj", "{4EDF6BC6-E424-915D-6289-19CC6FBF45B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Domain", "src\AuthService.Domain\AuthService.Domain.csproj", "{4EDF6BC6-E424-915D-6289-19CC6FBF45B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestorRestaurante.Persistencia", "src\GestorRestaurante.Persistencia\GestorRestaurante.Persistencia.csproj", "{CD23FBF2-FE7A-FAA6-866F-B75BFA4C6637}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService.Persistence", "src\AuthService.Persistence\AuthService.Persistence.csproj", "{CD23FBF2-FE7A-FAA6-866F-B75BFA4C6637}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
